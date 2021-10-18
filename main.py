@@ -1,0 +1,35 @@
+# *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# *  TITLE        |  Attribute Program                        *
+# *  DATE         |  2021-10-15                               *
+# *  IDE          |  Visual Studio Code 1.61.0                *
+# *  OS           |  Windows 10                               *
+# *  AUTHOR       |  SO BYUNG JUN                             *
+# *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+
+# IMPORT CORE
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+from Core.CommonUse             import *
+
+# IMPORT RUNFUNCTION
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+from RunFunction.MakeClass          import MakeClassSource
+from RunFunction.SliceImgClass      import SliceImage
+from RunFunction.RandomExtractClass import RandomExtract
+
+# IMPORT UI
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+from UI.SelectUI.SelectUIClass  import *
+
+
+if __name__ == "__main__":
+    App = QApplication(sys.argv)
+
+    # SliceProgram = SliceImage(App)
+    # SliceProgram.run()
+
+    MakeClassProgram = MakeClassSource(App)
+    MakeClassProgram.run()
+
+    # RandomExtractProgram = RandomExtract(App)
+    # RandomExtractProgram.run()

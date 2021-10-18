@@ -1,0 +1,356 @@
+"""
+각 프로그램 시행 시 경로/조건 인자들을 선택하는 UI
+
+LAST_UPDATE : 2021/10/15
+AUTHOR      : SO BYUNG JUN
+"""
+
+
+# Import Packages and Modules
+# Standard Library
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+import sys
+import os
+
+
+# Add Import Path
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../Core'))
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../'))
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../'))
+
+
+# Refer to CoreDefine.py
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+from CoreDefine import *
+
+
+# IMPORT CORE
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+from Core.CommonUse     import *
+
+
+# Installed Library - QT CORE
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+from qt_core            import *
+
+
+# UI
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+from .ui_main            import Ui_MainWindow
+
+
+# CONST DEFINE
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+TYPE        = 0
+NAME        = 1
+ISDIR       = 2
+DEFAULT_VAL = 3
+
+LAST_APPEND = -1
+LABEL_INDEX = 0
+CB_INDEX    = 0
+LE_INDEX    = 1
+BT_INDEX    = 2
+
+
+# SelectUI Class
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+class SelectUI(QMainWindow):
+    def __init__(   self, 
+                    callBackInFunction=None,
+                    callBackOutFunction=None):
+        super().__init__()
+
+        # Load UI
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
+
+        # set CallBack
+        self.initSetting = callBackInFunction
+        self.doneSetting = callBackOutFunction
+
+        self.runProgramName     = ""
+        self.initSettingList    = []
+        self.settingNameList    = []
+        self.selectFDList       = []
+        self.selectCBList       = []
+        self.selectLEList       = []
+        self.returnDict         = {}
+
+        self.initSettingFDList  = []
+        self.initSettingCBList  = []
+        self.initSettingLEList  = []
+
+        # 'Done' 버튼 눌렀을 때, 마무리 처리하는 함수 연결
+        self.ui.quitButton.clicked.connect(self.selectDone)
+
+        # 인자로 전달 받은 CallbackIn 함수 실행
+        self.runProgramName, self.initSettingList = self.initSetting()
+        self.setSettingNameList()
+        self.settingBytInitSettingList()
+
+        self.settingFinish()
+
+
+    def selectDone(self):
+        # 리턴값 전송 - 인자로 전달 받은 CallbackOut 함수 실행
+        self.setReturnDict()
+        self.doneSetting()
+
+        # 값 전송 끝내고 UI 끄기
+        QCoreApplication.instance().quit()
+
+
+    # CallbackOut 실행 전 보낼 인자들 setting
+    def setReturnDict(self):
+        # init 할 때 받았던 리스트들을 순회하면서 returnDict 차곡차곡 집어넣기
+        for eachArg in self.initSettingList:
+            # FileDialog 속성 : 경로 반환
+            if eachArg[TYPE] == 'FD':
+                self.returnDict[eachArg[NAME]] = os.path.normpath(self.get_LE_text_by_Name_FD(eachArg[NAME]))
+            # CheckBox 속성 : Boolean 반환
+            elif eachArg[TYPE] == 'CB':
+                self.returnDict[eachArg[NAME]] = self.get_CheckValid_by_Name(eachArg[NAME])
+            # LE 속성 : str 반환
+            elif eachArg[TYPE] == 'LE':
+                self.returnDict[eachArg[NAME]] = str(self.get_LE_text_by_Name_LE(eachArg[NAME]))
+
+
+    def getReturnDict(self):
+        return self.returnDict
+
+
+    # 인자로 받은 세팅값의 이름들만 따로 저장
+    def setSettingNameList(self):
+        for each in self.initSettingList:
+            self.settingNameList.append(each[NAME])
+
+
+    # 생성할 때 받은 initSettingList 값들을, type 에 따라 나눠서 저장 및 UI 출력 리스트에 추가하기
+    def settingBytInitSettingList(self):
+        for eachSetArg in self.initSettingList:
+            if eachSetArg[TYPE] == 'FD':
+                self.appendNewFD(eachSetArg)
+                self.initSettingFDList.append(eachSetArg)
+
+            elif eachSetArg[TYPE] == 'CB':
+                self.appendNewCB(eachSetArg)
+                self.initSettingCBList.append(eachSetArg)
+
+            elif eachSetArg[TYPE] == 'LE':
+                self.appendNewLE(eachSetArg)
+                self.initSettingLEList.append(eachSetArg)
+
+
+    def appendNewLE(self, SetArg):
+        self.selectLEList.append([QLabel(self) ,QLineEdit(self)])
+
+        # LABEL SETTING
+        self.selectLEList[LAST_APPEND][LABEL_INDEX].setText(f'{SetArg[NAME]}')
+
+        # LineEdit Setting
+        self.selectLEList[LAST_APPEND][LE_INDEX].setText(f'{SetArg[DEFAULT_VAL]}')
+        self.selectLEList[LAST_APPEND][LE_INDEX].setObjectName(f'LE_{SetArg[NAME]}')
+
+
+    # True/False Define 값들을 CheckBox 항목에 추가하기
+    def appendNewCB(self, SetArg):
+        self.selectCBList.append([QCheckBox(self)])
+
+        # CheckBox Setting
+        self.selectCBList[LAST_APPEND][LABEL_INDEX].setText(f'{SetArg[NAME]}')
+
+        # 만약 넘겨받은 기본값이 True 였다면 UI 띄울 때 미리 체크해두기 (기본적으로는 체크 해제 되어있음)
+        if SetArg[DEFAULT_VAL] == 'True':
+            self.selectCBList[LAST_APPEND][LABEL_INDEX].toggle()
+
+
+    # 주소값 Define 값들을 Label/LineEdit/PushButton 포맷으로 추가하기
+    def appendNewFD(self, SetArg):
+        self.selectFDList.append([QLabel(self) ,QLineEdit(self), QPushButton(self)])
+
+        # LABEL SETTING
+        self.selectFDList[LAST_APPEND][LABEL_INDEX].setText(f'{SetArg[NAME]}')
+
+        # LineEdit Setting
+        self.selectFDList[LAST_APPEND][LE_INDEX].setText(f'{SetArg[DEFAULT_VAL]}')
+        self.selectFDList[LAST_APPEND][LE_INDEX].setObjectName(f'LE_{SetArg[NAME]}')
+        # 만약 폴더 경로면 LineEdit 에서 수정 불가 / 파일 경로면 직접 수정 가능
+        if SetArg[ISDIR] == 'True':
+            self.selectFDList[LAST_APPEND][LE_INDEX].setReadOnly(True)
+
+        # PushButton Setting
+        self.selectFDList[LAST_APPEND][BT_INDEX].setText(f'EDIT')
+        self.selectFDList[LAST_APPEND][BT_INDEX].setObjectName(f'BT_{SetArg[NAME]}')
+        self.selectFDList[LAST_APPEND][BT_INDEX].clicked.connect(self.btn_clicked)
+
+
+    # Setup Custom BTNs of Custom Widgets
+    # Get sender() function when btn is clicked
+    def setup_BTNs(self):
+        for eachArg in self.selectFDList:
+            if eachArg[BT_INDEX].sender() != None:
+                return eachArg[BT_INDEX].sender()
+
+
+    # 버튼 클릭할 때 연결되는 총괄 함수
+    def btn_clicked(self):
+        btn         = self.setup_BTNs()
+        ButtonName  = btn.objectName()           # Ex) Res = BT_AbbreviatedImgPath
+        ButtonName  = ButtonName.split('_')[1]   # Ex) Res = AbbreviatedImgPath
+
+        prePath     = self.get_LE_text_by_Name_FD(ButtonName)
+        isDir       = self.get_isDir_by_Name(ButtonName)
+
+        # 주어진 Define 이 폴더 관련
+        if isDir is True:
+            targetDir = QFileDialog.getExistingDirectory(self, 'Select Path', 'C:/')
+        # 주어진 Define 이 파일 관련 
+        else:
+            targetDir = QFileDialog.getOpenFileName(self, 'Select File', 'C:/')[0]
+
+        # 체크 안하고 나가면 이전 경로로 다시 써주기
+        if len(targetDir) == 0:
+            targetDir = prePath
+
+        # 선택한 값 LineEdit 에다가도 update
+        self.set_LE_text_by_Name(ButtonName, targetDir)
+
+
+    def get_isDir_by_Name(self, Name):
+        for eachArg in self.initSettingFDList:
+            if eachArg[NAME] == Name:
+                return eachArg[ISDIR]
+
+
+    # Ex) AbbreviatedImgPath 인자를 입력하면, 해당 인자의 현재 LineEdit 표시값을 반환
+    def get_LE_text_by_Name_FD(self, Name):
+        for idx, eachArg in enumerate(self.initSettingFDList):
+                if eachArg[NAME] == Name:
+                    return self.selectFDList[idx][LE_INDEX].text()
+        return None
+
+
+    def get_LE_text_by_Name_LE(self, Name):
+        for idx, eachArg in enumerate(self.initSettingLEList):
+                if eachArg[NAME] == Name:
+                    return self.selectLEList[idx][LE_INDEX].text()
+        return None
+
+
+    def set_LE_text_by_Name(self, Name, Text):
+        for idx, eachArg in enumerate(self.initSettingFDList):
+                if eachArg[NAME] == Name:
+                    return self.selectFDList[idx][LE_INDEX].setText(Text)
+
+
+    # Ex) MAKE_39_CLASS 인자를 입력하면, 해당 인자의 현재 True/False 체크값을 반환
+    def get_CheckValid_by_Name(self, Name):
+        for idx, eachArg in enumerate(self.initSettingCBList):
+                if eachArg[NAME] == Name:
+                    return self.selectCBList[idx][CB_INDEX].isChecked()
+
+
+    # appendNewCB / appendNewFD 했던 값들 실제로 UI 에 모두 띄우는 함수
+    def settingFinish(self):
+        self.setWindowTitle(f'{TITLE}')
+
+        # 제목
+        TitleLabel = QLabel()
+        TitleLabel.setText(f'[ {self.runProgramName} ]')
+        
+        font = QFont()
+        font.setPointSize(15)
+        font.setBold(True)
+        TitleLabel.setFont(font)
+
+        self.ui.mainLayout.addWidget(TitleLabel, 1)
+
+        FD_GroupBox = QGroupBox('Select File/Directory Path')
+        FD_Vbox     = QVBoxLayout()
+
+        # 각 경로 선택하기 옵션들 한 줄씩 UI 집어넣기
+        for eachFD in self.selectFDList:
+            add_H_Layout = QHBoxLayout()
+
+            add_H_Layout.addStretch(1)
+            add_H_Layout.addWidget(eachFD[LABEL_INDEX], 4)
+            add_H_Layout.addWidget(eachFD[LE_INDEX], 10)
+            add_H_Layout.addWidget(eachFD[BT_INDEX], 2)
+            add_H_Layout.addStretch(1)
+
+            # self.ui.mainLayout.addLayout(add_H_Layout, 2)
+            FD_Vbox.addLayout(add_H_Layout)
+        FD_GroupBox.setLayout(FD_Vbox)
+        self.ui.mainLayout.addWidget(FD_GroupBox)
+
+        CB_GroupBox = QGroupBox('Select Option')
+        CB_Vbox     = [QVBoxLayout()]
+
+        if len(self.selectCBList) > 4:
+            CB_Vbox.append(QVBoxLayout())
+
+        EACH_LINE_MAX_OPT_NUM   = 4
+        EmptyIdx                = 0
+        LAST_BOX                = -1
+        
+        # 각 True/False 선택하기 옵션들 한 줄씩 UI 집어넣기
+        for idx, eachCB in enumerate(self.selectCBList):
+            VBoxIdx      = idx // EACH_LINE_MAX_OPT_NUM
+            EmptyIdx     = EACH_LINE_MAX_OPT_NUM - ( idx % EACH_LINE_MAX_OPT_NUM )
+            add_H_Layout = QHBoxLayout()
+
+            add_H_Layout.addStretch(1)
+            add_H_Layout.addWidget(eachCB[CB_INDEX], 20)
+            add_H_Layout.addStretch(1)
+
+            # self.ui.mainLayout.addLayout(add_H_Layout, 2)
+            CB_Vbox[VBoxIdx].addLayout(add_H_Layout)
+
+        for _ in range(EmptyIdx):
+            EmptyLabel  = QLabel()
+            EmptyBox    = QHBoxLayout()
+            EmptyBox.addWidget(EmptyLabel)
+            CB_Vbox[LAST_BOX].addLayout(EmptyBox)
+
+        CB_HBox = QHBoxLayout()
+        for eachBox in CB_Vbox:
+            CB_HBox.addLayout(eachBox)
+
+
+        # LineEdit 으로 수정하는 애들 하나씩 집어넣기
+        LE_GroupBox = QGroupBox('ETC')
+        LE_Vbox     = QVBoxLayout()
+
+        for idx, eachLE in enumerate(self.selectLEList):
+            add_H_Layout = QHBoxLayout()
+
+            add_H_Layout.addStretch(1)
+            add_H_Layout.addWidget(eachLE[LABEL_INDEX], 4)
+            add_H_Layout.addWidget(eachLE[LE_INDEX], 2)
+            add_H_Layout.addStretch(1)   
+
+            LE_Vbox.addLayout(add_H_Layout)
+
+        # TEST
+        # TestLabel = QLabel()
+        # TestLabel.setText('TestOption')
+
+        # add_Test_H_Layout = QHBoxLayout()
+        # add_Test_H_Layout.addStretch(1)     
+        # add_Test_H_Layout.addWidget(TestLabel, 4)     
+        # add_Test_H_Layout.addWidget(QLineEdit(), 2)     
+        # add_Test_H_Layout.addStretch(1)
+        # LE_Vbox.addLayout(add_Test_H_Layout)
+        # ----
+
+        LE_GroupBox.setLayout(LE_Vbox)
+        CB_HBox.addWidget(LE_GroupBox)
+
+        CB_GroupBox.setLayout(CB_HBox)
+        self.ui.mainLayout.addWidget(CB_GroupBox)
+
+        # Done 버튼 집어넣기
+        self.ui.mainLayout.addWidget(self.ui.quitButton, 1)
+        

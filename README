@@ -1,0 +1,70 @@
+Automation program for Attribute operation
+******************************************
+
+
+Need to run
+===========
+
+* 이 코드를 실행하기 위해 추가로 설치해야 하는 패키지:
+    - PyQt6
+    - opencv-python
+    - numpy
+    - pandas
+    - openpyxl
+    - inspect
+
+* 실행 방법:
+    `main.py`가 있는 폴더로 들어가서, `python ./main.py`
+
+
+When to use the program
+=======================
+
+* 프로그램 기능:
+    1. CVAT XML 파일을 기반으로 원본 이미지를 COMMON / HEAD / UPPER / LOWER 로 Slice
+    2. CVAT XML 파일을 기반으로 83 / 66 / 39 MakeClass 한 Annotation Text / ImageList 파일 생성
+
+* 각 기능의 자세한 설명은 해당 RunFunction. 파일을 참조하세요.
+
+
+Tip to use
+==========
+
+* Where Define:
+    - 핵심이 되는 Define 값들은 CoreDefine.py 파일에 기록되어 있습니다.
+    - 각 RunFunction에서 필요한 개별적인 Define 값들은 각 코드에 기록되어 있습니다.
+
+* 폴더 구성:
+    - Core
+        프로그램을 실행할 때 범용적/핵심적으로 사용되는 Class와 함수들의 코드 디렉토리.
+
+    - OLD
+        이전에 사용했던 코드들, 아직 전체적으로 이식되지 않은 코드 디렉토리.
+    
+    - UI
+        UI에 사용되기 위한 코드 디렉토리.
+
+    - RunFunction
+        프로그램 내에서 특정한 목적을 가지고 실제로 구동되는 함수들의 모듈화 코드들.
+
+
+CAUTION & Information
+=====================
+
+!   CVAT XML 파일의 Element 들에 대한 정보 및 ClassMake 분류 기준이 담긴 classData.xlsx 파일을
+    임의로 옮기거나 잘못 수정할 경우 크으으은일 납니다.
+    만약 수정하려 한다면, Core.ExcelDataClass.py 를 잘 참조하세요.
+
+!   각 파일들에 적힌 CONST DEFINE 은 어지간하면 수정하지 마시기 바랍니다.
+
+-   해당 프로그램은 Windows 환경에서 작성되고 실행 테스트를 했습니다.
+    Linux 에서 실행했는데 실패했다면 저는 몰라용
+
+-   코드의 재사용성 및 범용성을 위해, 클래스화 및 추상클래스, 콜백함수 등을 사용했습니다.
+    뭔가 코드가 복잡하고 어려워 보인다면 가끔 저도 그렇습니다. 범용성 살리기 넘모 어려워요..
+
+
+MAIL
+====
+
+    so5063@naver.com
