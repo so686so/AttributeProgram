@@ -788,3 +788,4 @@ class MakeClassSource(CvatXml):
             cvatXmlList 클래스의 run() 함수를 그대로 물려받아 사용한다.
         """
         super().run()
+        os.startfile(ResultDirPath)

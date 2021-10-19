@@ -50,8 +50,8 @@ import pandas as pd
 # SOURCE & DEST PATH
 # 해당 OriginXmlDirPath 과 ResultDirPath 값을 변경하고 싶으면, CoreDefine.py 에서 변경하면 됨! ( 경로 변경 통합 )
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-AnnotationFile      = r"C:\PythonHN\AttributeProgram\OLD/Annotation_39_Class.txt"
-ImgListFile         = r"C:\PythonHN\AttributeProgram\OLD/39Class_ImgList.txt"
+AnnotationFile      = r"C:/PythonHN/Data/Result/Annotation_39_Class.txt"
+ImgListFile         = r"C:/PythonHN/Data/Result/39Class_ImgList.txt"
 ResultDirPath       = copy.copy(Result_Dir_Path)
 
 encodingFormat      = copy.copy(CORE_ENCODING_FORMAT)
@@ -90,6 +90,8 @@ class ExtractAnnotation:
 
         self.TotalObjectSumList     = []    # 원본 파일 각 개체별 유효값 총합
         self.ExtractObjectSumlist   = []    # 추출 파일 각 객체별 유효값 총합
+        self.Sp_TrainObjectSumList  = [] 
+        self.Sp_TestObjectSumList   = [] 
 
         self.AnnotationTxtList      = []    # 원본 어노테이션 파일 목록 한 줄씩 읽어 리스트에 저장
         self.AnnotationImgList      = []    # 원본 이미지 파일 목록 한 줄씩 읽어 리스트에 저장
@@ -301,65 +303,108 @@ class ExtractAnnotation:
         SuccessLog(f"Image File Read Done - {self.AnnotationImgPath}")
 
 
+    def checkSplitTrainObjectSum(self):
+        self.Sp_TrainObjectSumList = [0 for _ in range(self.ClassNum)]
+
+        for each in self.SplitTrainResTxtList:
+            for i in range(self.ClassNum):
+                self.Sp_TrainObjectSumList[i] += int(each[i])
+
+    
+    def checkSplitTestObjectSum(self):
+        self.Sp_TestObjectSumList = [0 for _ in range(self.ClassNum)]
+
+        for each in self.SplitTestResTxtList:
+            for i in range(self.ClassNum):
+                self.Sp_TestObjectSumList[i] += int(each[i])
+
+
     def showResult(self):
-        if (RUN_RANDOM_EXTRACT is True) and (RUN_SPLIT_TRAIN_TEST is False):
-            self.showResultOnlyRE()
+        DF_HeadString = "  ClassIdx  |  ClassName      |  TotalSum        "
+        RE_HeadString = ""
+        SP_HeadString = ""
 
-        elif (RUN_RANDOM_EXTRACT is False) and (RUN_SPLIT_TRAIN_TEST is True):
-            self.showResultOnlySP()
+        DF_Line = ""
+        RE_Line = ""
+        SP_Line = ""
 
-        elif (RUN_RANDOM_EXTRACT is True) and (RUN_SPLIT_TRAIN_TEST is True):
-            self.showResultBoth()
+        RE_EachPercent = 0
 
+        titleLine = '------------------------------------------------'
 
-    def showResultOnlyRE(self):
+        if RUN_RANDOM_EXTRACT is True:
+            RE_HeadString   = "|  ExtractSum      |  %        "
+            titleLine       += "------------------------------"
+
+        if RUN_SPLIT_TRAIN_TEST is True:
+            SP_HeadString   = "|  TrainSum        |  TestSum        "
+            titleLine       += "-------------------------------------"
+
+            # 출력하기 위한 각 Element 들의 합 계산
+            self.checkSplitTrainObjectSum()
+            self.checkSplitTestObjectSum()
+
+        HeadString = f'{DF_HeadString}{RE_HeadString}{SP_HeadString}'
+
         print()
-        print("-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*- Result -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-")
-        print("------------------------------------------------------------------------------")
-        print(" ClassIdx   |  ClassName     |  TotalSum        |  ExtractSum      |  %")
-        print("------------------------------------------------------------------------------")
-        for i in range(0, self.ClassNum):
-            idx = i+1
+        print(titleLine)
+        print(HeadString)
+        print(titleLine)
 
-            if self.TotalObjectSumList[i] != 0:
-                eachPercent = (self.ExtractObjectSumlist[i] / self.TotalObjectSumList[i]) * 100
-            else:
-                eachPercent = 0
+        for i in range(self.ClassNum):
+            if RUN_RANDOM_EXTRACT is True:
+                if self.TotalObjectSumList[i] != 0:
+                    RE_EachPercent = (self.ExtractObjectSumlist[i] / self.TotalObjectSumList[i]) * 100
+                else:
+                    RE_EachPercent = 0
+                RE_Line = f'|  {self.ExtractObjectSumlist[i]:<16}|  {round(RE_EachPercent, 2):>6}%  '
+            if RUN_SPLIT_TRAIN_TEST is True:
+                SP_Line = f'|  {self.Sp_TrainObjectSumList[i]:<16}|  {self.Sp_TestObjectSumList[i]:<16}'
 
-            print(f" {idx:<10}|  {self.classNameDict[i]:<15}|  {self.TotalObjectSumList[i]:<16}|  {self.ExtractObjectSumlist[i]:<16}|  {round(eachPercent, 2)}%")
-        print("------------------------------------------------------------------------------")
+            DF_Line = f'  {i:<10}|  {self.classNameDict[i]:<15}|  {self.TotalObjectSumList[i]:<16}'
+
+            print(f'{DF_Line}{RE_Line}{SP_Line}')
+        print(titleLine)
         print()
 
-        extractRealPercent = (len(self.ExtractRandomTxtList) / len(self.AnnotationTxtList)) * 100
-        print(f"* Condition\t\t: Extract {self.ExtractPercent}% ( eachSum >= {self.overCount} )")
-        print(f"* Total Try\t\t: {self.TryCount}")
-        print(f"* Origin File Count\t: {len(self.AnnotationTxtList)}")
-        print(f"* Extract File Count\t: {len(self.ExtractRandomTxtList)} ( {round(extractRealPercent,2)}% )")
+        showLog(f"* Total Try\t\t: {self.TryCount}")
+        showLog(f"* Origin File Count\t: {len(self.AnnotationTxtList)}")
+
+        if RUN_RANDOM_EXTRACT:
+            extractRealPercent = (len(self.ExtractRandomTxtList) / len(self.AnnotationTxtList)) * 100
+            showLog(f"* RE_Condition\t\t: Extract {self.ExtractPercent}% ( eachSum >= {self.overCount} )")
+            showLog(f"* Extract File Count\t: {len(self.ExtractRandomTxtList)} ( {round(extractRealPercent,2):>6}% )")
+        
+        if RUN_SPLIT_TRAIN_TEST:
+            showLog(f"* SP_Condition\t\t: Train {self.SplitPercent}% - Test {100-int(self.SplitPercent)}%")
         print()
-
-
-    def showResultOnlySP(self):
-        print("Hello World!")
-        pass
-
-
-    def showResultBoth(self):
-        pass
 
     
     def saveResultByExcel(self):
-        return True
         classNameList = []
         for i in range(self.ClassNum):
             classNameList.append(self.classNameDict[i])
 
         raw_data =  {   'ClassName':classNameList,
-                        'TotalSum':self.TotalObjectSumList,
-                        'ExtractSum':self.ExtractObjectSumlist
+                        'TotalSum':self.TotalObjectSumList
                     }
-        raw_data = pd.DataFrame(raw_data)
 
-        savePath = f'RandomExtract_Pcnt_{self.ExtractPercent}_OvCnt_{self.overCount}.xlsx'
+        if RUN_RANDOM_EXTRACT:
+            raw_data['ExtractSum'] = self.ExtractObjectSumlist
+
+        if RUN_SPLIT_TRAIN_TEST:
+            raw_data['TrainSetSum'] = self.Sp_TrainObjectSumList
+            raw_data['TestSetSum']  = self.Sp_TestObjectSumList
+
+        raw_data = pd.DataFrame(raw_data)
+        savePath = f'ExtractAnnotation.xlsx'
+
+        if RUN_SPLIT_TRAIN_TEST:
+            savePath = f'SP[{self.SplitPercent}Pcnt]_' + savePath
+        
+        if RUN_RANDOM_EXTRACT:
+            savePath = f'RE[{self.ExtractPercent}Pcnt_{self.overCount}OvCnt]_' + savePath
+
         savePath = os.path.join(self.ResultDirPath, savePath)
 
         raw_data.to_excel(excel_writer=savePath)
@@ -509,3 +554,5 @@ class ExtractAnnotation:
 
         self.showResult()
         self.saveResultByExcel()
+
+        os.startfile(self.ResultDirPath)

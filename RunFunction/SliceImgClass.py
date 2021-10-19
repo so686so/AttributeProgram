@@ -429,3 +429,4 @@ class SliceImage(CvatXml):
 
     def run(self):
         super().run()
+        os.startfile(ResultDirPath)
