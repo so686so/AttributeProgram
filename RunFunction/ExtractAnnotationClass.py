@@ -6,7 +6,7 @@ Set the source file path to extract,
 After setting the file name to save the result value,
 Adjust the extraction manipulation parameters.
 
-LAST UPDATE DATE : 21/10/11
+LAST UPDATE DATE : 21/10/19
 MADE BY SHY
 """
 
@@ -15,6 +15,7 @@ MADE BY SHY
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 from random import randint
 import os
+import random
 import sys
 import copy
 
@@ -59,22 +60,33 @@ validImgFormat      = copy.copy(VALID_IMG_FORMAT)
 
 # 결과값 저장 파일 이름
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-SaveAnnotationFileName  = "Result_Annotation.txt"
-SaveImgFileName         = "Result_ImgList.txt"
+SaveAnnotationFileName  = "Annotation.txt"
+SaveImgFileName         = "ImgList.txt"
+
+RandomExtractPrefix     = "RandomExtract"
+SplitTrainPrefix        = "Split_Train"
+SplitTestPrefix         = "Split_Test"
+
+
+# Define
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+RUN_RANDOM_EXTRACT      = True
+RUN_SPLIT_TRAIN_TEST    = False
 
 
 # 추출 조작 변수값들
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 overCount       = 0     # 각 객체 유효값 합이 최소 overCount
 ExtractPercent  = 50    # 몇 %나 원본에서 추출할지
+SplitPercent    = 75    # 몇 대 몇으로 슬라이스 할지(백분위)
 
 
 # 파일 추출 클래스
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-class RandomExtract:
+class ExtractAnnotation:
     def __init__(self, QApp):
         self.app = QApp
-        self.ProgramName            = "RandomExtract"
+        self.ProgramName            = "ExtractAnnotation"
 
         self.TotalObjectSumList     = []    # 원본 파일 각 개체별 유효값 총합
         self.ExtractObjectSumlist   = []    # 추출 파일 각 객체별 유효값 총합
@@ -84,6 +96,12 @@ class RandomExtract:
 
         self.ExtractRandomTxtList   = []    # 원본이미지에서 랜덤으로 추출한 리스트
         self.ExtractRandomIdxList   = []    # 유효값으로 추출됐을 때 해당 인덱스들 기억하기 위한 리스트
+        self.ExtractRandomImgList   = []
+
+        self.SplitTrainResTxtList   = []
+        self.SplitTrainResImgList   = []
+        self.SplitTestResTxtList    = []
+        self.SplitTestResImgList    = []
 
         self.AnnotationTxtPath      = AnnotationFile
         self.AnnotationImgPath      = ImgListFile
@@ -91,6 +109,14 @@ class RandomExtract:
 
         self.overCount              = overCount
         self.ExtractPercent         = ExtractPercent
+        self.SplitPercent           = SplitPercent
+
+        self.SaveAnnotationFileName = SaveAnnotationFileName
+        self.SaveImgFileName        = SaveImgFileName
+
+        self.RandomExtractPrefix    = RandomExtractPrefix
+        self.SplitTrainPrefix       = SplitTrainPrefix
+        self.SplitTestPrefix        = SplitTestPrefix
 
         self.ClassNum = 0   # 클래스 갯수
         self.TryCount = 1   # 재시도 횟수
@@ -110,7 +136,10 @@ class RandomExtract:
         self.app.exec()
 
         self.extractTxtListByFile()
-        self.checkTotalObjectSum()
+        self.extractImgListByFile()
+
+        if self.checkTotalObjectSum() is False:
+            error_handling(f'checkTotalObjectSum() Faild', filename(), lineNum())
 
         self.countClassNum()
         self.classNameDict = self.classData.getClassNameDictByClassNum(self.ClassNum)
@@ -125,12 +154,21 @@ class RandomExtract:
             - ImgListFile         
             - ResultDirPath       
         """
-        self.sendArgsList = [   ['FD', 'AnnotationFile',    False,  f'{AnnotationFile}'],
-                                ['FD', 'ImgListFile',       False,  f'{ImgListFile}'],
-                                ['FD', 'ResultDirPath',     True,   f'{ResultDirPath}'],
+        self.sendArgsList = [   ['FD', 'AnnotationFile',            False,  f'{AnnotationFile}'],
+                                ['FD', 'ImgListFile',               False,  f'{ImgListFile}'],
+                                ['FD', 'ResultDirPath',             True,   f'{ResultDirPath}'],
 
-                                ['LE', 'overCount',         False,  f'{overCount}'],
-                                ['LE', 'ExtractPercent',    False,  f'{ExtractPercent}'],
+                                ['CB', 'RUN_RANDOM_EXTRACT',        False,  f'{RUN_RANDOM_EXTRACT}'],
+                                ['CB', 'RUN_SPLIT_TRAIN_TEST',      False,  f'{RUN_SPLIT_TRAIN_TEST}'],
+
+                                ['LE', 'overCount',                 False,  f'{overCount}'],
+                                ['LE', 'ExtractPercent',            False,  f'{ExtractPercent}'],
+                                ['LE', 'SplitPercent',              False,  f'{SplitPercent}'],
+                                ['LE', 'SaveAnnotationFileName',    False,  f'{SaveAnnotationFileName}'],
+                                ['LE', 'SaveImgFileName',           False,  f'{SaveImgFileName}'],
+                                ['LE', 'RandomExtractPrefix',       False,  f'{RandomExtractPrefix}'],
+                                ['LE', 'SplitTrainPrefix',          False,  f'{SplitTrainPrefix}'],
+                                ['LE', 'SplitTestPrefix',           False,  f'{SplitTestPrefix}'],
                             ]
         return self.ProgramName, self.sendArgsList
 
@@ -162,8 +200,15 @@ class RandomExtract:
         self.AnnotationImgPath  = ImgListFile
         self.ResultDirPath      = ResultDirPath
 
-        self.overCount          = int(overCount)
+        self.overCount          = int(overCount)    
         self.ExtractPercent     = int(ExtractPercent)
+        self.SplitPercent       = int(SplitPercent)
+
+        self.SaveAnnotationFileName = SaveAnnotationFileName
+        self.SaveImgFileName        = SaveImgFileName
+        self.RandomExtractPrefix    = RandomExtractPrefix
+        self.SplitTrainPrefix       = SplitTrainPrefix
+        self.SplitTestPrefix        = SplitTestPrefix
 
 
     def countClassNum(self):
@@ -257,6 +302,17 @@ class RandomExtract:
 
 
     def showResult(self):
+        if (RUN_RANDOM_EXTRACT is True) and (RUN_SPLIT_TRAIN_TEST is False):
+            self.showResultOnlyRE()
+
+        elif (RUN_RANDOM_EXTRACT is False) and (RUN_SPLIT_TRAIN_TEST is True):
+            self.showResultOnlySP()
+
+        elif (RUN_RANDOM_EXTRACT is True) and (RUN_SPLIT_TRAIN_TEST is True):
+            self.showResultBoth()
+
+
+    def showResultOnlyRE(self):
         print()
         print("-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*- Result -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-")
         print("------------------------------------------------------------------------------")
@@ -281,8 +337,17 @@ class RandomExtract:
         print(f"* Extract File Count\t: {len(self.ExtractRandomTxtList)} ( {round(extractRealPercent,2)}% )")
         print()
 
+
+    def showResultOnlySP(self):
+        pass
+
+
+    def showResultBoth(self):
+        pass
+
     
     def saveResultByExcel(self):
+        return True
         classNameList = []
         for i in range(self.ClassNum):
             classNameList.append(self.classNameDict[i])
@@ -299,9 +364,10 @@ class RandomExtract:
         raw_data.to_excel(excel_writer=savePath)
 
         SuccessLog(f'RandomExtract Summary Log Save to Excel File -> {savePath}')
-    
-    
-    def run(self):
+
+
+    def RunRandomExtract(self):
+        # 유효한 추출값(각 Element 합이 OverCount 이상일 때) 뽑을 때까지 반복하는 While 문
         while True:
             print()
             showLog(f"[{self.TryCount} Try] Select Correct List : Each ObjectSum over {overCount} [ Total File Count : {len(self.AnnotationTxtList)} ]")
@@ -318,31 +384,127 @@ class RandomExtract:
                     self.ExtractRandomTxtList.append(eachTxt)
                     self.ExtractRandomIdxList.append(Idx)
 
-            print("\t> Extract Done. Check...")
+            showLog("\t> Extract Done. Check...")
             if self.checkExtractObjectSum() is True:
-                print("\t> Extract Success!\n")
+                showLog("\t> Extract Success!\n")
                 break
 
             self.TryCount += 1
 
-        TextSavePath = os.path.join(self.ResultDirPath, SaveAnnotationFileName)
+        for eachIdx in self.ExtractRandomIdxList:
+            self.ExtractRandomImgList.append(self.AnnotationImgList[eachIdx])
 
-        print(f"[ Save Annotation Txt File : {TextSavePath}...", end='\t')
-        with open(TextSavePath, 'w') as f:
+
+    def SaveRandomExtract(self):
+        SaveAnnoResFileName = f'{self.RandomExtractPrefix}_[{self.ExtractPercent}]Pcnt_[{self.overCount}]OverCnt_{self.SaveAnnotationFileName}'
+        TextSavePath        = os.path.join(self.ResultDirPath, SaveAnnoResFileName)
+
+        print(f"- Save RandomExtract Annotation Txt File : {TextSavePath}...", end='\t')
+        with open(TextSavePath, 'w', encoding=encodingFormat) as f:
             for line in self.ExtractRandomTxtList:
                 f.write(f"{line}\n")
         print("Done")
 
-        self.extractImgListByFile()
+        SaveImgResFileName  = f'{self.RandomExtractPrefix}_[{self.ExtractPercent}]Pcnt_[{self.overCount}]OverCnt_{self.SaveImgFileName}'
+        ImageSavePath = os.path.join(self.ResultDirPath, SaveImgResFileName)
 
-        ImageSavePath = os.path.join(self.ResultDirPath, SaveImgFileName)
-
-        print(f"[ Save Annotation Img File : {ImageSavePath}...", end='\t')
-        with open(ImageSavePath, 'w') as f:
-            # ExtractRandomIdxList 에 append 된 Idx 만 AnnotationImgList 에서 추출해 기록 : 동일한 인덱스로 어노테이션과 이미지가 저장
-            for eachIdx in self.ExtractRandomIdxList:
-                f.write(f"{self.AnnotationImgList[eachIdx]}\n")
+        print(f"- Save RandomExtract Annotation Img File : {ImageSavePath}...", end='\t')
+        with open(ImageSavePath, 'w', encoding=encodingFormat) as f:
+            for line in self.ExtractRandomImgList:
+                f.write(f"{line}\n")
         print("Done")
+
+
+    def SaveSplitExtract(self):
+        SaveTrainAnnoFileName   = f'{self.SplitTrainPrefix}_[{self.SplitPercent}]Pcnt_{self.SaveAnnotationFileName}'
+        SaveTestAnnoFileName    = f'{self.SplitTestPrefix}_[{100 - int(self.SplitPercent)}]Pcnt_{self.SaveAnnotationFileName}'
+
+        TrainAnnoSavePath       = os.path.join(self.ResultDirPath, SaveTrainAnnoFileName)
+        TestAnnoSavePath        = os.path.join(self.ResultDirPath, SaveTestAnnoFileName)
+
+        print(f"- Save Split Annotation Txt File : {SaveTrainAnnoFileName} / {SaveTestAnnoFileName}...", end='\t')
+        with open(TrainAnnoSavePath, 'w', encoding=encodingFormat) as f:
+            for line in self.SplitTrainResTxtList:
+                f.write(f"{line}\n")
+        with open(TestAnnoSavePath, 'w', encoding=encodingFormat) as f:
+            for line in self.SplitTestResTxtList:
+                f.write(f"{line}\n")
+        print("Done")
+
+        SaveTrainImgFileName    = f'{self.SplitTrainPrefix}_[{self.SplitPercent}]Pcnt_{self.SaveImgFileName}'
+        SaveTestImgFileName     = f'{self.SplitTestPrefix}_[{100 - int(self.SplitPercent)}]Pcnt_{self.SaveImgFileName}'
+
+        TrainImgSavePath       = os.path.join(self.ResultDirPath, SaveTrainImgFileName)
+        TestImgSavePath        = os.path.join(self.ResultDirPath, SaveTestImgFileName)
+
+        print(f"- Save Split Annotation Img File : {SaveTrainImgFileName} / {SaveTestImgFileName}...", end='\t')
+        with open(TrainImgSavePath, 'w', encoding=encodingFormat) as f:
+            for line in self.SplitTrainResImgList:
+                f.write(f"{line}\n")
+        with open(TestImgSavePath, 'w', encoding=encodingFormat) as f:
+            for line in self.SplitTestResImgList:
+                f.write(f"{line}\n")
+        print("Done")        
+
+
+    def RunSplitAnnotation(self):
+        TotalAnnotationCount    = 0
+        BaseAnnotationList      = []
+        BaseImgList             = []
+
+        ANNOTATION_IDX  = 0
+        IMAGELIST_IDX   = 1
+
+        if RUN_RANDOM_EXTRACT is True:
+            TotalAnnotationCount    = len(self.ExtractRandomTxtList)
+            BaseAnnotationList      = self.ExtractRandomTxtList[:]
+            BaseImgList             = self.ExtractRandomImgList[:]
+        else:
+            TotalAnnotationCount    = len(self.AnnotationTxtList)
+            BaseAnnotationList      = self.AnnotationTxtList[:]
+            BaseImgList             = self.AnnotationImgList[:]
+
+        TextPairImgDict = {}
+
+        for idx in range(TotalAnnotationCount):
+            TextPairImgDict[idx] = [BaseAnnotationList[idx], BaseImgList[idx]]
+
+        TotalIdxList = [ i for i in range(TotalAnnotationCount) ]
+        SplitTrainAmount = int( (TotalAnnotationCount * self.SplitPercent) / 100 )
+        SplitTrainIdxList   = random.sample(TotalIdxList, SplitTrainAmount)
+        SplitTestIdxList    = list(filter(lambda v: v not in SplitTrainIdxList, TotalIdxList))
+
+        showLog('\nSplit Train - Test Set Done')
+        showLog('------------------------------------------------------')
+        showLog(f'- TotalCount : {TotalAnnotationCount}')
+        showLog(f'- TrainCount : {len(SplitTrainIdxList)}')
+        showLog(f'- TestCount  : {len(SplitTestIdxList)}\n')
+
+        for eachIdx in SplitTrainIdxList:
+            self.SplitTrainResTxtList.append(TextPairImgDict[eachIdx][ANNOTATION_IDX])
+            self.SplitTrainResImgList.append(TextPairImgDict[eachIdx][IMAGELIST_IDX])
+
+        for eachIdx in SplitTestIdxList:
+            self.SplitTestResTxtList.append(TextPairImgDict[eachIdx][ANNOTATION_IDX])
+            self.SplitTestResImgList.append(TextPairImgDict[eachIdx][IMAGELIST_IDX])
+
+    
+    def saveResult(self):
+        if RUN_RANDOM_EXTRACT is True:
+            self.SaveRandomExtract()
+
+        if RUN_SPLIT_TRAIN_TEST is True:
+            self.SaveSplitExtract()
+    
+
+    def run(self):
+        if RUN_RANDOM_EXTRACT is True:
+            self.RunRandomExtract()
+
+        if RUN_SPLIT_TRAIN_TEST is True:
+            self.RunSplitAnnotation()
+
+        self.saveResult()
 
         self.showResult()
         self.saveResultByExcel()

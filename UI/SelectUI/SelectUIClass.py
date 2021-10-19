@@ -385,7 +385,7 @@ class SelectUI(QMainWindow):
 
             add_H_Layout.addStretch(1)
             add_H_Layout.addWidget(eachLE[LABEL_INDEX], 4)
-            add_H_Layout.addWidget(eachLE[LE_INDEX], 2)
+            add_H_Layout.addWidget(eachLE[LE_INDEX], 3)
             add_H_Layout.addStretch(1)   
 
             LE_Vbox.addLayout(add_H_Layout)

@@ -36,3 +36,5 @@
 [1.0.4] 2021-10-19
 ==================
     - (ADD) Git 연동
+    - (FIX) 저장 파일 이름들을 각자의 RunFunction에서 상단 Define값으로 변경
+    - (ADD) RandomExtractClass 를 ExtractAnnotation 으로 변경 및 Split 기능 추가

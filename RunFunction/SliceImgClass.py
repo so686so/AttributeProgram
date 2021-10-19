@@ -83,6 +83,14 @@ encodingFormat      = copy.copy(CORE_ENCODING_FORMAT)
 validImgFormat      = copy.copy(VALID_IMG_FORMAT)
 
 
+# FILE & DIR NAME
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+COMMON_PATH_NAME    = "common_images"
+HEAD_PATH_NAME      = "head_images"
+UPPER_PATH_NAME     = "upper_images"
+LOWER_PATH_NAME     = "lower_images"
+
+
 # Local Function
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 def imread(fileName, flags=cv2.IMREAD_COLOR, dtype=np.uint8):
@@ -235,13 +243,13 @@ class SliceImage(CvatXml):
             return img_path
 
         if USE_COMMON is True:
-            _savePath[COMMON_PATH]  = makeDirs("common_images")
+            _savePath[COMMON_PATH]  = makeDirs(COMMON_PATH_NAME)
         if USE_HEAD is True:
-            _savePath[HEAD_PATH]    = makeDirs("head_images")
+            _savePath[HEAD_PATH]    = makeDirs(HEAD_PATH_NAME)
         if USE_UPPER is True:
-            _savePath[UPPER_PATH]   = makeDirs("upper_images")
+            _savePath[UPPER_PATH]   = makeDirs(UPPER_PATH_NAME)
         if USE_LOWER is True:
-            _savePath[LOWER_PATH]   = makeDirs("lower_images")
+            _savePath[LOWER_PATH]   = makeDirs(LOWER_PATH_NAME)
 
         print()
         return _savePath

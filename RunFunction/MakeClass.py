@@ -59,6 +59,18 @@ CrushedImgFilePath  = os.path.join(ResultDirPath, CrushedImgFileName)
 encodingFormat      = copy.copy(CORE_ENCODING_FORMAT)
 validImgFormat      = copy.copy(VALID_IMG_FORMAT)
 
+
+# FILE & DIR NAME
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+ANNOTATION_83_TXT   = "Annotation_83_Class.txt"
+ANNOTATION_66_TXT   = "Annotation_66_Class.txt"
+ANNOTATION_39_TXT   = "Annotation_39_Class.txt"
+IMAGE_LIST_83_TXT   = "83Class_ImgList.txt"
+IMAGE_LIST_66_TXT   = "66Class_ImgList.txt"
+IMAGE_LIST_39_TXT   = "39Class_ImgList.txt"
+CHECK_EXTRACT_TXT   = "CheckExtractList.txt"
+
+
 # DEFINE
 # True 체크한 값만 MakeClass 작동
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -673,25 +685,25 @@ class MakeClassSource(CvatXml):
             각각의 저장경로로 배분해 saveMakeClassFile() 로 저장하는 함수
         """
         if MAKE_83_CLASS is True:
-            self.saveMakeClassFile('Annotation_83_Class.txt', self.Result_83_ClassList)
+            self.saveMakeClassFile(ANNOTATION_83_TXT, self.Result_83_ClassList)
 
         if MAKE_66_CLASS is True:
-            self.saveMakeClassFile('Annotation_66_Class.txt', self.Result_66_ClassList)
+            self.saveMakeClassFile(ANNOTATION_66_TXT, self.Result_66_ClassList)
 
         if MAKE_39_CLASS is True:
-            self.saveMakeClassFile('Annotation_39_Class.txt', self.Result_39_ClassList)
+            self.saveMakeClassFile(ANNOTATION_39_TXT, self.Result_39_ClassList)
 
         if self.ResultImgNameList:
-            self.saveMakeClassFile('83Class_ImgList.txt', self.ResultImgNameList)
+            self.saveMakeClassFile(IMAGE_LIST_83_TXT, self.ResultImgNameList)
 
         if self.ResultDeleteUnknown_66_List:
-            self.saveMakeClassFile('66Class_ImgList.txt', self.ResultDeleteUnknown_66_List)
+            self.saveMakeClassFile(IMAGE_LIST_66_TXT, self.ResultDeleteUnknown_66_List)
 
         if self.ResultDeleteUnknown_39_List:
-            self.saveMakeClassFile('39Class_ImgList.txt', self.ResultDeleteUnknown_39_List)
+            self.saveMakeClassFile(IMAGE_LIST_39_TXT, self.ResultDeleteUnknown_39_List)
 
         if self.CheckExtractLogList:
-            self.saveMakeClassFile('CheckExtractList.txt', self.CheckExtractLogList)
+            self.saveMakeClassFile(CHECK_EXTRACT_TXT, self.CheckExtractLogList)
 
 
     # ABS FUNC(가상 함수) 재정의 함수

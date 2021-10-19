@@ -14,9 +14,9 @@ from Core.CommonUse             import *
 
 # IMPORT RUNFUNCTION
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-from RunFunction.MakeClass          import MakeClassSource
-from RunFunction.SliceImgClass      import SliceImage
-from RunFunction.RandomExtractClass import RandomExtract
+from RunFunction.MakeClass              import MakeClassSource
+from RunFunction.SliceImgClass          import SliceImage
+from RunFunction.ExtractAnnotationClass import ExtractAnnotation
 
 
 # IMPORT UI
@@ -30,8 +30,8 @@ if __name__ == "__main__":
     # SliceProgram = SliceImage(App)
     # SliceProgram.run()
 
-    MakeClassProgram = MakeClassSource(App)
-    MakeClassProgram.run()
+    # MakeClassProgram = MakeClassSource(App)
+    # MakeClassProgram.run()
 
-    # RandomExtractProgram = RandomExtract(App)
-    # RandomExtractProgram.run()
+    RandomExtractProgram = ExtractAnnotation(App)
+    RandomExtractProgram.run()

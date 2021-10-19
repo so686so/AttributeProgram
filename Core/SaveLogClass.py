@@ -83,7 +83,7 @@ class SaveErrorLog():
             while True:
                 if os.path.isfile(save_path) is False:
                     break
-                EditPath    = f'ConditionCheckError_{tryCount}.xlsx'
+                EditPath    = f'{SAVE_LOG_EXCEL_PATH.split(".")[0]}_{tryCount}.xlsx'
                 tryCount    += 1
                 save_path   = os.path.join(self.ResDirPath, EditPath)
 
