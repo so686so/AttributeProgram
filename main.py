@@ -17,6 +17,7 @@ from Core.CommonUse             import *
 from RunFunction.MakeClass              import MakeClassSource
 from RunFunction.SliceImgClass          import SliceImage
 from RunFunction.ExtractAnnotationClass import ExtractAnnotation
+from RunFunction.JoinPathClass          import JoinPath
 
 
 # IMPORT UI
@@ -33,5 +34,8 @@ if __name__ == "__main__":
     # MakeClassProgram = MakeClassSource(App)
     # MakeClassProgram.run()
 
-    RandomExtractProgram = ExtractAnnotation(App)
-    RandomExtractProgram.run()
+    # RandomExtractProgram = ExtractAnnotation(App)
+    # RandomExtractProgram.run()
+
+    JoinPathProgram = JoinPath(App)
+    JoinPathProgram.run()

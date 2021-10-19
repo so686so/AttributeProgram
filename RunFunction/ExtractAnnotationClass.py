@@ -13,9 +13,8 @@ MADE BY SHY
 
 # IMPORT
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-from random import randint
+from random import randint, sample
 import os
-import random
 import sys
 import copy
 
@@ -517,7 +516,7 @@ class ExtractAnnotation:
 
         TotalIdxList = [ i for i in range(TotalAnnotationCount) ]
         SplitTrainAmount = int( (TotalAnnotationCount * self.SplitPercent) / 100 )
-        SplitTrainIdxList   = random.sample(TotalIdxList, SplitTrainAmount)
+        SplitTrainIdxList   = sample(TotalIdxList, SplitTrainAmount)
         SplitTestIdxList    = list(filter(lambda v: v not in SplitTrainIdxList, TotalIdxList))
 
         showLog('\nSplit Train - Test Set Done')
