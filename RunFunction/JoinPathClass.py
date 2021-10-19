@@ -86,7 +86,7 @@ class JoinPath:
 
         with open(savePath, 'w', encoding=encodingFormat) as f:
             for line in self.OriginImgList:
-                resLine = os.path.normpath(os.path.join(JoinDirPath, line))
+                resLine = os.path.join(JoinDirPath, line)
                 f.write(f'{resLine}\n')
 
         SuccessLog(f"JoinPath Result File Read Done - {savePath}")
