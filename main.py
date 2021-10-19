@@ -1,6 +1,7 @@
 # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 # *  TITLE        |  Attribute Program                        *
-# *  DATE         |  2021-10-15                               *
+# *  DATE         |  2021-10-19                               *
+# *  VERSION      |  1.0.4                                    *
 # *  IDE          |  Visual Studio Code 1.61.0                *
 # *  OS           |  Windows 10                               *
 # *  AUTHOR       |  SO BYUNG JUN                             *
@@ -16,6 +17,7 @@ from Core.CommonUse             import *
 from RunFunction.MakeClass          import MakeClassSource
 from RunFunction.SliceImgClass      import SliceImage
 from RunFunction.RandomExtractClass import RandomExtract
+
 
 # IMPORT UI
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*

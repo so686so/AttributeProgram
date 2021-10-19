@@ -160,6 +160,8 @@ class MakeClassSource(CvatXml):
         self.AbbreviatedImgDict = {}
         self.CheckRealExistDict = {}
 
+        self.CheckExtractLogList = []
+
         # UI 연동용 인자 리스트
         self.sendArgsList = []
 
@@ -495,11 +497,17 @@ class MakeClassSource(CvatXml):
         """
         BoxValue    = getArgsList[0]    # 현재 이미지의 BoxValue 들의 리스트
         ImgSizeList = getArgsList[1]    # 현재 이미지의 [너비, 높이] 리스트
+        ImgName     = getArgsList[2]
+        
+        # 너비 쓰려면 : int(ImgSizeList[WIDTH])
+        # 높이 쓰려면 : int(ImgSizeList[HEIGHT])
 
         # 여기에 추가 설정하고 싶은 조건 기입하면 됨!
         for box in BoxValue:
             for att in box.findall('attribute'):
                 if att.text == 'cap':
+                    # COND_PASS 일 때의 결과값들 txt로 기록하기 위해 list 에 추가
+                    self.CheckExtractLogList.append([f'{ImgName} {int(ImgSizeList[WIDTH])} {int(ImgSizeList[HEIGHT])}'])
                     return COND_PASS
 
         return COND_FAIL
@@ -524,7 +532,7 @@ class MakeClassSource(CvatXml):
 
 
     def getArgs_CheckExtract(self):
-        return [ self.getCurBoxList(), self.getCurImgSize() ]
+        return [ self.getCurBoxList(), self.getCurImgSize(), self.getCurImgName() ]
 
 
     def getArgs_CheckRealExist(self):
@@ -681,6 +689,9 @@ class MakeClassSource(CvatXml):
 
         if self.ResultDeleteUnknown_39_List:
             self.saveMakeClassFile('39Class_ImgList.txt', self.ResultDeleteUnknown_39_List)
+
+        if self.CheckExtractLogList:
+            self.saveMakeClassFile('CheckExtractList.txt', self.CheckExtractLogList)
 
 
     # ABS FUNC(가상 함수) 재정의 함수

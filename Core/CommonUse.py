@@ -379,6 +379,7 @@ def showProgramInfo():
     print('*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*')
     print(f'*  {"TITLE":13}|  {TITLE:<41}*')
     print(f'*  {"DATE":13}|  {DATE:<41}*')
+    print(f'*  {"VERSION":13}|  {VERSION:<41}*')
     print(f'*  {"IDE":13}|  {IDE:<41}*')
     print(f'*  {"OS":13}|  {OS:<41}*')
     print(f'*  {"AUTHOR":13}|  {AUTHOR:<41}*')

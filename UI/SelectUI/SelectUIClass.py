@@ -11,6 +11,7 @@ AUTHOR      : SO BYUNG JUN
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 import sys
 import os
+import copy
 
 
 # Add Import Path
@@ -54,6 +55,11 @@ LE_INDEX    = 1
 BT_INDEX    = 2
 
 
+# Remember Pre_Path
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+encodingFormat  = copy.copy(CORE_ENCODING_FORMAT)
+
+
 # SelectUI Class
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 class SelectUI(QMainWindow):
@@ -82,6 +88,10 @@ class SelectUI(QMainWindow):
         self.initSettingCBList  = []
         self.initSettingLEList  = []
 
+        self.PreRememberPath    = ""
+        self.loadRememberDir()
+
+
         # 'Done' 버튼 눌렀을 때, 마무리 처리하는 함수 연결
         self.ui.quitButton.clicked.connect(self.selectDone)
 
@@ -98,8 +108,53 @@ class SelectUI(QMainWindow):
         self.setReturnDict()
         self.doneSetting()
 
+        # 최종 경로값 저장
+        self.saveRememberDir()
+
         # 값 전송 끝내고 UI 끄기
         QCoreApplication.instance().quit()
+
+
+    def loadRememberDir(self):
+        LineSaveList = []
+        RememberLine = 0
+
+        with open('CoreDefine.py', 'r', encoding=encodingFormat) as rf:
+            for eachLine in rf:
+                eachLine = eachLine.strip('\n')
+                LineSaveList.append(eachLine)
+
+        for idx, eachLine in enumerate(LineSaveList):
+            SearchRememberLine = eachLine.find('Pre_Search_Remember_Path')
+            if SearchRememberLine >= 0:
+                RememberLine = idx
+
+        self.PreRememberPath = LineSaveList[RememberLine].split('= r"')[1][:-1]
+
+        if os.path.isdir(self.PreRememberPath) is False:
+            self.PreRememberPath = r"C:/"
+
+
+    def saveRememberDir(self):
+        LineSaveList = []
+        RememberLine = 0
+
+        with open('CoreDefine.py', 'r', encoding=encodingFormat) as rf:
+            for eachLine in rf:
+                eachLine = eachLine.strip('\n')
+                LineSaveList.append(eachLine)
+
+        for idx, eachLine in enumerate(LineSaveList):
+            SearchRememberLine = eachLine.find('Pre_Search_Remember_Path')
+            if SearchRememberLine >= 0:
+                RememberLine = idx
+
+        with open('CoreDefine.py', 'w', encoding=encodingFormat) as wf:
+            for idx, line in enumerate(LineSaveList):
+                if idx == RememberLine:
+                    wf.write(f'Pre_Search_Remember_Path    = r"{self.PreRememberPath}"\n')
+                else:
+                    wf.write(f'{line}\n')
 
 
     # CallbackOut 실행 전 보낼 인자들 setting
@@ -205,14 +260,16 @@ class SelectUI(QMainWindow):
 
         # 주어진 Define 이 폴더 관련
         if isDir is True:
-            targetDir = QFileDialog.getExistingDirectory(self, 'Select Path', 'C:/')
+            targetDir = QFileDialog.getExistingDirectory(self, 'Select Path', self.PreRememberPath)
         # 주어진 Define 이 파일 관련 
         else:
-            targetDir = QFileDialog.getOpenFileName(self, 'Select File', 'C:/')[0]
+            targetDir = QFileDialog.getOpenFileName(self, 'Select File', self.PreRememberPath)[0]
 
         # 체크 안하고 나가면 이전 경로로 다시 써주기
         if len(targetDir) == 0:
             targetDir = prePath
+
+        self.PreRememberPath = os.path.dirname(targetDir)
 
         # 선택한 값 LineEdit 에다가도 update
         self.set_LE_text_by_Name(ButtonName, targetDir)
