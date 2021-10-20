@@ -133,6 +133,9 @@ class CvatXml(metaclass=ABCMeta):
         self.checkPercentageNum = 0
         self.prePercentageCount = 0
 
+        self.TotalRunImgCount   = 0
+        self.SuccessImageCount  = 0
+
 
     def initCvatXmlClass(self):
         """
@@ -709,6 +712,8 @@ class CvatXml(metaclass=ABCMeta):
         # 종료 시간 체크
         TimeList.append(getCurTime())
 
+        self.setOperateImageCount(TotalRunImageCount, TotalSuccessCount)
+
         # 상속 받은 클래스에서 재정의 된 최종 실행 함수 - 후처리 함수들
         self.setFinishFunctionParam()
         self.FinishFunction()
@@ -744,3 +749,12 @@ class CvatXml(metaclass=ABCMeta):
         print("--------------------------------------------------------------------------------------")
         print(f"# [ {self.RunFunctionName} DONE ] -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*\n")
         showErrorList()
+
+
+    def setOperateImageCount(self, TotalRunCount, TotalSuccessCount):
+        self.TotalRunImgCount   = TotalRunCount
+        self.SuccessImageCount  = TotalSuccessCount
+
+    
+    def getOperateImageCount(self):
+        return self.TotalRunImgCount, self.SuccessImageCount

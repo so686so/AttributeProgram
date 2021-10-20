@@ -8,6 +8,7 @@ AUTHOR      : SO BYUNG JUN
 
 # IMPORT
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+import matplotlib
 import numpy as np
 import os
 import cv2
@@ -60,12 +61,18 @@ validImgFormat      = copy.copy(VALID_IMG_FORMAT)
 CHECK_IS_IMAGE_CRUSHED  = False
 CHECK_IMAGE_SIZE        = True
 SHOW_GRAPH              = False
+CONDITIONAL_EXTRACT     = False
 CHECK_SIZE_VALUE        = 23
 
 # FILE & DIR NAME
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 EXCEL_FILE_NAME     = "AnalysisAttribute.xlsx"
 
+
+# CONDITION EXTRACT STRING
+# 조건식 내 문자열은 항상 "" 로 작성
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+EXTRACT_CONDITION   = 'att.text == "0~7" or att.text == "8~13" or att.text == "14~19" or att.text == "70~"'
 
 # CONST DEFINE
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -82,6 +89,7 @@ MID_HIGH    = 1
 TOTAL       = 2
 
 ALL_SATISFIED = 2
+
 
 # Setting
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -138,6 +146,8 @@ class AnalysisAttribute(CvatXml):
         self.saveImgSizeDataFrame   = None
         self.saveCategoryDataFrame  = None
 
+        self.CheckExtractLogList = []
+
         self.initializeAN()
 
 
@@ -155,12 +165,15 @@ class AnalysisAttribute(CvatXml):
         self.initCvatXmlClass()
         self.setimgSizeAnalysisList()
 
-        # Get Origin Image Data as Dict - ImgFileName:RootPath
-        # 만약 getOriginImgDataDict 가 제대로 불러와지지 않는다면 바로 프로그램 종료
-        if self.getOriginImgDataDict() is False:
-            sys.exit(-1)
+        if CHECK_IS_IMAGE_CRUSHED is True:
+            ModeLog('CHECK_IS_IMAGE_CRUSHED ON')
+            # Get Origin Image Data as Dict - ImgFileName:RootPath
+            # 만약 getOriginImgDataDict 가 제대로 불러와지지 않는다면 바로 프로그램 종료
+            if self.getOriginImgDataDict() is False:
+                sys.exit(-1)
 
-        self.TotalImageCount = len(self.OriginImgDict)
+            self.TotalImageCount = len(self.OriginImgDict)
+
         self.classNameDict   = self.ClassData.getClassNameDictByClassNum(self.classNum)
 
         if self.classNameDict is None:
@@ -169,6 +182,10 @@ class AnalysisAttribute(CvatXml):
         self.categoryDict    = self.ClassData.getClassCategoryDict()
         self.categoryMaxCnt  = max(set(self.categoryDict.values()))
         self.ctgSumList      = [ 0 for _ in range(self.categoryMaxCnt) ]
+
+        if CONDITIONAL_EXTRACT is True:
+            ModeLog('CONDITIONAL_EXTRACT ON')
+            self.condClass.addCondition(['CheckExtract', self.CheckExtract, self.getArgs_CheckExtract])        
 
 
     def setimgSizeAnalysisList(self):
@@ -214,8 +231,10 @@ class AnalysisAttribute(CvatXml):
                                 ['CB', 'CHECK_IS_IMAGE_CRUSHED', False, f'{CHECK_IS_IMAGE_CRUSHED}'],
                                 ['CB', 'CHECK_IMAGE_SIZE', False, f'{CHECK_IMAGE_SIZE}'],
                                 ['CB', 'SHOW_GRAPH', False, f'{SHOW_GRAPH}'],
+                                ['CB', 'CONDITIONAL_EXTRACT', False, f'{CONDITIONAL_EXTRACT}'],
 
-                                ['LE',  'CHECK_SIZE_VALUE', False, f'{CHECK_SIZE_VALUE}']
+                                ['LE',  'CHECK_SIZE_VALUE', False, f'{CHECK_SIZE_VALUE}'],
+                                ['LE',  'EXTRACT_CONDITION', False, f'{EXTRACT_CONDITION}']
                             ]
         return self.getRunFunctionName(), self.sendArgsList
 
@@ -234,6 +253,51 @@ class AnalysisAttribute(CvatXml):
 
         self.setChanged_Xml_n_Res_Path(OriginXmlDirPath, ResultDirPath)
         self.checkSize = int(CHECK_SIZE_VALUE)
+
+    # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+
+
+    # Add CheckCond List
+    # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+
+    # ConditionName
+    # -------------------------------------------------------------------------------------
+    """
+    [ Add Condition Name ]
+        - CheckExtract
+    """
+
+    # ConditionFunctions
+    # -------------------------------------------------------------------------------------
+    # OHN
+    def CheckExtract(self, getArgsList):
+        """
+            ! Free Customize Function
+            추가적인 조건을 기입해 필터링 하는 ConditionCheck
+        """
+        BoxValue    = getArgsList[0]    # 현재 이미지의 BoxValue 들의 리스트
+        ImgSizeList = getArgsList[1]    # 현재 이미지의 [너비, 높이] 리스트
+        ImgName     = getArgsList[2]
+        
+        # 너비 쓰려면 : int(ImgSizeList[WIDTH])
+        # 높이 쓰려면 : int(ImgSizeList[HEIGHT])
+
+        # 여기에 추가 설정하고 싶은 조건 기입하면 됨!
+        for box in BoxValue:
+            for att in box.findall('attribute'):
+                if eval(EXTRACT_CONDITION):
+                #     # COND_PASS 일 때의 결과값들 txt로 기록하기 위해 list 에 추가
+                #     self.CheckExtractLogList.append([f'{ImgName} {int(ImgSizeList[WIDTH])} {int(ImgSizeList[HEIGHT])}'])
+                    return COND_PASS
+
+        return COND_FAIL
+
+
+    # getArgs_ConditionFunctions
+    # -------------------------------------------------------------------------------------
+    def getArgs_CheckExtract(self):
+        return [ self.getCurBoxList(), self.getCurImgSize(), self.getCurImgName() ]
+
 
     # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 
@@ -444,11 +508,75 @@ class AnalysisAttribute(CvatXml):
             else:
                 print("- Crushed Image Not Detected! :D")
 
+        self.AnalysysFail()
         self.AnalysisElementSum()
         self.AnalysysCategory()
         self.AnalysisImgSize()
 
         self.saveToExcel()
+
+
+    def showGraphAnalysisFailedList(self):
+        _, SuccessImageCount = self.getOperateImageCount()
+        FailDict = self.condClass.getTotalFailLog()
+
+        Labels = []
+        Frequency = []
+
+        Labels.append(f'Total Success [{SuccessImageCount}]')
+        Frequency.append(SuccessImageCount)
+
+        for key, value in FailDict.items():
+            Labels.append(f'{key.split("Check")[-1]} [{value}]')
+            Frequency.append(value)
+
+        ## 데이터 라벨, 빈도수, 색상을 빈도수를 기준으로 정렬해야한다.
+        labels_frequency = zip(Labels,Frequency) 
+        labels_frequency = sorted(labels_frequency,key=lambda x: x[1],reverse=True)
+        
+        sorted_labels = [x[0] for x in labels_frequency] ## 정렬된 라벨
+        sorted_frequency = [x[1] for x in labels_frequency] ## 정렬된 빈도수
+        
+        fig = plt.figure(figsize=(8,8)) ## 캔버스 생성
+        fig.set_facecolor('white') ## 캔버스 배경색을 하얀색으로 설정
+        ax = fig.add_subplot() ## 프레임 생성
+        
+        pie = ax.pie(sorted_frequency, ## 파이차트 출력
+            startangle=90, ## 시작점을 90도(degree)로 지정
+            counterclock=False, ## 시계방향으로 그려짐
+            )
+        
+        total = np.sum(Frequency) ## 빈도수 합
+        
+        threshold = 5
+        sum_pct = 0 ## 퍼센티지
+        count_less_5pct = 0 ## 5%보다 작은 라벨의 개수
+        spacing = 0.1
+        for i,l in enumerate(sorted_labels):
+            ang1, ang2 = ax.patches[i].theta1, ax.patches[i].theta2 ## 파이의 시작 각도와 끝 각도
+            center, r = ax.patches[i].center, ax.patches[i].r ## 파이의 중심 좌표
+            
+            ## 비율 상한선보다 작은 것들은 계단형태로 만든다.
+            if sorted_frequency[i]/total*100 < threshold:
+                x = (r/2+spacing*count_less_5pct)*np.cos(np.pi/180*((ang1+ang2)/2)) + center[0] ## 텍스트 x좌표
+                y = (r/2+spacing*count_less_5pct)*np.sin(np.pi/180*((ang1+ang2)/2)) + center[1] ## 텍스트 y좌표
+                count_less_5pct += 1
+            else:
+                x = (r/2)*np.cos(np.pi/180*((ang1+ang2)/2)) + center[0] ## 텍스트 x좌표
+                y = (r/2)*np.sin(np.pi/180*((ang1+ang2)/2)) + center[1] ## 텍스트 y좌표
+            
+            ## 퍼센티지 출력
+            sum_pct += float(f'{sorted_frequency[i]/total*100:.2f}')
+            ax.text(x,y,f'{sorted_frequency[i]/total*100:.2f}%',ha='center',va='center',fontsize=12)
+        
+        plt.legend(pie[0],sorted_labels) ## 범례
+        plt.title('Error Check Pie Chart')
+        plt.show()
+
+
+    def AnalysysFail(self):
+        if SHOW_GRAPH is True:
+            self.showGraphAnalysisFailedList()
 
 
     def AnalysisElementSum(self):
@@ -471,6 +599,46 @@ class AnalysisAttribute(CvatXml):
         self.saveCategoryDataFrame = pd.DataFrame(self.ctgSumList, index=[idxList, CategoryNameList], columns=['Sum'])
         print(self.saveCategoryDataFrame)
         print()
+
+        if SHOW_GRAPH is True:
+            self.showGraphByElementSum() 
+
+
+    def showGraphByElementSum(self):
+        SLICE_IDX = 45
+        classNameList   = []
+        for idx in range(self.classNum):
+            classNameList.append(self.classNameDict[idx])
+
+        x = classNameList
+        y = self.EachElementSumList
+
+        plt.subplot(211)
+        plt.title('COMMON - HEAD')
+        plt.bar(x[:SLICE_IDX], y[:SLICE_IDX])
+        for i, v in enumerate(x[:SLICE_IDX]):
+            plt.text(v, y[i], y[i],                 # 좌표 (x축 = v, y축 = y[0]..y[1], 표시 = y[0]..y[1])
+                    fontsize = 9, 
+                    color='blue',
+                    horizontalalignment='center',  # horizontalalignment (left, center, right)
+                    verticalalignment='bottom')    # verticalalignment (top, center, bottom)
+        plt.xticks(rotation=45, ha='right')
+
+        if CONDITIONAL_EXTRACT is True:
+            plt.text(0.01, max(y), EXTRACT_CONDITION, fontsize=12, color='red')
+
+        plt.subplot(212)
+        plt.title('UPPER - LOWER')
+        plt.bar(x[SLICE_IDX:], y[SLICE_IDX:])
+        for i, v in enumerate(x[SLICE_IDX:]):
+            plt.text(v, y[SLICE_IDX+i], y[SLICE_IDX+i],
+                    fontsize = 9, 
+                    color='blue',
+                    horizontalalignment='center',  
+                    verticalalignment='bottom')    
+        plt.xticks(rotation=45, ha='right')
+
+        plt.show()
 
 
     def AnalysisImgSize(self):

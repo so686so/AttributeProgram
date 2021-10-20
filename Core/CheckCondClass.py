@@ -290,4 +290,13 @@ class CheckCondition:
         for eachName in checkNameList:
             print(f"- Total {eachName:30} : {self.condFailCountDict[eachName][TOT_FAIL]}")
         print("--------------------------------------------------------------------------------------")
-             
+    
+
+    def getTotalFailLog(self):
+        checkNameList   = self.getCondNameList()
+        sendDict        = {}
+
+        for eachName in checkNameList:
+            sendDict[eachName] = self.condFailCountDict[eachName][TOT_FAIL]
+
+        return sendDict

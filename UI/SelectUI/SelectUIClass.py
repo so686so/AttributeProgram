@@ -375,7 +375,6 @@ class SelectUI(QMainWindow):
         for eachBox in CB_Vbox:
             CB_HBox.addLayout(eachBox)
 
-
         # LineEdit 으로 수정하는 애들 하나씩 집어넣기
         LE_GroupBox = QGroupBox('ETC')
         LE_Vbox     = QVBoxLayout()
@@ -385,7 +384,10 @@ class SelectUI(QMainWindow):
 
             add_H_Layout.addStretch(1)
             add_H_Layout.addWidget(eachLE[LABEL_INDEX], 4)
-            add_H_Layout.addWidget(eachLE[LE_INDEX], 3)
+            if eachLE[LABEL_INDEX].text() == "EXTRACT_CONDITION":
+                add_H_Layout.addWidget(eachLE[LE_INDEX], 8)
+            else:
+                add_H_Layout.addWidget(eachLE[LE_INDEX], 2)
             add_H_Layout.addStretch(1)   
 
             LE_Vbox.addLayout(add_H_Layout)

@@ -91,6 +91,12 @@ ORIGIN_IMG_FILES_ABBREVIATED = False
 CHECK_REAL_EXIST = True
 
 
+# CONDITION EXTRACT STRING
+# 조건식 내 문자열은 항상 "" 로 작성
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+EXTRACT_CONDITION   = 'att.text == "0~7" or att.text == "8~13" or att.text == "14~19" or att.text == "70~"'
+
+
 # MakeClassSource Class
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 class MakeClassSource(CvatXml):
@@ -294,7 +300,9 @@ class MakeClassSource(CvatXml):
                                 ['CB', 'MAKE_39_CLASS',                 False,  f'{MAKE_39_CLASS}'],
                                 ['CB', 'CONDITIONAL_EXTRACT',           False,  f'{CONDITIONAL_EXTRACT}'],
                                 ['CB', 'ORIGIN_IMG_FILES_ABBREVIATED',  False,  f'{ORIGIN_IMG_FILES_ABBREVIATED}'],
-                                ['CB', 'CHECK_REAL_EXIST',              False,  f'{CHECK_REAL_EXIST}']
+                                ['CB', 'CHECK_REAL_EXIST',              False,  f'{CHECK_REAL_EXIST}'],
+
+                                ['LE',  'EXTRACT_CONDITION', False, f'{EXTRACT_CONDITION}']
                             ]
         return self.getRunFunctionName(), self.sendArgsList
 
@@ -517,14 +525,15 @@ class MakeClassSource(CvatXml):
         # 여기에 추가 설정하고 싶은 조건 기입하면 됨!
         for box in BoxValue:
             for att in box.findall('attribute'):
-                if att.text == '0~7' or att.text == '8~13' or att.text == '14~19' or att.text == '70~' \
-                    or att.text == 'cap' or att.text == 'brimmed' or att.text == 'brimless' or att.text == 'helmat' or att.text == 'hood'\
-                    or att.get('name') == 'top_red' or att.get('name') == 'top_yellow' or att.get('name') == 'top_green' or att.get('name') == 'top_brown' or att.get('name') == 'top_pink' \
-                    or att.text == 'long_skirt' or att.text == 'short_skirt' or att.get('name') == 'bottom_red' or att.get('name') == 'bottom_yellow' or att.get('name') == 'bottom_green' \
-                    or att.get('name') == 'bottom_brown' or att.get('name') == 'bottom_pink' or att.get('name') == 'bottom_grey' or att.get('name') == 'bottom_white':
+                # if att.text == '0~7' or att.text == '8~13' or att.text == '14~19' or att.text == '70~' \
+                #     or att.text == 'cap' or att.text == 'brimmed' or att.text == 'brimless' or att.text == 'helmat' or att.text == 'hood'\
+                #     or att.get('name') == 'top_red' or att.get('name') == 'top_yellow' or att.get('name') == 'top_green' or att.get('name') == 'top_brown' or att.get('name') == 'top_pink' \
+                #     or att.text == 'long_skirt' or att.text == 'short_skirt' or att.get('name') == 'bottom_red' or att.get('name') == 'bottom_yellow' or att.get('name') == 'bottom_green' \
+                #     or att.get('name') == 'bottom_brown' or att.get('name') == 'bottom_pink' or att.get('name') == 'bottom_grey' or att.get('name') == 'bottom_white':
                 # if (int(ImgSizeList[WIDTH]) > 30 or int(ImgSizeList[HEIGHT]) > 90) and (att.text == '70~'):
                 #     # COND_PASS 일 때의 결과값들 txt로 기록하기 위해 list 에 추가
                 #     self.CheckExtractLogList.append([f'{ImgName} {int(ImgSizeList[WIDTH])} {int(ImgSizeList[HEIGHT])}'])
+                if eval(EXTRACT_CONDITION):
                     return COND_PASS
 
         return COND_FAIL
@@ -556,6 +565,14 @@ class MakeClassSource(CvatXml):
         return self.getCurImgName()
 
     # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+
+    def getBoxSize(self, box):
+        xTopLeft     = int(float(box.get("xtl")))
+        yTopLeft     = int(float(box.get("ytl")))
+        xBottomRight = int(float(box.get("xbr")))
+        yBottomRight = int(float(box.get("ybr")))
+
+        return [xBottomRight - xTopLeft, yBottomRight - yTopLeft]   
 
 
     def createAttListByBoxList(self):

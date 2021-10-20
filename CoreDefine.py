@@ -2,7 +2,7 @@
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 TITLE   = 'Attribute Program'
 DATE    = '2021-10-20'
-VERSION = '1.0.6'
+VERSION = '1.0.5'
 IDE     = 'Visual Studio Code 1.61.0'
 OS      = 'Windows 10'
 AUTHOR  = 'SO BYUNG JUN'

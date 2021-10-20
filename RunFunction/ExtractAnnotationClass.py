@@ -136,6 +136,14 @@ class ExtractAnnotation:
         self.selectUi.show()
         self.app.exec()
 
+        if os.path.isfile(self.SaveAnnotationFileName) is False:
+            ErrorLog(f'{self.SaveAnnotationFileName} is Not Exist! Program Quit.')
+            sys.exit(-1)
+
+        if os.path.isfile(self.SaveImgFileName) is False:
+            ErrorLog(f'{self.SaveImgFileName} is Not Exist! Program Quit.')
+            sys.exit(-1)
+
         self.extractTxtListByFile()
         self.extractImgListByFile()
 
