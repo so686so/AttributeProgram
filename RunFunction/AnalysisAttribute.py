@@ -614,7 +614,8 @@ class AnalysisAttribute(CvatXml):
         y = self.EachElementSumList
 
         plt.subplot(211)
-        plt.title('COMMON - HEAD')
+        if CONDITIONAL_EXTRACT is True:
+            plt.title(EXTRACT_CONDITION)
         plt.bar(x[:SLICE_IDX], y[:SLICE_IDX])
         for i, v in enumerate(x[:SLICE_IDX]):
             plt.text(v, y[i], y[i],                 # 좌표 (x축 = v, y축 = y[0]..y[1], 표시 = y[0]..y[1])
@@ -624,11 +625,7 @@ class AnalysisAttribute(CvatXml):
                     verticalalignment='bottom')    # verticalalignment (top, center, bottom)
         plt.xticks(rotation=45, ha='right')
 
-        if CONDITIONAL_EXTRACT is True:
-            plt.text(0.01, max(y), EXTRACT_CONDITION, fontsize=12, color='red')
-
         plt.subplot(212)
-        plt.title('UPPER - LOWER')
         plt.bar(x[SLICE_IDX:], y[SLICE_IDX:])
         for i, v in enumerate(x[SLICE_IDX:]):
             plt.text(v, y[SLICE_IDX+i], y[SLICE_IDX+i],
