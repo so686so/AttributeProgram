@@ -133,6 +133,7 @@ class ExcelData:
         self.df_ClassData = pd.read_excel(EXCEL_PATH, sheet_name='ClassData')
         self.df_MergeData = pd.read_excel(EXCEL_PATH, sheet_name='MergeData')
         self.df_NameData  = pd.read_excel(EXCEL_PATH, sheet_name='NameData')
+        self.df_CtgrData  = pd.read_excel(EXCEL_PATH, sheet_name='CategoryData')
 
         self.IdxDict    = {}
         self.mergeDict  = {}
@@ -147,12 +148,15 @@ class ExcelData:
 
         self.MakeClassDefaultData  = [ 0 for _ in range(DEFAULT_CLASS_NUM) ]
         self.defaultClassNameDict  = {}
+        self.categoryDict          = {} # ElementIdx - CategoryIdx
+        self.categoryNameDict      = {} # CategoryIdx - CategoryName
 
         self.checkDefaultClassNum()
 
         self.pretreatmentMergeData()
         self.pretreatmentClassData()    # 위 두 개 순서 바뀌면 안됨 : mergeList 초기화, 할당 순서
         self.pretreatmentNameData()
+        self.pretreatmentCategoryNameData()
 
         SuccessLog('ExcelData Create Done')
 
@@ -208,6 +212,14 @@ class ExcelData:
             self.class66NameDict[idx] = self.df_NameData.loc[idx]['class66']
             self.class39NameDict[idx] = self.df_NameData.loc[idx]['class39']
 
+    def pretreatmentCategoryNameData(self):
+        CategoryIdxNum = len(self.df_CtgrData)
+        for idx in range(CategoryIdxNum):
+            curCategoryIdx  = self.df_CtgrData.loc[idx]['categoryIdx']
+            curCategoryName = self.df_CtgrData.loc[idx]['categoryName']
+
+            self.categoryNameDict[curCategoryIdx] = curCategoryName
+
 
     def pretreatmentClassData(self):
         """
@@ -222,6 +234,7 @@ class ExcelData:
             curMergeIdx = self.df_ClassData.loc[idx]['mergedIdx']
             curIsDelete = self.df_ClassData.loc[idx]['isDeleted']
             curUnKnown  = self.df_ClassData.loc[idx]['unknownDeleted']
+            curCategory = self.df_ClassData.loc[idx]['category']
 
             # 나중에 Merge/Delete 시킬 추가 MakeClass 생기면 여기도 조절해 적어야함!
             """
@@ -255,6 +268,8 @@ class ExcelData:
 
             if curUnKnown > 0:
                 self.unknownList.append(idx)
+
+            self.categoryDict[idx] = curCategory
 
             # IMPORTANT! : {curAttName}/{curAttText} 형태로 idxDict key-value 저장
             # Ex) self.IdxDict['hat/hood'] = 28
@@ -454,6 +469,13 @@ class ExcelData:
                 {0:'man', 1:'woman', ... 24:'cap', ...}
         """
         return self.defaultClassNameDict
+
+
+    def getClassCategoryDict(self):
+        return self.categoryDict
+
+    def getCategoryNameDict(self):
+        return self.categoryNameDict
 
 
     def getClassNameDictByClassNum(self, classNum):

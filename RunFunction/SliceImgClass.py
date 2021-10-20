@@ -368,11 +368,6 @@ class SliceImage(CvatXml):
         """
             CvatXml 의 가상함수를 상속받아 재정의한 함수
             RunFunction 에 들어가기 전 사용할 Param 을 setting 하는 함수
-            ---------------------------------------------------------------------
-            Args    : None
-            Raises  : None
-            Returns : None
-            ---------------------------------------------------------------------
         """
         self.CurBoxList = self.getCurBoxList()
         self.CurImgName = self.getCurImgName()

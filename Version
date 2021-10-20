@@ -40,3 +40,8 @@
     - (ADD) RandomExtractClass 를 ExtractAnnotation 으로 변경 및 Split 기능 추가
     - (ADD) 경로 일괄 합성 코드 추가
     - (FIX) RunFunction 종료시 해당 결과 폴더 열게 수정
+
+
+[1.0.4] 2021-10-20
+==================
+    - (ADD) Attribute Data 분석을 위한 Analysis 코드 추가
