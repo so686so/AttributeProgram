@@ -8,7 +8,6 @@ AUTHOR      : SO BYUNG JUN
 
 # IMPORT
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-import matplotlib
 import numpy as np
 import os
 import cv2
@@ -17,7 +16,6 @@ import copy
 import pandas as pd
 
 import matplotlib.pyplot as plt
-
 
 
 # Add Import Path
@@ -64,6 +62,7 @@ SHOW_GRAPH              = False
 CONDITIONAL_EXTRACT     = False
 CHECK_SIZE_VALUE        = 23
 
+
 # FILE & DIR NAME
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 EXCEL_FILE_NAME     = "AnalysisAttribute.xlsx"
@@ -73,6 +72,7 @@ EXCEL_FILE_NAME     = "AnalysisAttribute.xlsx"
 # 조건식 내 문자열은 항상 "" 로 작성
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 EXTRACT_CONDITION   = 'att.text == "0~7" or att.text == "8~13" or att.text == "14~19" or att.text == "70~"'
+
 
 # CONST DEFINE
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -174,7 +174,7 @@ class AnalysisAttribute(CvatXml):
 
             self.TotalImageCount = len(self.OriginImgDict)
 
-        self.classNameDict   = self.ClassData.getClassNameDictByClassNum(self.classNum)
+        self.classNameDict = self.ClassData.getClassNameDictByClassNum(self.classNum)
 
         if self.classNameDict is None:
             error_handling('Load ClassName Failed', filename(), lineNum())
@@ -508,9 +508,9 @@ class AnalysisAttribute(CvatXml):
             else:
                 print("- Crushed Image Not Detected! :D")
 
-        self.AnalysysFail()
+        self.AnalysisFail()
         self.AnalysisElementSum()
-        self.AnalysysCategory()
+        self.AnalysisCategory()
         self.AnalysisImgSize()
 
         self.saveToExcel()
@@ -574,7 +574,7 @@ class AnalysisAttribute(CvatXml):
         plt.show()
 
 
-    def AnalysysFail(self):
+    def AnalysisFail(self):
         if SHOW_GRAPH is True:
             self.showGraphAnalysisFailedList()
 
@@ -589,7 +589,7 @@ class AnalysisAttribute(CvatXml):
         print(self.saveElementDataFrame)
         print()
 
-    def AnalysysCategory(self):
+    def AnalysisCategory(self):
         idxList         = [ i+1 for i in range(self.categoryMaxCnt)]
         CategoryNameDict = self.ClassData.getCategoryNameDict()
         CategoryNameList = []

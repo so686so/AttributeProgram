@@ -11,7 +11,7 @@ Classes :
         METHODS :
             - run()
 
-LAST_UPDATE : 21/10/15
+LAST_UPDATE : 21/10/20
 AUTHOR      : SO BYUNG JUN
 """
 
