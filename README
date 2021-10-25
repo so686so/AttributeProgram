@@ -12,6 +12,7 @@ Need to run
     - pandas
     - openpyxl
     - inspect
+    - matplotlib
 
 * 실행 방법:
     `main.py`가 있는 폴더로 들어가서, `python ./main.py`

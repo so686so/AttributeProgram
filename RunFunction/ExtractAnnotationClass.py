@@ -6,7 +6,7 @@ Set the source file path to extract,
 After setting the file name to save the result value,
 Adjust the extraction manipulation parameters.
 
-LAST UPDATE DATE : 21/10/19
+LAST UPDATE DATE : 21/10/25
 MADE BY SHY
 """
 
@@ -136,14 +136,6 @@ class ExtractAnnotation:
         self.selectUi.show()
         self.app.exec()
 
-        if os.path.isfile(self.SaveAnnotationFileName) is False:
-            ErrorLog(f'{self.SaveAnnotationFileName} is Not Exist! Program Quit.')
-            sys.exit(-1)
-
-        if os.path.isfile(self.SaveImgFileName) is False:
-            ErrorLog(f'{self.SaveImgFileName} is Not Exist! Program Quit.')
-            sys.exit(-1)
-
         self.extractTxtListByFile()
         self.extractImgListByFile()
 
@@ -259,9 +251,13 @@ class ExtractAnnotation:
         NoticeLog(f'Total Annotation Count - {len(self.AnnotationTxtList)}')
 
         # 각 클래스별 총합 계산
-        for each in self.AnnotationTxtList:
-            for i in range(self.ClassNum):
-                self.TotalObjectSumList[i] += int(each[i])
+        for idx, each in enumerate(self.AnnotationTxtList):
+            try:
+                for i in range(self.ClassNum):
+                    self.TotalObjectSumList[i] += int(each[i])
+            except Exception as e:
+                error_handling(f"{idx}Line Error - Contents : {each}", filename(), lineNum())
+                sys.exit(-1)
 
         return True
 

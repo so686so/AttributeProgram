@@ -29,8 +29,8 @@ from UI.SelectUI.SelectUIClass  import *
 if __name__ == "__main__":
     App = QApplication(sys.argv)
 
-    AnalysisProgram = AnalysisAttribute(App)
-    AnalysisProgram.run()
+    # AnalysisProgram = AnalysisAttribute(App)
+    # AnalysisProgram.run()
 
     # SliceProgram = SliceImage(App)
     # SliceProgram.run()
@@ -38,8 +38,8 @@ if __name__ == "__main__":
     # MakeClassProgram = MakeClassSource(App)
     # MakeClassProgram.run()
 
-    # RandomExtractProgram = ExtractAnnotation(App)
-    # RandomExtractProgram.run()
+    RandomExtractProgram = ExtractAnnotation(App)
+    RandomExtractProgram.run()
 
     # JoinPathProgram = JoinPath(App)
     # JoinPathProgram.run()
