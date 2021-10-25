@@ -677,7 +677,7 @@ class AnalysisAttribute(CvatXml):
             plt.axvline(self.checkSize, 0, 1, color='red')
 
             plt.legend(loc = "best")
-            plt.xlabel('weight')
+            plt.xlabel('width')
             plt.ylabel('height')
             print()
 
