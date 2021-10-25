@@ -136,6 +136,14 @@ class ExtractAnnotation:
         self.selectUi.show()
         self.app.exec()
 
+        if os.path.isfile(self.AnnotationTxtPath) is False:
+            ErrorLog(f'{self.AnnotationTxtPath} is Not Exist! Program Quit.')
+            sys.exit(-1)
+
+        if os.path.isfile(self.AnnotationImgPath) is False:
+            ErrorLog(f'{self.AnnotationImgPath} is Not Exist! Program Quit.')
+            sys.exit(-1)
+
         self.extractTxtListByFile()
         self.extractImgListByFile()
 
@@ -256,7 +264,7 @@ class ExtractAnnotation:
                 for i in range(self.ClassNum):
                     self.TotalObjectSumList[i] += int(each[i])
             except Exception as e:
-                error_handling(f"{idx}Line Error - Contents : {each}", filename(), lineNum())
+                error_handling(f"{idx} Line Error - Contents : {each}", filename(), lineNum())
                 sys.exit(-1)
 
         return True
