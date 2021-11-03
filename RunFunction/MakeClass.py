@@ -174,6 +174,7 @@ class MakeClassSource(CvatXml):
 
         self.CurBoxList = []
         self.CurImgName = ""
+        self.CurImgSizeList = []
 
         self.AbbreviatedImgDict = {}
         self.CheckRealExistDict = {}
@@ -757,6 +758,7 @@ class MakeClassSource(CvatXml):
         """
         self.CurBoxList = self.getCurBoxList()
         self.CurImgName = self.getCurImgName()
+        self.CurImgSizeList = self.getCurImgSize()
 
 
     # ABS FUNC(가상 함수) 재정의 함수
