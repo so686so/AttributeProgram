@@ -5,8 +5,8 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 
 # VAR DEFINE
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-WINDOW_WIDTH    = 800
-WINDOW_HEIGHT   = 80
+WINDOW_WIDTH    = 600
+WINDOW_HEIGHT   = 100
 
 # Ui_MainWindow Class
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -15,6 +15,7 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName('MainWindow')
         MainWindow.setWindowTitle('Select RunProgram')
         MainWindow.resize(WINDOW_WIDTH, WINDOW_HEIGHT)
+        MainWindow.setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT)
 
         self.centralWidget = QtWidgets.QWidget(MainWindow)
         self.centralWidget.setObjectName("centralwidget")
