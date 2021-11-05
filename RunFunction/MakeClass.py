@@ -179,7 +179,7 @@ class MakeClassSource(CvatXml):
 
         self.imgSizeValueList = []
 
-        self.ClassData  = ExcelData()
+        self.ClassData  = None
 
         self.CurBoxList = []
         self.CurImgName = ""
@@ -216,6 +216,8 @@ class MakeClassSource(CvatXml):
         if self.selectUi.isSelectDone is False:
             self.run = self.setRunToProgramExit
             return
+
+        self.ClassData = ExcelData()
 
         # UI 를 통해 경로 설정이 완료되면, CvatXmlClass 본격 init 실행
         self.initCvatXmlClass()

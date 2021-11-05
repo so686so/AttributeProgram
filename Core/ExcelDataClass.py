@@ -158,7 +158,7 @@ class ExcelData:
         self.pretreatmentNameData()
         self.pretreatmentCategoryNameData()
 
-        SuccessLog('ExcelData Create Done')
+        SuccessLog('ExcelData Set Done')
 
 
     def checkDefaultClassNum(self):

@@ -132,7 +132,7 @@ class AnalysisAttribute(CvatXml):
 
         self.sendArgsList   = []
 
-        self.ClassData      = ExcelData()
+        self.ClassData      = None
         self.classNameDict  = {}
         self.categoryDict   = {}
         self.categoryMaxCnt = 0
@@ -165,6 +165,8 @@ class AnalysisAttribute(CvatXml):
         if self.selectUi.isSelectDone is False:
             self.run = self.setRunToProgramExit
             return
+
+        self.ClassData = ExcelData()
 
         self.initCvatXmlClass()
         self.setimgSizeAnalysisList()

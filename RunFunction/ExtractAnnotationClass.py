@@ -133,7 +133,7 @@ class ExtractAnnotation:
         self.ClassNum = 0   # 클래스 갯수
         self.TryCount = 1   # 재시도 횟수
 
-        self.classData      = ExcelData()
+        self.classData      = None
         self.classNameDict  = {}
 
         self.sendArgsList   = []
@@ -150,6 +150,8 @@ class ExtractAnnotation:
         if self.selectUi.isSelectDone is False:
             self.run = self.setRunToProgramExit
             return
+
+        self.classData = ExcelData()
 
         if os.path.isfile(self.AnnotationTxtPath) is False:
             ErrorLog(f'{self.AnnotationTxtPath} is Not Exist! Program Quit.')
