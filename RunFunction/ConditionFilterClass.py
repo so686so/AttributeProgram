@@ -10,6 +10,7 @@ from random import randint, sample, shuffle
 import os
 import sys
 import copy
+import re
 
 
 # Add Import Path
@@ -307,7 +308,13 @@ class FilterCondition:
         print(HeadString)
         print(titleLine)
 
+        FilterMetaList  = re.findall('\d+', FILTER_CONDITION)
+        FilterIdxList   = [int(eachOdd) for idx, eachOdd in enumerate(FilterMetaList) if idx % 2 == 0 ]
+        FilterBoolList  = [int(eachEvn) for idx, eachEvn in enumerate(FilterMetaList) if idx % 2 == 1 ]
+
         for i in range(self.ClassNum):
+            FilteredMark = ""
+            FilteredColor = ""
             if RUN_CONDITION_FILTER is True or RUN_LIMIT_COUNT is True:
                 if self.TotalObjectSumList[i] != 0:
                     FT_EachPercent = (self.FilterObjectSumList[i] / self.TotalObjectSumList[i]) * 100
@@ -317,7 +324,16 @@ class FilterCondition:
 
             DF_Line = f'  {i:<10}|  {self.classNameDict[i]:<15}|  {self.TotalObjectSumList[i]:<16}'
 
-            print(f'{DF_Line}{FT_Line}')
+            if RUN_CONDITION_FILTER and i in FilterIdxList:
+                index = FilterIdxList.index(i)
+                if FilterBoolList[index] == 0:
+                    FilteredColor   = f"{CRED}"
+                    FilteredMark    = f"\t-{CRESET}"
+                else:
+                    FilteredColor   = f"{CGREEN}"
+                    FilteredMark    = f"\t+{CRESET}"
+
+            print(f'{FilteredColor}{DF_Line}{FT_Line}{FilteredMark}')
         print(titleLine)
         print()
 
@@ -328,6 +344,9 @@ class FilterCondition:
             showLog(f'* Extract Condition\t: {FILTER_CONDITION}')
         if RUN_LIMIT_COUNT:
             showLog(f'* Extract Count\t\t: {LIMIT_COUNT}')
+
+        showLog(f"* Result File Count\t: {len(self.ConditionResTxtList)}")
+        
         print()
 
     
