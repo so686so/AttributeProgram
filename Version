@@ -59,3 +59,4 @@
     - (FIX) RunFunction들이 각자의 코드에서도 실행될 수 있게 변경
     - (ADD) 프로젝트 관리용 Tasks.todo 추가
     - (ADD) BatchFile 추가
+    - (FIX) UI 속도 개선

@@ -7,8 +7,11 @@ Tasks:
         ✔ Add Choice RunFunction UI @done (2021. 11. 5. 오후 2:59:14)
         ☐ Add Choice ConditionCheck UI
         ☐ Add UnitTest
+        ☐ Annotation Rework
+        ☐ Change CheckExtract Algorithm
 
     TodoTinyList:
         ☐ Fix ExtractAnnotationClass.RunConditionExtract
         ☐ CleanUp README
         ✔ Add .bat File @done (2021. 11. 5. 오후 4:01:57)
+        ✔ Color print readjustment @done (2021. 11. 5. 오후 5:20:53)

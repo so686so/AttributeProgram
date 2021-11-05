@@ -326,7 +326,7 @@ class MakeClassSource(CvatXml):
                                 ['CB', 'ORIGIN_IMG_FILES_ABBREVIATED',  False,  f'{ORIGIN_IMG_FILES_ABBREVIATED}'],
                                 ['CB', 'CHECK_REAL_EXIST',              False,  f'{CHECK_REAL_EXIST}'],
 
-                                ['LE',  'EXTRACT_CONDITION', False, f'{EXTRACT_CONDITION}']
+                                ['LE',  'EXTRACT_CONDITION',            False, f'{EXTRACT_CONDITION}']
                             ]
         return self.getRunFunctionName(), self.sendArgsList
 

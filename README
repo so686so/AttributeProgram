@@ -2,6 +2,11 @@ Automation program for Attribute operation
 ******************************************
 
 
+Git
+===
+    https://github.com/so686so/AttributeProgram
+
+
 Need to run
 ===========
 
@@ -15,7 +20,8 @@ Need to run
     - matplotlib
 
 * 실행 방법:
-    `main.py`가 있는 폴더로 들어가서, `python ./main.py`
+    Case 1. `main.py`가 있는 폴더로 들어가서, `python ./main.py`
+    Case 2. `AttributeProgram.bat` 파일에서 경로를 수정한 다음, 해당 파일 실행
 
 
 When to use the program
