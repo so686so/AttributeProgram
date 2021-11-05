@@ -10,15 +10,15 @@
 
 # IMPORT CORE
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-from Core.CommonUse             import *
+from Core.CommonUse                             import *
 
 # IMPORT RUNFUNCTION
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-from RunFunction.AnalysisAttribute      import AnalysisAttribute
-from RunFunction.MakeClass              import MakeClassSource
-from RunFunction.SliceImgClass          import SliceImage
-from RunFunction.ExtractAnnotationClass import ExtractAnnotation
-from RunFunction.JoinPathClass          import JoinPath
+from RunFunction.AnalysisAttribute              import AnalysisAttribute
+from RunFunction.MakeClass                      import MakeClassSource
+from RunFunction.SliceImgClass                  import SliceImage
+from RunFunction.ExtractAnnotationClass         import ExtractAnnotation
+from RunFunction.JoinPathClass                  import JoinPath
 
 
 # IMPORT UI
@@ -30,20 +30,19 @@ from UI.ChoiceProgramUI.ChoiceProgramUIClass    import *
 # Main Function
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 def main():
-    App             = QApplication(sys.argv)
-    SelectProgram   = ChoiceProgramUI(App)
+    App                 = QApplication(sys.argv)
+    ChoiceProgram       = ChoiceProgramUI(App)
 
     while True:
-        Result = SelectProgram.run()
+        ProgramClsName  = ChoiceProgram.run()
 
-        if Result == 'EXIT':
+        if ProgramClsName == 'EXIT':
             NoticeLog('Program Finished')
             break
 
-        ChoiceProgram = eval(f'{Result}(App)')
-        ChoiceProgram.run() 
+        SelectedProgram = eval(f'{ProgramClsName}(App)')
+        SelectedProgram.run() 
 
 
 if __name__ == "__main__":
     main()
-

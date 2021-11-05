@@ -1,0 +1,13 @@
+Projects:
+    ☐ AttributeProgram
+    ☐ LabelProgram
+
+Tasks:
+    TodoMainList:
+        ✔ Add Choice RunFunction UI @done (2021. 11. 5. 오후 2:59:14)
+        ☐ Add Choice ConditionCheck UI
+        ☐ Add UnitTest
+
+    TodoTinyList:
+        ☐ Fix ExtractAnnotationClass.RunConditionExtract
+        ☐ CleanUp README
