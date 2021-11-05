@@ -234,6 +234,7 @@ class AnalysisAttribute(CvatXml):
         self.sendArgsList = [   ['FD', 'OriginXmlDirPath',      True, f'{OriginXmlDirPath}'],
                                 ['FD', 'OriginImgDirPath',      True, f'{OriginImgDirPath}'],
                                 ['FD', 'ResultDirPath',         True, f'{ResultDirPath}'],
+                                ['FD', 'HLINE_0',               False, 'None'],
                                 ['FD', 'CrushedImgFilePath',    True, f'{CrushedImgFilePath}'],
 
                                 ['CB', 'CHECK_IS_IMAGE_CRUSHED', False, f'{CHECK_IS_IMAGE_CRUSHED}'],

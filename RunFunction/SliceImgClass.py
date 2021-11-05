@@ -206,6 +206,7 @@ class SliceImage(CvatXml):
         self.sendArgsList = [   ['FD', 'OriginXmlDirPath',      True, f'{OriginXmlDirPath}'],
                                 ['FD', 'OriginImgDirPath',      True, f'{OriginImgDirPath}'],
                                 ['FD', 'ResultDirPath',         True, f'{ResultDirPath}'],
+                                ['FD', 'HLINE_0',                       False,  'None'],
                                 ['FD', 'AbbreviatedImgPath',    True, f'{AbbreviatedImgPath}'],
                                 ['FD', 'CrushedImgFilePath',    True, f'{CrushedImgFilePath}'],
 
@@ -213,6 +214,7 @@ class SliceImage(CvatXml):
                                 ['CB', 'USE_HEAD', False, f'{USE_HEAD}'],
                                 ['CB', 'USE_UPPER', False, f'{USE_UPPER}'],
                                 ['CB', 'USE_LOWER', False, f'{USE_LOWER}'],
+                                ['CB', 'HLINE_1',                       False,  'None'],
                                 ['CB', 'WORKING_IMG_FILES_ABBREVIATED', False, f'{WORKING_IMG_FILES_ABBREVIATED}']
                             ]
         return self.getRunFunctionName(), self.sendArgsList
