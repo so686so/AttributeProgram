@@ -27,6 +27,10 @@ TEST_MODE       = copy.copy(CORE_TEST_MODE)
 ERROR_STRICT    = copy.copy(CORE_ERROR_STRICT)
 
 
+IS_RUN_BAT_FILE = False
+if len(sys.argv) > 1:
+    IS_RUN_BAT_FILE = True
+
 # VAR
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 errorLogList    = []
@@ -89,6 +93,8 @@ def NoticeLog(Msg, bTime=False):
                 OUTPUT  -> [09:51:04] [ Notice ] : HelloWorld
     """
     NoticeMsg = "[ \x1b[33mNotice\x1b[0m ] "
+    if IS_RUN_BAT_FILE:
+        NoticeMsg = "[ Notice ] "
     if SHOW_LOG:
         if bTime:
             print(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] {NoticeMsg}{Msg}")
@@ -123,6 +129,8 @@ def ErrorLog(Msg, bTime=False, lineNum=0, errorFuncName=None, errorFileName=None
             - 위와 같은 형식으로 적어야 showErrorList() 에 DETAIL 이 나옴
     """
     ErrorMsg = "[ \x1b[31mError\x1b[0m ] "
+    if IS_RUN_BAT_FILE:
+        ErrorMsg = "[ Error ] "
     if SHOW_LOG:
         if bTime:
             print(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] {ErrorMsg}{Msg}")
@@ -195,6 +203,8 @@ def SuccessLog(Msg, bTime=False):
                 OUTPUT  -> [09:53:29] [ Done ] : HelloWorld
     """
     SuccessMsg = "[ \x1b[32mDone\x1b[0m ] "
+    if IS_RUN_BAT_FILE:
+        SuccessMsg = "[ Done ] "
     if SHOW_LOG:
         if bTime:
             print(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] {SuccessMsg}{Msg}")
@@ -214,6 +224,8 @@ def ModeLog(Msg, bTime=False):
         ---------------------------------------------------------------------
     """
     ModeMsg = "[ \x1b[36mMODE\x1b[0m ] "
+    if IS_RUN_BAT_FILE:
+        ModeMsg = "[ MODE ] "
     if SHOW_LOG:
         if bTime:
             print(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] {ModeMsg}{Msg}")
