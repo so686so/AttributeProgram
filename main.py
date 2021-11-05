@@ -19,7 +19,7 @@ from RunFunction.MakeClass                      import MakeClassSource
 from RunFunction.SliceImgClass                  import SliceImage
 from RunFunction.ExtractAnnotationClass         import ExtractAnnotation
 from RunFunction.JoinPathClass                  import JoinPath
-
+from RunFunction.ConditionFilterClass           import FilterCondition
 
 # IMPORT UI
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*

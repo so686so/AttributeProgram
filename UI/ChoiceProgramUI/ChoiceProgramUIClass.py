@@ -48,6 +48,7 @@ ProgramList =   [   'AnalysisAttribute',
                     'MakeClassSource',
                     'ExtractAnnotation',
                     'JoinPath',
+                    'FilterCondition',
                 ]
 
 # ProgramInformationList
@@ -55,8 +56,9 @@ ProgramList =   [   'AnalysisAttribute',
 DetailList  =   [   '주어진 자료를 분석하고 엑셀 및 그래프로 출력해주는 프로그램',
                     '이미지 폴더를 받아서, COMMON, HEAD, UPPER, LOWER 기준에 맞게 잘라주는 프로그램',
                     '주어진 기준에 맞게 받은 CvatXml 파일 및 ImgName 들을 MakeClass 해주는 프로그램',
-                    'Annotation들을 기준에 맞게 추출하거나 스플릿하는 프로그램',
+                    'Annotation들을 랜덤 추출하거나 스플릿하는 프로그램',
                     'ImgList들의 앞에 일괄적으로 경로를 붙여주는 프로그램',
+                    'Annotation들을 Filtering & Limit Count만큼 추출하는 프로그램'
                 ]
 
 # ChoiceProgramUI Class

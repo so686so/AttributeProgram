@@ -38,6 +38,8 @@ from Core.CommonUse import *
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 import pandas as pd
 
+from UI.FilterDialogUI.ui_dialog import ClassNum
+
 
 # EXCEL PATH
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -136,6 +138,7 @@ class ExcelData:
         self.df_CtgrData  = pd.read_excel(EXCEL_PATH, sheet_name='CategoryData')
 
         self.IdxDict    = {}
+        self.DataDict   = {}
         self.mergeDict  = {}
         self.mergeList  = []
 
@@ -274,6 +277,8 @@ class ExcelData:
             # IMPORTANT! : {curAttName}/{curAttText} 형태로 idxDict key-value 저장
             # Ex) self.IdxDict['hat/hood'] = 28
             self.IdxDict[f'{curAttName}/{curAttText}'] = idx
+
+            self.DataDict[className] = [curAttName, curAttText]
 
             # idx - className
             self.defaultClassNameDict[idx] = className
@@ -487,3 +492,8 @@ class ExcelData:
             return self.class39NameDict
         else:
             return None
+
+
+    def getClassDataTotal(self):
+        # [39ClassNameDict, 66ClassNameDict, 83ClassNameDict, DataDict]
+        return [self.class39NameDict, self.class66NameDict, self.class83NameDict, self.DataDict]

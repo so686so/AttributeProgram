@@ -72,7 +72,6 @@ ConditionExtractPrefix  = "ConditionExtract"
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 RUN_RANDOM_EXTRACT      = True
 RUN_SPLIT_TRAIN_TEST    = False
-RUN_CONDITION_EXTRACT   = False
 
 # 추출 조작 변수값들
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -80,12 +79,6 @@ overCount       = 0     # 각 객체 유효값 합이 최소 overCount
 ExtractPercent  = 50    # 몇 %나 원본에서 추출할지
 SplitPercent    = 75    # 몇 대 몇으로 슬라이스 할지(백분위)
 
-
-# CONDITION EXTRACT STRING
-# 조건식 내 문자열은 항상 "" 로 작성
-# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-EXTRACT_CONDITION   = 'each[0] == "1"'
-EXTRACT_COUNT       = 0
 
 # 파일 추출 클래스
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -127,8 +120,6 @@ class ExtractAnnotation:
         self.RandomExtractPrefix    = RandomExtractPrefix
         self.SplitTrainPrefix       = SplitTrainPrefix
         self.SplitTestPrefix        = SplitTestPrefix
-
-        self.ExtractCount           = EXTRACT_COUNT
 
         self.ClassNum = 0   # 클래스 갯수
         self.TryCount = 1   # 재시도 횟수
@@ -190,7 +181,6 @@ class ExtractAnnotation:
 
                                 ['CB', 'RUN_RANDOM_EXTRACT',        False,  f'{RUN_RANDOM_EXTRACT}'],
                                 ['CB', 'RUN_SPLIT_TRAIN_TEST',      False,  f'{RUN_SPLIT_TRAIN_TEST}'],
-                                ['CB', 'RUN_CONDITION_EXTRACT',     False,  f'{RUN_CONDITION_EXTRACT}'],
 
                                 ['LE', 'overCount',                 False,  f'{overCount}'],
                                 ['LE', 'ExtractPercent',            False,  f'{ExtractPercent}'],
@@ -203,10 +193,6 @@ class ExtractAnnotation:
                                 ['LE', 'RandomExtractPrefix',       False,  f'{RandomExtractPrefix}'],
                                 ['LE', 'SplitTrainPrefix',          False,  f'{SplitTrainPrefix}'],
                                 ['LE', 'SplitTestPrefix',           False,  f'{SplitTestPrefix}'],
-
-                                ['LE', 'HLINE_3',                   False,  'None'],
-                                ['LE', 'EXTRACT_COUNT',             False,  f'{EXTRACT_COUNT}'],
-                                ['LE', 'EXTRACT_CONDITION',         False,  f'{EXTRACT_CONDITION}'],
                             ]
         return self.ProgramName, self.sendArgsList
 
@@ -241,7 +227,6 @@ class ExtractAnnotation:
         self.overCount          = int(overCount)    
         self.ExtractPercent     = int(ExtractPercent)
         self.SplitPercent       = int(SplitPercent)
-        self.ExtractCount       = int(EXTRACT_COUNT)
 
         self.SaveAnnotationFileName = SaveAnnotationFileName
         self.SaveImgFileName        = SaveImgFileName
@@ -418,10 +403,6 @@ class ExtractAnnotation:
         
         if RUN_SPLIT_TRAIN_TEST:
             showLog(f"* SP_Condition\t\t: Train {self.SplitPercent}% - Test {100-int(self.SplitPercent)}%")
-
-        if RUN_CONDITION_EXTRACT:
-            showLog(f'* Extract Condition\t: {EXTRACT_CONDITION}')
-            showLog(f'* Extract Count\t\t: {EXTRACT_COUNT}')
         print()
 
     
@@ -538,24 +519,6 @@ class ExtractAnnotation:
         print("Done")        
 
 
-    def SaveConditionExtract(self):
-        ConditionAnnoSavePath   = os.path.join(self.ResultDirPath, f'{ConditionExtractPrefix}_{self.ExtractCount}Count_Annotation.txt')
-        ConditionImgSavePath    = os.path.join(self.ResultDirPath, f'{ConditionExtractPrefix}_{self.ExtractCount}Count_Image.txt')
-
-
-        print(f"- Save Condition Annotation Txt File : {ConditionAnnoSavePath}...", end='\t')
-        with open(ConditionAnnoSavePath, 'w', encoding=encodingFormat) as f:
-            for line in self.ConditionResTxtList:
-                f.write(f"{line}\n")
-        print("Done")
-
-        print(f"- Save Condition Image Txt File : {ConditionImgSavePath}...", end='\t')
-        with open(ConditionImgSavePath, 'w', encoding=encodingFormat) as f:
-            for line in self.ConditionResImgList:
-                f.write(f"{line}\n")
-        print("Done")
-
-
     def RunSplitAnnotation(self):
         TotalAnnotationCount    = 0
         BaseAnnotationList      = []
@@ -598,54 +561,12 @@ class ExtractAnnotation:
             self.SplitTestResImgList.append(TextPairImgDict[eachIdx][IMAGELIST_IDX])
 
 
-    def RunConditionExtract(self):
-        BaseAnnotationList      = []
-        BaseImgList             = []
-
-        ANNOTATION_IDX  = 0
-        IMAGELIST_IDX   = 1
-
-        if RUN_RANDOM_EXTRACT is True:
-            BaseAnnotationList      = self.ExtractRandomTxtList[:]
-            BaseImgList             = self.ExtractRandomImgList[:]
-        else:
-            BaseAnnotationList      = self.AnnotationTxtList[:]
-            BaseImgList             = self.AnnotationImgList[:]
-
-        ConditionAnnotationCount    = 0
-        ConditionAnnotationList     = []
-        ConditionImgList            = []
-
-        for Idx, each in enumerate(BaseAnnotationList):
-            if eval(EXTRACT_CONDITION):
-                ConditionAnnotationList.append(each)
-                ConditionImgList.append(BaseImgList[Idx])
-
-        ConditionAnnotationCount = len(ConditionAnnotationList)   
-
-        TextPairImgDict = {}
-
-        for idx in range(ConditionAnnotationCount):
-            TextPairImgDict[idx] = [ConditionAnnotationList[idx], ConditionImgList[idx]]
-
-        TotalIdxList = [ i for i in range(ConditionAnnotationCount) ]
-        ExtractCount = self.ExtractCount
-        ExtractIdxList = sample(TotalIdxList, ExtractCount)
-
-        for eachIdx in ExtractIdxList:
-            self.ConditionResTxtList.append(TextPairImgDict[eachIdx][ANNOTATION_IDX])
-            self.ConditionResImgList.append(TextPairImgDict[eachIdx][IMAGELIST_IDX])
-
-
     def saveResult(self):
         if RUN_RANDOM_EXTRACT is True:
             self.SaveRandomExtract()
 
         if RUN_SPLIT_TRAIN_TEST is True:
             self.SaveSplitExtract()
-
-        if RUN_CONDITION_EXTRACT is True:
-            self.SaveConditionExtract()
 
 
     def run(self):
@@ -654,9 +575,6 @@ class ExtractAnnotation:
 
         if RUN_SPLIT_TRAIN_TEST is True:
             self.RunSplitAnnotation()
-
-        if RUN_CONDITION_EXTRACT is True:
-            self.RunConditionExtract()
 
         self.saveResult()
 

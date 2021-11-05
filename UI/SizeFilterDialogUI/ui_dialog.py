@@ -13,7 +13,7 @@ class SizeFilterDialog(QtWidgets.QDialog):
 
     def initUI(self):
         self.setWindowTitle('Size Filter Option')
-        self.setGeometry(100, 100, 500, 200)
+        self.resize(500, 200)
 
         self.mainLayout     = QtWidgets.QVBoxLayout()
         self.upperLayout    = QtWidgets.QHBoxLayout()
@@ -94,7 +94,7 @@ class SizeFilterDialog(QtWidgets.QDialog):
 
         if not selectLabel:
             return
-            
+
         for idx, each in enumerate(ComboBoxList):
             if selectLabel == each:
                 self.selectSortComboBox.setCurrentIndex(idx)

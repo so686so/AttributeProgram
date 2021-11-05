@@ -13,6 +13,8 @@ import sys
 import os
 import copy
 
+from UI.FilterDialogUI.ui_dialog import ConditionFilterDialog
+
 
 # Add Import Path
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -28,12 +30,12 @@ from CoreDefine import *
 
 # IMPORT CORE
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-from Core.CommonUse     import *
-
+from Core.CommonUse         import *
+from Core.ExcelDataClass    import ExcelData
 
 # Installed Library - QT CORE
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-from qt_core            import *
+from qt_core                import *
 
 
 # UI
@@ -91,9 +93,10 @@ class SelectUI(QMainWindow):
         self.initSettingLEList  = []
         self.initSettingUIList  = []
 
-        self.saveUI_Dict        = {}
-
         self.isSelectDone       = False
+
+        self.classData          = None
+        self.classNameDictList  = []
 
         self.PreRememberPath    = ""
         self.loadRememberDir()
@@ -218,21 +221,51 @@ class SelectUI(QMainWindow):
     def appendNewUI(self, SetArg):
         if 'SIZE' in SetArg[NAME]:
             self.selectUIList.append([QPushButton(), SetArg[DEFAULT_VAL]])
-            self.saveUI_Dict[SetArg[NAME]] = SetArg[DEFAULT_VAL]
             self.selectUIList[LAST_APPEND][0].setText('Select SizeFilter...')
             self.selectUIList[LAST_APPEND][0].setObjectName(f'{SetArg[NAME]}')
             self.selectUIList[LAST_APPEND][0].clicked.connect(self.openSizeFilterDialog)
-            pass
-        pass
+        elif 'COND' in SetArg[NAME]:
+            if self.classData is None:
+                self.setExcelData()
+            self.selectUIList.append([QPushButton(), SetArg[DEFAULT_VAL]])
+            self.selectUIList[LAST_APPEND][0].setText('Write FilterCondition...')
+            self.selectUIList[LAST_APPEND][0].setObjectName(f'{SetArg[NAME]}')
+            self.selectUIList[LAST_APPEND][0].clicked.connect(self.openCondFilterDialog)            
+
+
+    def setExcelData(self):
+        self.classData = ExcelData()
+        self.classNameDictList = self.classData.getClassDataTotal() 
+
+
+    def openCondFilterDialog(self):
+        sender = self.sender()
+        senderName = sender.objectName()
+        dlg = ConditionFilterDialog(self.get_String_by_UI_Name(senderName), self.classNameDictList)
+        dlg.move(self.rect().center())
+        res = dlg.showModalDialog()
+
+        if res:
+            resString = dlg.FinalCondition
+            NoticeLog(f'Applied Filter Condition : {resString}')
+            sender.setText('APPLIED')
+            self.set_String_by_UI_Name(senderName, resString)
+            self.set_CheckValid_by_Name('RUN_CONDITION_FILTER', True)
+        else:
+            self.set_CheckValid_by_Name('RUN_CONDITION_FILTER', False)
+
 
     def openSizeFilterDialog(self):
         sender = self.sender()
         senderName = sender.objectName()
         dlg = SizeFilterDialog(self.get_Dict_by_UI_Name(senderName))
+        dlg.move(self.rect().center())
         res = dlg.showModalDialog()
 
         if res:
             resDict = dlg.getFilterDict()
+            NoticeLog('Applied SizeFilter')
+            sender.setText('APPLIED')
             self.set_Dict_by_UI_Name(senderName, resDict)
             self.set_CheckValid_by_Name('SIZE_FILTERING', True)
         else:
@@ -366,10 +399,23 @@ class SelectUI(QMainWindow):
             if eachArg[NAME] == Name:
                 return self.selectUIList[idx][1]
 
+
     def set_Dict_by_UI_Name(self, Name, Dict):     
         for idx, eachArg in enumerate(self.initSettingUIList):
             if eachArg[NAME] == Name:
                 self.selectUIList[idx][1] = Dict
+
+
+    def get_String_by_UI_Name(self, Name):
+        for idx, eachArg in enumerate(self.initSettingUIList):
+            if eachArg[NAME] == Name:
+                return self.selectUIList[idx][1]
+
+
+    def set_String_by_UI_Name(self, Name, String):
+        for idx, eachArg in enumerate(self.initSettingUIList):
+            if eachArg[NAME] == Name:
+                self.selectUIList[idx][1] = String        
 
     # Ex) MAKE_39_CLASS 인자를 입력하면, 해당 인자의 현재 True/False 체크값을 반환
     def get_CheckValid_by_Name(self, Name):

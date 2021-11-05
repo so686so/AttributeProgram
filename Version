@@ -60,3 +60,4 @@
     - (ADD) 프로젝트 관리용 Tasks.todo 추가
     - (ADD) BatchFile 추가
     - (FIX) UI 속도 개선
+    - (ADD) 조건 체크 필터링 함수 프로그램으로 분할
