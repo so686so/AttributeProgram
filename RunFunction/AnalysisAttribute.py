@@ -59,7 +59,7 @@ validImgFormat      = copy.copy(VALID_IMG_FORMAT)
 CHECK_IS_IMAGE_CRUSHED  = False
 CHECK_IMAGE_SIZE        = True
 SHOW_GRAPH              = False
-CONDITIONAL_EXTRACT     = False
+SIZE_FILTERING          = False
 CHECK_SIZE_VALUE        = 23
 
 
@@ -68,10 +68,41 @@ CHECK_SIZE_VALUE        = 23
 EXCEL_FILE_NAME     = "AnalysisAttribute.xlsx"
 
 
-# CONDITION EXTRACT STRING
-# 조건식 내 문자열은 항상 "" 로 작성
+# SIZE_FILTERING DICT
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-EXTRACT_CONDITION   = 'att.text == "0~7" or att.text == "8~13" or att.text == "14~19" or att.text == "70~"'
+SIZE_FILTERING_DICT     =   {   'common':
+                                {
+                                    'isCheck'   : False,
+                                    'CheckSize' : False,    # Size(True) / Width&Height(False)
+                                    'Width'     : 0,
+                                    'Height'    : 0,
+                                    'Size'      : 0
+                                },
+                            'head':
+                                {
+                                    'isCheck'   : False,
+                                    'CheckSize' : False,
+                                    'Width'     : 0,
+                                    'Height'    : 0,
+                                    'Size'      : 0
+                                },
+                            'upper':
+                                {
+                                    'isCheck'   : False,
+                                    'CheckSize' : False,
+                                    'Width'     : 0,
+                                    'Height'    : 0,
+                                    'Size'      : 0
+                                },
+                            'lower':
+                                {
+                                    'isCheck'   : False,
+                                    'CheckSize' : False,
+                                    'Width'     : 0,
+                                    'Height'    : 0,
+                                    'Size'      : 0
+                                },                                                        
+                        }
 
 
 # CONST DEFINE
@@ -146,7 +177,7 @@ class AnalysisAttribute(CvatXml):
         self.saveImgSizeDataFrame   = None
         self.saveCategoryDataFrame  = None
 
-        self.CheckExtractLogList = []
+        self.SizeFilterLogList = []
 
         self.initializeAN()
 
@@ -189,9 +220,9 @@ class AnalysisAttribute(CvatXml):
         self.categoryMaxCnt  = max(set(self.categoryDict.values()))
         self.ctgSumList      = [ 0 for _ in range(self.categoryMaxCnt) ]
 
-        if CONDITIONAL_EXTRACT is True:
-            ModeLog('CONDITIONAL_EXTRACT ON')
-            self.condClass.addCondition(['CheckExtract', self.CheckExtract, self.getArgs_CheckExtract])
+        if SIZE_FILTERING is True:
+            ModeLog('SIZE_FILTERING ON')
+            self.condClass.addCondition(['SizeFilter', self.SizeFilter, self.getArgs_SizeFilter])
 
 
     def setRunToProgramExit(self):
@@ -242,10 +273,10 @@ class AnalysisAttribute(CvatXml):
                                 ['CB', 'CHECK_IS_IMAGE_CRUSHED', False, f'{CHECK_IS_IMAGE_CRUSHED}'],
                                 ['CB', 'CHECK_IMAGE_SIZE', False, f'{CHECK_IMAGE_SIZE}'],
                                 ['CB', 'SHOW_GRAPH', False, f'{SHOW_GRAPH}'],
-                                ['CB', 'CONDITIONAL_EXTRACT', False, f'{CONDITIONAL_EXTRACT}'],
+                                ['CB', 'SIZE_FILTERING', False, f'{SIZE_FILTERING}'],
 
                                 ['LE',  'CHECK_SIZE_VALUE', False, f'{CHECK_SIZE_VALUE}'],
-                                ['LE',  'EXTRACT_CONDITION', False, f'{EXTRACT_CONDITION}']
+                                ['UI',  'SIZE_FILTERING_DICT', False, SIZE_FILTERING_DICT]
                             ]
         return self.getRunFunctionName(), self.sendArgsList
 
@@ -275,39 +306,85 @@ class AnalysisAttribute(CvatXml):
     # -------------------------------------------------------------------------------------
     """
     [ Add Condition Name ]
-        - CheckExtract
+        - SizeFilter
     """
 
     # ConditionFunctions
     # -------------------------------------------------------------------------------------
     # OHN
-    def CheckExtract(self, getArgsList):
+    def SizeFilter(self, getArgsList):
         """
             ! Free Customize Function
             추가적인 조건을 기입해 필터링 하는 ConditionCheck
         """
         BoxValue    = getArgsList[0]    # 현재 이미지의 BoxValue 들의 리스트
         ImgSizeList = getArgsList[1]    # 현재 이미지의 [너비, 높이] 리스트
-        ImgName     = getArgsList[2]
+        condDict    = getArgsList[2]
+        BoxDict     = {}
+        BoxNameList = ['head', 'upper', 'lower']
         
         # 너비 쓰려면 : int(ImgSizeList[WIDTH])
         # 높이 쓰려면 : int(ImgSizeList[HEIGHT])
 
-        # 여기에 추가 설정하고 싶은 조건 기입하면 됨!
-        for box in BoxValue:
-            for att in box.findall('attribute'):
-                if eval(EXTRACT_CONDITION):
-                #     # COND_PASS 일 때의 결과값들 txt로 기록하기 위해 list 에 추가
-                #     self.CheckExtractLogList.append([f'{ImgName} {int(ImgSizeList[WIDTH])} {int(ImgSizeList[HEIGHT])}'])
+        def getBoxSizebyLabel(box):
+            xTopLeft     = int(float(box.get("xtl")))
+            yTopLeft     = int(float(box.get("ytl")))
+            xBottomRight = int(float(box.get("xbr")))
+            yBottomRight = int(float(box.get("ybr")))
+
+            return [xBottomRight - xTopLeft, yBottomRight - yTopLeft]
+
+        def checkSizeByLabel(labelName:str):
+            # 일단 값 있는지부터 체크
+            if BoxDict.get(f'{labelName}') == None:
+                return COND_FAIL
+            
+            boxSizeList = getBoxSizebyLabel(BoxDict[f'{labelName}'])
+            if condDict[f'{labelName}']['CheckSize'] is True:
+                boxSize = boxSizeList[WIDTH] * boxSizeList[HEIGHT]
+                if boxSize >= condDict[f'{labelName}']['Size']:
                     return COND_PASS
+                else:
+                    return COND_FAIL
+            else:
+                if  ( boxSizeList[WIDTH]  >= condDict[f'{labelName}']['Width'] ) and \
+                    ( boxSizeList[HEIGHT] >= condDict[f'{labelName}']['Height'] ):
+                    return COND_PASS
+                else:
+                    return COND_FAIL            
+
+        if condDict['common']['isCheck'] is True:
+            # Image 넓이 가지고 체크
+            if condDict['common']['CheckSize'] is True:
+                imgSize = ImgSizeList[WIDTH] * ImgSizeList[HEIGHT]
+                if imgSize >= condDict['common']['Size']:
+                    return COND_PASS
+                else:
+                    return COND_FAIL
+            # Image 너비, 높이 가지고 체크
+            else:
+                if  ( ImgSizeList[WIDTH]  >= condDict['common']['Width'] ) and \
+                    ( ImgSizeList[HEIGHT] >= condDict['common']['Height'] ):
+                    return COND_PASS
+                else:
+                    return COND_FAIL
+
+        # 각 box 값들 미리 정리
+        for box in BoxValue:
+            BoxDict[box.get('label')] = box
+
+        # 각 Label에 대해서 체크하는 부분
+        for eachName in BoxNameList:
+            if condDict[f'{eachName}']['isCheck'] is True:
+                return checkSizeByLabel(eachName)
 
         return COND_FAIL
 
 
     # getArgs_ConditionFunctions
     # -------------------------------------------------------------------------------------
-    def getArgs_CheckExtract(self):
-        return [ self.getCurBoxList(), self.getCurImgSize(), self.getCurImgName() ]
+    def getArgs_SizeFilter(self):
+        return [ self.getCurBoxList(), self.getCurImgSize(), SIZE_FILTERING_DICT ]
 
 
     # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -625,8 +702,9 @@ class AnalysisAttribute(CvatXml):
         y = self.EachElementSumList
 
         plt.subplot(211)
-        if CONDITIONAL_EXTRACT is True:
-            plt.title(EXTRACT_CONDITION)
+        if SIZE_FILTERING is True:
+            # plt.title(SIZE_FILTERING_DICT)
+            pass
         plt.bar(x[:SLICE_IDX], y[:SLICE_IDX])
         for i, v in enumerate(x[:SLICE_IDX]):
             plt.text(v, y[i], y[i],                 # 좌표 (x축 = v, y축 = y[0]..y[1], 표시 = y[0]..y[1])

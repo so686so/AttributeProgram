@@ -38,7 +38,8 @@ from qt_core            import *
 
 # UI
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-from .ui_main            import Ui_MainWindow
+from .ui_main                       import Ui_MainWindow
+from SizeFilterDialogUI.ui_dialog   import SizeFilterDialog
 
 
 # CONST DEFINE
@@ -82,11 +83,15 @@ class SelectUI(QMainWindow):
         self.selectFDList       = []
         self.selectCBList       = []
         self.selectLEList       = []
+        self.selectUIList       = []
         self.returnDict         = {}
 
         self.initSettingFDList  = []
         self.initSettingCBList  = []
         self.initSettingLEList  = []
+        self.initSettingUIList  = []
+
+        self.saveUI_Dict        = {}
 
         self.isSelectDone       = False
 
@@ -176,7 +181,9 @@ class SelectUI(QMainWindow):
             # LE 속성 : str 반환
             elif eachArg[TYPE] == 'LE':
                 self.returnDict[eachArg[NAME]] = str(self.get_LE_text_by_Name_LE(eachArg[NAME]))
-
+            # UI 속성 : dict 반환
+            elif eachArg[TYPE] == 'UI':
+                self.returnDict[eachArg[NAME]] = self.get_Dict_by_UI_Name(eachArg[NAME])
 
     def getReturnDict(self):
         return self.returnDict
@@ -202,6 +209,34 @@ class SelectUI(QMainWindow):
             elif eachSetArg[TYPE] == 'LE':
                 self.appendNewLE(eachSetArg)
                 self.initSettingLEList.append(eachSetArg)
+
+            elif eachSetArg[TYPE] == 'UI':
+                self.appendNewUI(eachSetArg)
+                self.initSettingUIList.append(eachSetArg)
+
+
+    def appendNewUI(self, SetArg):
+        if 'SIZE' in SetArg[NAME]:
+            self.selectUIList.append([QPushButton(), SetArg[DEFAULT_VAL]])
+            self.saveUI_Dict[SetArg[NAME]] = SetArg[DEFAULT_VAL]
+            self.selectUIList[LAST_APPEND][0].setText('Select SizeFilter...')
+            self.selectUIList[LAST_APPEND][0].setObjectName(f'{SetArg[NAME]}')
+            self.selectUIList[LAST_APPEND][0].clicked.connect(self.openSizeFilterDialog)
+            pass
+        pass
+
+    def openSizeFilterDialog(self):
+        sender = self.sender()
+        senderName = sender.objectName()
+        dlg = SizeFilterDialog(self.get_Dict_by_UI_Name(senderName))
+        res = dlg.showModalDialog()
+
+        if res:
+            resDict = dlg.getFilterDict()
+            self.set_Dict_by_UI_Name(senderName, resDict)
+            self.set_CheckValid_by_Name('SIZE_FILTERING', True)
+        else:
+            self.set_CheckValid_by_Name('SIZE_FILTERING', False)
 
 
     def appendNewLE(self, SetArg):
@@ -325,12 +360,27 @@ class SelectUI(QMainWindow):
                 if eachArg[NAME] == Name:
                     return self.selectFDList[idx][LE_INDEX].setText(Text)
 
+    
+    def get_Dict_by_UI_Name(self, Name):
+        for idx, eachArg in enumerate(self.initSettingUIList):
+            if eachArg[NAME] == Name:
+                return self.selectUIList[idx][1]
+
+    def set_Dict_by_UI_Name(self, Name, Dict):     
+        for idx, eachArg in enumerate(self.initSettingUIList):
+            if eachArg[NAME] == Name:
+                self.selectUIList[idx][1] = Dict
 
     # Ex) MAKE_39_CLASS 인자를 입력하면, 해당 인자의 현재 True/False 체크값을 반환
     def get_CheckValid_by_Name(self, Name):
         for idx, eachArg in enumerate(self.initSettingCBList):
                 if eachArg[NAME] == Name:
                     return self.selectCBList[idx][CB_INDEX].isChecked()
+
+    def set_CheckValid_by_Name(self, Name, Value:bool):
+        for idx, eachArg in enumerate(self.initSettingCBList):
+                if eachArg[NAME] == Name:
+                    self.selectCBList[idx][CB_INDEX].setChecked(Value)        
 
 
     # appendNewCB / appendNewFD 했던 값들 실제로 UI 에 모두 띄우는 함수
@@ -429,6 +479,15 @@ class SelectUI(QMainWindow):
             else:
                 add_H_Layout.addWidget(eachLE[LE_INDEX], 2)
             add_H_Layout.addStretch(1)   
+
+            LE_Vbox.addLayout(add_H_Layout)
+
+        for eachUI in self.selectUIList:
+            add_H_Layout = QHBoxLayout()
+
+            add_H_Layout.addStretch(1)
+            add_H_Layout.addWidget(eachUI[0], 6)
+            add_H_Layout.addStretch(1)
 
             LE_Vbox.addLayout(add_H_Layout)
 

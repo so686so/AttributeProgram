@@ -73,7 +73,7 @@ ANNOTATION_39_TXT   = "Annotation_39_Class.txt"
 IMAGE_LIST_83_TXT   = "83Class_ImgList.txt"
 IMAGE_LIST_66_TXT   = "66Class_ImgList.txt"
 IMAGE_LIST_39_TXT   = "39Class_ImgList.txt"
-CHECK_EXTRACT_TXT   = "CheckExtractList.txt"
+CHECK_EXTRACT_TXT   = "SizeFilterList.txt"
 
 
 # DEFINE
@@ -84,8 +84,8 @@ MAKE_66_CLASS = True
 MAKE_39_CLASS = True
 
 # 조건에 따라 추출하고 싶을 때 :
-# 아랫 값 True 바꾸고 나서 CheckExtract() 함수 수정!
-CONDITIONAL_EXTRACT = False
+# 아랫 값 True 바꾸고 나서 SizeFilter() 함수 수정!
+SIZE_FILTERING = False
 
 # 원본 이미지를 축약시킨 폴더 기준으로 작업할 때 :
 # 해당 cvat 이미지가 원본 이미지에 실제로 있는지 따져야함
@@ -98,10 +98,41 @@ CHECK_REAL_EXIST = False
 ANALYSIS_IMAGE_SIZE = True
 
 
-# CONDITION EXTRACT STRING
-# 조건식 내 문자열은 항상 "" 로 작성
+# SIZE_FILTERING DICT
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-EXTRACT_CONDITION   = 'att.text == "0~7" or att.text == "8~13" or att.text == "14~19" or att.text == "70~"'
+SIZE_FILTERING_DICT     =   {   'common':
+                                {
+                                    'isCheck'   : False,
+                                    'CheckSize' : False,    # Size(True) / Width&Height(False)
+                                    'Width'     : 0,
+                                    'Height'    : 0,
+                                    'Size'      : 0
+                                },
+                            'head':
+                                {
+                                    'isCheck'   : False,
+                                    'CheckSize' : False,
+                                    'Width'     : 0,
+                                    'Height'    : 0,
+                                    'Size'      : 0
+                                },
+                            'upper':
+                                {
+                                    'isCheck'   : False,
+                                    'CheckSize' : False,
+                                    'Width'     : 0,
+                                    'Height'    : 0,
+                                    'Size'      : 0
+                                },
+                            'lower':
+                                {
+                                    'isCheck'   : False,
+                                    'CheckSize' : False,
+                                    'Width'     : 0,
+                                    'Height'    : 0,
+                                    'Size'      : 0
+                                },                                                        
+                        }
 
 
 # MakeClassSource Class
@@ -188,7 +219,7 @@ class MakeClassSource(CvatXml):
         self.AbbreviatedImgDict = {}
         self.CheckRealExistDict = {}
 
-        self.CheckExtractLogList = []
+        self.SizeFilterLogList = []
 
         # UI 연동용 인자 리스트
         self.sendArgsList = []
@@ -264,10 +295,10 @@ class MakeClassSource(CvatXml):
             else:
                 ModeLog('CHECK_REAL_EXIST FORCED CANCLELLATION')
 
-        # CheckExtract 함수 조건값으로 특정 조건 결과값들만 필터링하는 모드
-        if CONDITIONAL_EXTRACT is True:
-            ModeLog('CONDITIONAL_EXTRACT ON')
-            self.condClass.addCondition(['CheckExtract', self.CheckExtract, self.getArgs_CheckExtract])
+        # SizeFilter 함수 조건값으로 특정 조건 결과값들만 필터링하는 모드
+        if SIZE_FILTERING is True:
+            ModeLog('SIZE_FILTERING ON')
+            self.condClass.addCondition(['SizeFilter', self.SizeFilter, self.getArgs_SizeFilter])
 
 
     # SelectUI Function
@@ -320,13 +351,13 @@ class MakeClassSource(CvatXml):
                                 ['CB', 'MAKE_66_CLASS',                 False,  f'{MAKE_66_CLASS}'],
                                 ['CB', 'MAKE_39_CLASS',                 False,  f'{MAKE_39_CLASS}'],
                                 ['CB', 'HLINE_1',                       False,  'None'],
-                                ['CB', 'CONDITIONAL_EXTRACT',           False,  f'{CONDITIONAL_EXTRACT}'],
+                                ['CB', 'SIZE_FILTERING',                False,  f'{SIZE_FILTERING}'],
                                 ['CB', 'ANALYSIS_IMAGE_SIZE',           False,  f'{ANALYSIS_IMAGE_SIZE}'],
                                 ['CB', 'HLINE_2',                       False,  'None'],
                                 ['CB', 'ORIGIN_IMG_FILES_ABBREVIATED',  False,  f'{ORIGIN_IMG_FILES_ABBREVIATED}'],
                                 ['CB', 'CHECK_REAL_EXIST',              False,  f'{CHECK_REAL_EXIST}'],
 
-                                ['LE',  'EXTRACT_CONDITION',            False, f'{EXTRACT_CONDITION}']
+                                ['UI',  'SIZE_FILTERING_DICT',            False, SIZE_FILTERING_DICT]
                             ]
         return self.getRunFunctionName(), self.sendArgsList
 
@@ -369,7 +400,7 @@ class MakeClassSource(CvatXml):
     [ Add Condition Name ]
         - CheckCrushImg
         - CheckIsExistAbbImg
-        - CheckExtract
+        - SizeFilter
         - CheckRealExist
     """
 
@@ -534,31 +565,71 @@ class MakeClassSource(CvatXml):
 
 
     # OHN
-    def CheckExtract(self, getArgsList):
+    def SizeFilter(self, getArgsList):
         """
             ! Free Customize Function
             추가적인 조건을 기입해 필터링 하는 ConditionCheck
         """
         BoxValue    = getArgsList[0]    # 현재 이미지의 BoxValue 들의 리스트
         ImgSizeList = getArgsList[1]    # 현재 이미지의 [너비, 높이] 리스트
-        ImgName     = getArgsList[2]
+        condDict    = getArgsList[2]
+        BoxDict     = {}
+        BoxNameList = ['head', 'upper', 'lower']
         
         # 너비 쓰려면 : int(ImgSizeList[WIDTH])
         # 높이 쓰려면 : int(ImgSizeList[HEIGHT])
 
-        # 여기에 추가 설정하고 싶은 조건 기입하면 됨!
-        for box in BoxValue:
-            for att in box.findall('attribute'):
-                # if att.text == '0~7' or att.text == '8~13' or att.text == '14~19' or att.text == '70~' \
-                #     or att.text == 'cap' or att.text == 'brimmed' or att.text == 'brimless' or att.text == 'helmat' or att.text == 'hood'\
-                #     or att.get('name') == 'top_red' or att.get('name') == 'top_yellow' or att.get('name') == 'top_green' or att.get('name') == 'top_brown' or att.get('name') == 'top_pink' \
-                #     or att.text == 'long_skirt' or att.text == 'short_skirt' or att.get('name') == 'bottom_red' or att.get('name') == 'bottom_yellow' or att.get('name') == 'bottom_green' \
-                #     or att.get('name') == 'bottom_brown' or att.get('name') == 'bottom_pink' or att.get('name') == 'bottom_grey' or att.get('name') == 'bottom_white':
-                # if (int(ImgSizeList[WIDTH]) > 30 or int(ImgSizeList[HEIGHT]) > 90) and (att.text == '70~'):
-                #     # COND_PASS 일 때의 결과값들 txt로 기록하기 위해 list 에 추가
-                #     self.CheckExtractLogList.append([f'{ImgName} {int(ImgSizeList[WIDTH])} {int(ImgSizeList[HEIGHT])}'])
-                if eval(EXTRACT_CONDITION):
+        def getBoxSizebyLabel(box):
+            xTopLeft     = int(float(box.get("xtl")))
+            yTopLeft     = int(float(box.get("ytl")))
+            xBottomRight = int(float(box.get("xbr")))
+            yBottomRight = int(float(box.get("ybr")))
+
+            return [xBottomRight - xTopLeft, yBottomRight - yTopLeft]
+
+        def checkSizeByLabel(labelName:str):
+            # 일단 값 있는지부터 체크
+            if BoxDict.get(f'{labelName}') == None:
+                return COND_FAIL
+            
+            boxSizeList = getBoxSizebyLabel(BoxDict[f'{labelName}'])
+            if condDict[f'{labelName}']['CheckSize'] is True:
+                boxSize = boxSizeList[WIDTH] * boxSizeList[HEIGHT]
+                if boxSize >= condDict[f'{labelName}']['Size']:
                     return COND_PASS
+                else:
+                    return COND_FAIL
+            else:
+                if  ( boxSizeList[WIDTH]  >= condDict[f'{labelName}']['Width'] ) and \
+                    ( boxSizeList[HEIGHT] >= condDict[f'{labelName}']['Height'] ):
+                    return COND_PASS
+                else:
+                    return COND_FAIL            
+
+        if condDict['common']['isCheck'] is True:
+            # Image 넓이 가지고 체크
+            if condDict['common']['CheckSize'] is True:
+                imgSize = ImgSizeList[WIDTH] * ImgSizeList[HEIGHT]
+                if imgSize >= condDict['common']['Size']:
+                    return COND_PASS
+                else:
+                    return COND_FAIL
+            # Image 너비, 높이 가지고 체크
+            else:
+                if  ( ImgSizeList[WIDTH]  >= condDict['common']['Width'] ) and \
+                    ( ImgSizeList[HEIGHT] >= condDict['common']['Height'] ):
+                    return COND_PASS
+                else:
+                    return COND_FAIL
+
+        # 각 box 값들 미리 정리
+        for box in BoxValue:
+            BoxDict[box.get('label')] = box
+
+        # 각 Label에 대해서 체크하는 부분
+        for eachName in BoxNameList:
+            if condDict[f'{eachName}']['isCheck'] is True:
+                return checkSizeByLabel(eachName)
 
         return COND_FAIL
 
@@ -581,8 +652,8 @@ class MakeClassSource(CvatXml):
         return self.getCurImgName()
 
 
-    def getArgs_CheckExtract(self):
-        return [ self.getCurBoxList(), self.getCurImgSize(), self.getCurImgName() ]
+    def getArgs_SizeFilter(self):
+        return [ self.getCurBoxList(), self.getCurImgSize(), SIZE_FILTERING_DICT ]
 
 
     def getArgs_CheckRealExist(self):
@@ -771,8 +842,8 @@ class MakeClassSource(CvatXml):
         if self.ResultDeleteUnknown_39_List:
             self.saveMakeClassFile(IMAGE_LIST_39_TXT, self.ResultDeleteUnknown_39_List)
 
-        if self.CheckExtractLogList:
-            self.saveMakeClassFile(CHECK_EXTRACT_TXT, self.CheckExtractLogList)
+        if self.SizeFilterLogList:
+            self.saveMakeClassFile(CHECK_EXTRACT_TXT, self.SizeFilterLogList)
 
 
     # ABS FUNC(가상 함수) 재정의 함수
