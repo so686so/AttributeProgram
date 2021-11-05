@@ -708,3 +708,9 @@ class AnalysisAttribute(CvatXml):
     def run(self):
         super().run()
         os.startfile(ResultDirPath)
+
+
+if __name__ == "__main__":
+    App = QApplication(sys.argv)
+    RunProgram = AnalysisAttribute(App)
+    RunProgram.run()

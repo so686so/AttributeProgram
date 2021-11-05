@@ -142,3 +142,9 @@ class JoinPath:
         self.writeImgListFileWithJoinPath()
 
         os.startfile(ResultDirPath)
+
+
+if __name__ == "__main__":
+    App = QApplication(sys.argv)
+    RunProgram = JoinPath(App)
+    RunProgram.run()

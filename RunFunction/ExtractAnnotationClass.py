@@ -416,6 +416,10 @@ class ExtractAnnotation:
         
         if RUN_SPLIT_TRAIN_TEST:
             showLog(f"* SP_Condition\t\t: Train {self.SplitPercent}% - Test {100-int(self.SplitPercent)}%")
+
+        if RUN_CONDITION_EXTRACT:
+            showLog(f'* Extract Condition\t: {EXTRACT_CONDITION}')
+            showLog(f'* Extract Count\t\t: {EXTRACT_COUNT}')
         print()
 
     
@@ -658,3 +662,9 @@ class ExtractAnnotation:
         self.saveResultByExcel()
 
         os.startfile(self.ResultDirPath)
+
+
+if __name__ == "__main__":
+    App = QApplication(sys.argv)
+    RunProgram = ExtractAnnotation(App)
+    RunProgram.run()

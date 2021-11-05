@@ -56,3 +56,4 @@
     - (ADD) MakeClass에 ANALYSIS_IMAGE_SIZE 추가
     - (FIX) 프로그램에서 창을 닫을 때 계속해서 실행되지 않고 바로 꺼지게 변경
     - (ADD) 프로그램 고르는 UI 추가
+    - (FIX) RunFunction들이 각자의 코드에서도 실행될 수 있게 변경

@@ -860,3 +860,9 @@ class MakeClassSource(CvatXml):
         """
         super().run()
         os.startfile(ResultDirPath)
+
+
+if __name__ == "__main__":
+    App = QApplication(sys.argv)
+    RunProgram = MakeClassSource(App)
+    RunProgram.run()
