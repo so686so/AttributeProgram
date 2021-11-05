@@ -587,7 +587,8 @@ class CvatXml(metaclass=ABCMeta):
         # 이미지가 넘어갈 때마다 터미널에 보여주면 너무 속도 느려지니까, 퍼센트값이 달라질때만 출력
         # 만약 이미지가 80000개면 80000번 출력할 걸 50번(2%마다 출력하니까) 출력으로 압축 
         if percentCount != self.prePercentageCount:
-            showBar = '\x1b[32m' + '|' * percentCount + '\x1b[0m' + '|' * (50 - percentCount)
+            curBar  = '#' if CRESET == '' else '|'
+            showBar = f'{CGREEN}' + f'{curBar}' * percentCount + f'{CRESET}' + '|' * (50 - percentCount)
             print(f' [ {curCount:^5} / {totalCount:5} ] {showBar:60} {percentCount*2:3}%\r', end='')
 
         self.prePercentageCount = percentCount
@@ -703,7 +704,7 @@ class CvatXml(metaclass=ABCMeta):
 
         # cvatXmlList 하나씩 돌면서 각 xml 파일을 runEachXmlFile() 실행
         for idx, eachXmlPath in enumerate(self.cvatXmlList):
-            print(f"[ \x1b[32m{idx+1:3}\x1b[0m / {XmlFileCount:3} ]")
+            print(f"[ {CGREEN}{idx+1:3}{CRESET} / {XmlFileCount:3} ]")
             print("--------------------------------------------------------------------------------------")
             perRunImage, perSuccessCount = self.runEachXmlFile(eachXmlPath)
             TotalRunImageCount += perRunImage

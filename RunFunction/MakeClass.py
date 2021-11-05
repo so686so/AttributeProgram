@@ -783,9 +783,9 @@ class MakeClassSource(CvatXml):
         TotalLen_66_Img = len(self.Result_66_ClassList)
         TotalLen_39_Img = len(self.Result_39_ClassList)
 
-        showLog(f'- {"Pass the ConditionCheck":<35} [\x1b[32m{TotalLen_83_Img:^8}\x1b[0m]  ->  MakeClass 83 Image [\x1b[32m{TotalLen_83_Img:^8}\x1b[0m]')
-        showLog(f'- {"Deleted by UnknownCheck in 66Class":<35} [\x1b[31m{self.Deleted_66_Count:^8}\x1b[0m]  ->  MakeClass 66 Image [\x1b[33m{TotalLen_66_Img:^8}\x1b[0m]')
-        showLog(f'- {"Deleted by UnknownCheck in 39Class":<35} [\x1b[31m{self.Deleted_39_Count:^8}\x1b[0m]  ->  MakeClass 39 Image [\x1b[33m{TotalLen_39_Img:^8}\x1b[0m]\n')
+        showLog(f'- {"Pass the ConditionCheck":<35} [{CGREEN}{TotalLen_83_Img:^8}{CRESET}]  ->  MakeClass 83 Image [{CGREEN}{TotalLen_83_Img:^8}{CRESET}]')
+        showLog(f'- {"Deleted by UnknownCheck in 66Class":<35} [{CRED}{self.Deleted_66_Count:^8}{CRESET}]  ->  MakeClass 66 Image [{CYELLOW}{TotalLen_66_Img:^8}{CRESET}]')
+        showLog(f'- {"Deleted by UnknownCheck in 39Class":<35} [{CRED}{self.Deleted_39_Count:^8}{CRESET}]  ->  MakeClass 39 Image [{CYELLOW}{TotalLen_39_Img:^8}{CRESET}]\n')
 
         if os.path.isdir(ResultDirPath) is False:
             os.makedirs(ResultDirPath, exist_ok=True)

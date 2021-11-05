@@ -27,9 +27,20 @@ TEST_MODE       = copy.copy(CORE_TEST_MODE)
 ERROR_STRICT    = copy.copy(CORE_ERROR_STRICT)
 
 
-IS_RUN_BAT_FILE = False
-if len(sys.argv) > 1:
-    IS_RUN_BAT_FILE = True
+# Color Defines
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+CRED            = '\x1b[31m'
+CGREEN          = '\x1b[32m'
+CYELLOW         = '\x1b[33m'
+CSKY            = '\x1b[36m'
+CRESET          = '\x1b[0m'
+
+if len(sys.argv) >1 and sys.argv[1] == 'RUN_BAT':
+    CRED    = ''
+    CGREEN  = ''
+    CYELLOW = ''
+    CSKY    = ''
+    CRESET  = ''
 
 # VAR
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -92,9 +103,7 @@ def NoticeLog(Msg, bTime=False):
                 INPUT   -> NoticeLog("Hello World!", True)
                 OUTPUT  -> [09:51:04] [ Notice ] : HelloWorld
     """
-    NoticeMsg = "[ \x1b[33mNotice\x1b[0m ] "
-    if IS_RUN_BAT_FILE:
-        NoticeMsg = "[ Notice ] "
+    NoticeMsg = f"[ {CYELLOW}Notice{CRESET} ] "
     if SHOW_LOG:
         if bTime:
             print(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] {NoticeMsg}{Msg}")
@@ -128,9 +137,8 @@ def ErrorLog(Msg, bTime=False, lineNum=0, errorFuncName=None, errorFileName=None
             - ErrorLog('여기에 에러 메세지', lineNum=lineNum(), errorFileName=filename())
             - 위와 같은 형식으로 적어야 showErrorList() 에 DETAIL 이 나옴
     """
-    ErrorMsg = "[ \x1b[31mError\x1b[0m ] "
-    if IS_RUN_BAT_FILE:
-        ErrorMsg = "[ Error ] "
+    ErrorMsg = f"[ {CRED}Error{CRESET} ] "
+
     if SHOW_LOG:
         if bTime:
             print(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] {ErrorMsg}{Msg}")
@@ -202,9 +210,8 @@ def SuccessLog(Msg, bTime=False):
                 INPUT   -> SuccessLog("Hello World!", True)
                 OUTPUT  -> [09:53:29] [ Done ] : HelloWorld
     """
-    SuccessMsg = "[ \x1b[32mDone\x1b[0m ] "
-    if IS_RUN_BAT_FILE:
-        SuccessMsg = "[ Done ] "
+    SuccessMsg = f"[ {CGREEN}Done{CRESET} ] "
+
     if SHOW_LOG:
         if bTime:
             print(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] {SuccessMsg}{Msg}")
@@ -223,9 +230,8 @@ def ModeLog(Msg, bTime=False):
             bTime   : True 값일 때, 출력문장 앞에 현재 시간까지 표현
         ---------------------------------------------------------------------
     """
-    ModeMsg = "[ \x1b[36mMODE\x1b[0m ] "
-    if IS_RUN_BAT_FILE:
-        ModeMsg = "[ MODE ] "
+    ModeMsg = f"[ {CSKY}MODE{CRESET} ] "
+
     if SHOW_LOG:
         if bTime:
             print(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] {ModeMsg}{Msg}")
