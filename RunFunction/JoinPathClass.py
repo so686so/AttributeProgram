@@ -67,7 +67,15 @@ class JoinPath:
         self.selectUi.show()
         self.app.exec()
 
+        if self.selectUi.isSelectDone is False:
+            self.run = self.setRunToProgramExit
+            return
+
         NoticeLog(f'JoinPath : {JoinDirPath}')
+
+
+    def setRunToProgramExit(self):
+        NoticeLog(f'{self.__class__.__name__} Program EXIT')
 
 
     def openImgListFile(self):

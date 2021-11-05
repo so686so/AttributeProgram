@@ -46,3 +46,13 @@
 ==================
     - (ADD) Attribute Data 분석을 위한 Analysis 코드 추가
     - (FIX) ExtractCheck UI 상에서도 할 수 있게 수정
+
+
+[1.0.6] 2021-11-05
+==================
+    - (FIX) UI 구분선 추가
+    - (ADD) ExtractAnnotation 에 ConditionExtract 기능 추가
+    - (FIX) 버그 수정
+    - (ADD) MakeClass에 ANALYSIS_IMAGE_SIZE 추가
+    - (FIX) 프로그램에서 창을 닫을 때 계속해서 실행되지 않고 바로 꺼지게 변경
+    - (ADD) 프로그램 고르는 UI 추가

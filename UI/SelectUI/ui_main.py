@@ -5,8 +5,8 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 
 # VAR DEFINE
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-WINDOW_WIDTH    = 800
-WINDOW_HEIGHT   = 300
+WINDOW_WIDTH    = 1000
+WINDOW_HEIGHT   = 450
 
 # Ui_MainWindow Class
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*

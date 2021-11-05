@@ -88,6 +88,8 @@ class SelectUI(QMainWindow):
         self.initSettingCBList  = []
         self.initSettingLEList  = []
 
+        self.isSelectDone       = False
+
         self.PreRememberPath    = ""
         self.loadRememberDir()
 
@@ -110,6 +112,8 @@ class SelectUI(QMainWindow):
 
         # 최종 경로값 저장
         self.saveRememberDir()
+
+        self.isSelectDone = True
 
         # 값 전송 끝내고 UI 끄기
         QCoreApplication.instance().quit()
@@ -161,8 +165,10 @@ class SelectUI(QMainWindow):
     def setReturnDict(self):
         # init 할 때 받았던 리스트들을 순회하면서 returnDict 차곡차곡 집어넣기
         for eachArg in self.initSettingList:
+            if 'HLINE' in eachArg[NAME]:
+                continue
             # FileDialog 속성 : 경로 반환
-            if eachArg[TYPE] == 'FD':
+            elif eachArg[TYPE] == 'FD':
                 self.returnDict[eachArg[NAME]] = os.path.normpath(self.get_LE_text_by_Name_FD(eachArg[NAME]))
             # CheckBox 속성 : Boolean 반환
             elif eachArg[TYPE] == 'CB':
@@ -199,6 +205,12 @@ class SelectUI(QMainWindow):
 
 
     def appendNewLE(self, SetArg):
+        if 'HLINE' in SetArg[NAME]:
+            self.selectLEList.append([QFrame()])
+            self.selectLEList[LAST_APPEND][0].setFrameShape(QFrame.Shape.HLine)
+            self.selectLEList[LAST_APPEND][0].setFrameShadow(QFrame.Shadow.Sunken)
+            return
+
         self.selectLEList.append([QLabel(self) ,QLineEdit(self)])
 
         # LABEL SETTING
@@ -211,6 +223,12 @@ class SelectUI(QMainWindow):
 
     # True/False Define 값들을 CheckBox 항목에 추가하기
     def appendNewCB(self, SetArg):
+        if 'HLINE' in SetArg[NAME]:
+            self.selectCBList.append([QFrame()])
+            self.selectCBList[LAST_APPEND][0].setFrameShape(QFrame.Shape.HLine)
+            self.selectCBList[LAST_APPEND][0].setFrameShadow(QFrame.Shadow.Sunken)
+            return
+
         self.selectCBList.append([QCheckBox(self)])
 
         # CheckBox Setting
@@ -223,6 +241,12 @@ class SelectUI(QMainWindow):
 
     # 주소값 Define 값들을 Label/LineEdit/PushButton 포맷으로 추가하기
     def appendNewFD(self, SetArg):
+        if 'HLINE' in SetArg[NAME]:
+            self.selectFDList.append([QFrame()])
+            self.selectFDList[LAST_APPEND][0].setFrameShape(QFrame.Shape.HLine)
+            self.selectFDList[LAST_APPEND][0].setFrameShadow(QFrame.Shadow.Sunken)
+            return
+
         self.selectFDList.append([QLabel(self) ,QLineEdit(self), QPushButton(self)])
 
         # LABEL SETTING
@@ -331,6 +355,11 @@ class SelectUI(QMainWindow):
         for eachFD in self.selectFDList:
             add_H_Layout = QHBoxLayout()
 
+            if str(type(eachFD[0])) == "<class 'PyQt6.QtWidgets.QFrame'>":
+                add_H_Layout.addWidget(eachFD[0])
+                FD_Vbox.addLayout(add_H_Layout)
+                continue
+
             add_H_Layout.addStretch(1)
             add_H_Layout.addWidget(eachFD[LABEL_INDEX], 4)
             add_H_Layout.addWidget(eachFD[LE_INDEX], 10)
@@ -339,16 +368,17 @@ class SelectUI(QMainWindow):
 
             # self.ui.mainLayout.addLayout(add_H_Layout, 2)
             FD_Vbox.addLayout(add_H_Layout)
+
         FD_GroupBox.setLayout(FD_Vbox)
-        self.ui.mainLayout.addWidget(FD_GroupBox)
+        self.ui.mainLayout.addWidget(FD_GroupBox, 3)
 
         CB_GroupBox = QGroupBox('Select Option')
         CB_Vbox     = [QVBoxLayout()]
 
-        if len(self.selectCBList) > 4:
+        if len(self.selectCBList) > 6:
             CB_Vbox.append(QVBoxLayout())
 
-        EACH_LINE_MAX_OPT_NUM   = 4
+        EACH_LINE_MAX_OPT_NUM   = 6
         EmptyIdx                = 0
         LAST_BOX                = -1
         
@@ -357,6 +387,11 @@ class SelectUI(QMainWindow):
             VBoxIdx      = idx // EACH_LINE_MAX_OPT_NUM
             EmptyIdx     = EACH_LINE_MAX_OPT_NUM - ( idx % EACH_LINE_MAX_OPT_NUM )
             add_H_Layout = QHBoxLayout()
+
+            if str(type(eachCB[0])) == "<class 'PyQt6.QtWidgets.QFrame'>":
+                add_H_Layout.addWidget(eachCB[0])
+                CB_Vbox[VBoxIdx].addLayout(add_H_Layout)
+                continue
 
             add_H_Layout.addStretch(1)
             add_H_Layout.addWidget(eachCB[CB_INDEX], 20)
@@ -373,7 +408,7 @@ class SelectUI(QMainWindow):
 
         CB_HBox = QHBoxLayout()
         for eachBox in CB_Vbox:
-            CB_HBox.addLayout(eachBox)
+            CB_HBox.addLayout(eachBox, 1)
 
         # LineEdit 으로 수정하는 애들 하나씩 집어넣기
         LE_GroupBox = QGroupBox('ETC')
@@ -381,6 +416,11 @@ class SelectUI(QMainWindow):
 
         for idx, eachLE in enumerate(self.selectLEList):
             add_H_Layout = QHBoxLayout()
+
+            if str(type(eachLE[0])) == "<class 'PyQt6.QtWidgets.QFrame'>":
+                add_H_Layout.addWidget(eachLE[0])
+                LE_Vbox.addLayout(add_H_Layout)
+                continue
 
             add_H_Layout.addStretch(1)
             add_H_Layout.addWidget(eachLE[LABEL_INDEX], 4)
@@ -392,23 +432,11 @@ class SelectUI(QMainWindow):
 
             LE_Vbox.addLayout(add_H_Layout)
 
-        # TEST
-        # TestLabel = QLabel()
-        # TestLabel.setText('TestOption')
-
-        # add_Test_H_Layout = QHBoxLayout()
-        # add_Test_H_Layout.addStretch(1)     
-        # add_Test_H_Layout.addWidget(TestLabel, 4)     
-        # add_Test_H_Layout.addWidget(QLineEdit(), 2)     
-        # add_Test_H_Layout.addStretch(1)
-        # LE_Vbox.addLayout(add_Test_H_Layout)
-        # ----
-
         LE_GroupBox.setLayout(LE_Vbox)
-        CB_HBox.addWidget(LE_GroupBox)
+        CB_HBox.addWidget(LE_GroupBox, 2)
 
         CB_GroupBox.setLayout(CB_HBox)
-        self.ui.mainLayout.addWidget(CB_GroupBox)
+        self.ui.mainLayout.addWidget(CB_GroupBox, 3)
 
         # Done 버튼 집어넣기
         self.ui.mainLayout.addWidget(self.ui.quitButton, 1)

@@ -1,7 +1,7 @@
 # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 # *  TITLE        |  Attribute Program                        *
-# *  DATE         |  2021-10-20                               *
-# *  VERSION      |  1.0.5                                    *
+# *  DATE         |  2021-11-05                               *
+# *  VERSION      |  1.0.6                                    *
 # *  IDE          |  Visual Studio Code 1.61.0                *
 # *  OS           |  Windows 10                               *
 # *  AUTHOR       |  SO BYUNG JUN                             *
@@ -23,23 +23,27 @@ from RunFunction.JoinPathClass          import JoinPath
 
 # IMPORT UI
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-from UI.SelectUI.SelectUIClass  import *
+from UI.SelectUI.SelectUIClass                  import *
+from UI.ChoiceProgramUI.ChoiceProgramUIClass    import *
+
+
+# Main Function
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+def main():
+    App             = QApplication(sys.argv)
+    SelectProgram   = ChoiceProgramUI(App)
+
+    while True:
+        Result = SelectProgram.run()
+
+        if Result == 'EXIT':
+            NoticeLog('Program Finished')
+            break
+
+        ChoiceProgram = eval(f'{Result}(App)')
+        ChoiceProgram.run() 
 
 
 if __name__ == "__main__":
-    App = QApplication(sys.argv)
+    main()
 
-    # AnalysisProgram = AnalysisAttribute(App)
-    # AnalysisProgram.run()
-
-    # SliceProgram = SliceImage(App)
-    # SliceProgram.run()
-
-    # MakeClassProgram = MakeClassSource(App)
-    # MakeClassProgram.run()
-
-    RandomExtractProgram = ExtractAnnotation(App)
-    RandomExtractProgram.run()
-
-    # JoinPathProgram = JoinPath(App)
-    # JoinPathProgram.run()

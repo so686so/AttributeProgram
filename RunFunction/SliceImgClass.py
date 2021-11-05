@@ -160,6 +160,10 @@ class SliceImage(CvatXml):
         self.selectUi.show()
         self.app.exec()
 
+        if self.selectUi.isSelectDone is False:
+            self.run = self.setRunToProgramExit
+            return
+
         self.initCvatXmlClass()
 
         # 각자 파일 경로들 넣어주기
@@ -171,6 +175,9 @@ class SliceImage(CvatXml):
             sys.exit(-1)
 
         self.TotalImageCount = len(self.OriginImgDict)
+        
+    def setRunToProgramExit(self):
+        NoticeLog(f'{self.__class__.__name__} Program EXIT')
 
     # SelectUI Function
     # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-

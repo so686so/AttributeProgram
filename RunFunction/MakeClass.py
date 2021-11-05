@@ -22,6 +22,11 @@ import os
 import sys
 
 
+# IMPORT INSTALLED
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+import numpy as np
+
+
 # Add Import Path
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../UI/SelectUI'))
@@ -88,7 +93,9 @@ ORIGIN_IMG_FILES_ABBREVIATED = False
 
 # MAKECLASS 실행하면서, 해당 이미지 실제 존재 여부 체크할건지
 # 요거 체크하면 꽤느려질걸...
-CHECK_REAL_EXIST = True
+CHECK_REAL_EXIST = False
+
+ANALYSIS_IMAGE_SIZE = True
 
 
 # CONDITION EXTRACT STRING
@@ -149,7 +156,7 @@ class MakeClassSource(CvatXml):
             - setRunFunctionParam()
             - setFinishFunctionParam()
     """
-    def __init__(self, QApp):
+    def __init__(self, QApp=None):
         """
             class 내부 변수 할당 및 ExcelData 클래스 생성
         """
@@ -169,6 +176,8 @@ class MakeClassSource(CvatXml):
 
         self.Deleted_39_Count = 0
         self.Deleted_66_Count = 0
+
+        self.imgSizeValueList = []
 
         self.ClassData  = ExcelData()
 
@@ -204,11 +213,19 @@ class MakeClassSource(CvatXml):
         self.selectUi.show()
         self.app.exec()
 
+        if self.selectUi.isSelectDone is False:
+            self.run = self.setRunToProgramExit
+            return
+
         # UI 를 통해 경로 설정이 완료되면, CvatXmlClass 본격 init 실행
         self.initCvatXmlClass()
 
         # Define 값 기준 MODE 설정
         self.setMode()
+
+
+    def setRunToProgramExit(self):
+        NoticeLog(f'{self.__class__.__name__} Program EXIT')
 
 
     def setMode(self):
@@ -292,6 +309,7 @@ class MakeClassSource(CvatXml):
         self.sendArgsList = [   ['FD', 'OriginXmlDirPath',              True,   f'{OriginXmlDirPath}'],
                                 ['FD', 'OriginImgDirPath',              True,   f'{OriginImgDirPath}'],
                                 ['FD', 'ResultDirPath',                 True,   f'{ResultDirPath}'],
+                                ['FD', 'HLINE_0',                       False,  'None'],
                                 ['FD', 'AbbreviatedImgPath',            True,   f'{AbbreviatedImgPath}'],
                                 ['FD', 'CrushedImgFilePath',            False,  f'{CrushedImgFilePath}'],
                                 ['FD', 'CheckRealExistPath',            True,   f'{CheckRealExistPath}'],
@@ -299,7 +317,10 @@ class MakeClassSource(CvatXml):
                                 ['CB', 'MAKE_83_CLASS',                 False,  f'{MAKE_83_CLASS}'],
                                 ['CB', 'MAKE_66_CLASS',                 False,  f'{MAKE_66_CLASS}'],
                                 ['CB', 'MAKE_39_CLASS',                 False,  f'{MAKE_39_CLASS}'],
+                                ['CB', 'HLINE_1',                       False,  'None'],
                                 ['CB', 'CONDITIONAL_EXTRACT',           False,  f'{CONDITIONAL_EXTRACT}'],
+                                ['CB', 'ANALYSIS_IMAGE_SIZE',           False,  f'{ANALYSIS_IMAGE_SIZE}'],
+                                ['CB', 'HLINE_2',                       False,  'None'],
                                 ['CB', 'ORIGIN_IMG_FILES_ABBREVIATED',  False,  f'{ORIGIN_IMG_FILES_ABBREVIATED}'],
                                 ['CB', 'CHECK_REAL_EXIST',              False,  f'{CHECK_REAL_EXIST}'],
 
@@ -669,6 +690,29 @@ class MakeClassSource(CvatXml):
         # 83 클래스 만드는 데 실패할 애들은 진작에 다 걸러졌음
         self.ResultImgNameList.append(imgName)
 
+        if ANALYSIS_IMAGE_SIZE is True:
+            self.imgSizeValueList.append(self.CurImgSizeList)
+
+        
+    def analysisImageSize(self):
+        widthList   = [ each[WIDTH] for each in self.imgSizeValueList ]
+        heightList  = [ each[HEIGHT] for each in self.imgSizeValueList ]
+
+        widthArray  = np.array(widthList)
+        heightArray = np.array(heightList)
+
+        widthAvg    = np.mean(widthArray)
+        heightAvg   = np.mean(heightArray)
+
+        print()
+        showLog('# [ SIZE ANALYSIS ]')
+        showLog('--------------------------------------------------------------------------------------')
+        showLog(f'- Avgarge Width  : {round(widthAvg,2)}')
+        showLog(f'- Avgarge Height : {round(heightAvg,2)}')
+        showLog(f'- Avgarge Szie   : {round(widthAvg*heightAvg,2)}')
+        showLog('--------------------------------------------------------------------------------------')
+        print()
+        
 
     def listToString(self, fromList):
         """
@@ -748,6 +792,9 @@ class MakeClassSource(CvatXml):
             NoticeLog(f'{ResultDirPath} is Not Exists, Create Done')
 
         self.saveMakeClassFiles()
+
+        if ANALYSIS_IMAGE_SIZE is True:
+            self.analysisImageSize()
 
 
     # ABS FUNC(가상 함수) 재정의 함수

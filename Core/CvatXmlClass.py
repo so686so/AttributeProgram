@@ -643,7 +643,7 @@ class CvatXml(metaclass=ABCMeta):
             # 1. 각 이미지에 대해 name 과 size, box 목록을 추출
             imgName  = eachImage.get("name")
             boxValue = eachImage.findall("box")
-            sizeList = [eachImage.get("width"), eachImage.get("height")]
+            sizeList = [int(eachImage.get("width")), int(eachImage.get("height"))]
 
             # 2. 추출한 Scope 내의 변수를 클래스 멤버 변수에 set : 다른 곳에서 참조하기 위해서
             self.setCurBoxList(boxValue)

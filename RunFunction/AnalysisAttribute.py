@@ -162,6 +162,10 @@ class AnalysisAttribute(CvatXml):
         self.selectUi.show()
         self.app.exec()
 
+        if self.selectUi.isSelectDone is False:
+            self.run = self.setRunToProgramExit
+            return
+
         self.initCvatXmlClass()
         self.setimgSizeAnalysisList()
 
@@ -185,7 +189,11 @@ class AnalysisAttribute(CvatXml):
 
         if CONDITIONAL_EXTRACT is True:
             ModeLog('CONDITIONAL_EXTRACT ON')
-            self.condClass.addCondition(['CheckExtract', self.CheckExtract, self.getArgs_CheckExtract])        
+            self.condClass.addCondition(['CheckExtract', self.CheckExtract, self.getArgs_CheckExtract])
+
+
+    def setRunToProgramExit(self):
+        NoticeLog(f'{self.__class__.__name__} Program EXIT')
 
 
     def setimgSizeAnalysisList(self):

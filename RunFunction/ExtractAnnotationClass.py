@@ -147,6 +147,10 @@ class ExtractAnnotation:
         self.selectUi.show()
         self.app.exec()
 
+        if self.selectUi.isSelectDone is False:
+            self.run = self.setRunToProgramExit
+            return
+
         if os.path.isfile(self.AnnotationTxtPath) is False:
             ErrorLog(f'{self.AnnotationTxtPath} is Not Exist! Program Quit.')
             sys.exit(-1)
@@ -168,6 +172,10 @@ class ExtractAnnotation:
             error_handling('Load ClassName Failed', filename(), lineNum())
 
 
+    def setRunToProgramExit(self):
+        NoticeLog(f'{self.__class__.__name__} Program EXIT')
+
+
     def setInitSettingForSelectUI(self):
         """
             - AnnotationFile      
@@ -184,15 +192,19 @@ class ExtractAnnotation:
 
                                 ['LE', 'overCount',                 False,  f'{overCount}'],
                                 ['LE', 'ExtractPercent',            False,  f'{ExtractPercent}'],
+
+                                ['LE', 'HLINE_1',                   False,  'None'],
                                 ['LE', 'SplitPercent',              False,  f'{SplitPercent}'],
+                                ['LE', 'HLINE_2',                   False,  'None'],
                                 ['LE', 'SaveAnnotationFileName',    False,  f'{SaveAnnotationFileName}'],
                                 ['LE', 'SaveImgFileName',           False,  f'{SaveImgFileName}'],
                                 ['LE', 'RandomExtractPrefix',       False,  f'{RandomExtractPrefix}'],
                                 ['LE', 'SplitTrainPrefix',          False,  f'{SplitTrainPrefix}'],
                                 ['LE', 'SplitTestPrefix',           False,  f'{SplitTestPrefix}'],
 
-                                ['LE', 'EXTRACT_CONDITION',         False, f'{EXTRACT_CONDITION}'],
-                                ['LE', 'EXTRACT_COUNT',             False, f'{EXTRACT_COUNT}'],
+                                ['LE', 'HLINE_3',                   False,  'None'],
+                                ['LE', 'EXTRACT_COUNT',             False,  f'{EXTRACT_COUNT}'],
+                                ['LE', 'EXTRACT_CONDITION',         False,  f'{EXTRACT_CONDITION}'],
                             ]
         return self.ProgramName, self.sendArgsList
 
@@ -579,8 +591,8 @@ class ExtractAnnotation:
             self.SplitTestResTxtList.append(TextPairImgDict[eachIdx][ANNOTATION_IDX])
             self.SplitTestResImgList.append(TextPairImgDict[eachIdx][IMAGELIST_IDX])
 
+
     def RunConditionExtract(self):
-        TotalAnnotationCount    = 0
         BaseAnnotationList      = []
         BaseImgList             = []
 
@@ -588,11 +600,9 @@ class ExtractAnnotation:
         IMAGELIST_IDX   = 1
 
         if RUN_RANDOM_EXTRACT is True:
-            TotalAnnotationCount    = len(self.ExtractRandomTxtList)
             BaseAnnotationList      = self.ExtractRandomTxtList[:]
             BaseImgList             = self.ExtractRandomImgList[:]
         else:
-            TotalAnnotationCount    = len(self.AnnotationTxtList)
             BaseAnnotationList      = self.AnnotationTxtList[:]
             BaseImgList             = self.AnnotationImgList[:]
 
@@ -605,7 +615,6 @@ class ExtractAnnotation:
                 ConditionAnnotationList.append(each)
                 ConditionImgList.append(BaseImgList[Idx])
 
-        print("COUNT", len(ConditionAnnotationList)  )
         ConditionAnnotationCount = len(ConditionAnnotationList)   
 
         TextPairImgDict = {}
