@@ -5,14 +5,15 @@ Projects:
 Tasks:
     TodoMainList:
         ✔ Add Choice RunFunction UI @done (2021. 11. 5. 오후 2:59:14)
-        ☐ Add Choice ConditionCheck UI
+        ✔ Add Choice ConditionCheck UI @done (2021. 11. 6. 오전 3:14:56)
         ☐ Add UnitTest
         ☐ Annotation Rework
         ✔ Change CheckExtract Algorithm @done (2021. 11. 6. 오전 12:56:47)
         ✔ Separate conditional extraction program @done (2021. 11. 6. 오전 12:56:46)
+        ☐ CleanUp Filtered ImgSize Check Function
 
     TodoTinyList:
-        ☐ Fix ExtractAnnotationClass.RunConditionExtract
+        ✔ Fix ExtractAnnotationClass.RunConditionExtract @done (2021. 11. 6. 오전 3:15:57)
         ☐ CleanUp README
         ✔ Add .bat File @done (2021. 11. 5. 오후 4:01:57)
         ✔ Color print readjustment @done (2021. 11. 5. 오후 5:20:53)

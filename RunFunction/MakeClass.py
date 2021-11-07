@@ -74,6 +74,7 @@ IMAGE_LIST_83_TXT   = "83Class_ImgList.txt"
 IMAGE_LIST_66_TXT   = "66Class_ImgList.txt"
 IMAGE_LIST_39_TXT   = "39Class_ImgList.txt"
 CHECK_EXTRACT_TXT   = "SizeFilterList.txt"
+SIZE_ANALYSIS_TXT   = "ImageSize_Analysis_Source.txt"
 
 
 # DEFINE
@@ -209,6 +210,7 @@ class MakeClassSource(CvatXml):
         self.Deleted_66_Count = 0
 
         self.imgSizeValueList = []
+        self.imgSizeSaveList  = []
 
         self.ClassData  = None
 
@@ -764,7 +766,12 @@ class MakeClassSource(CvatXml):
         self.ResultImgNameList.append(imgName)
 
         if ANALYSIS_IMAGE_SIZE is True:
-            self.imgSizeValueList.append(self.CurImgSizeList)
+            # 39makeClass 체크했을 때는 그게 최우선
+            if MAKE_39_CLASS is True:
+                if isUnknownDelete_39 is False:
+                    self.imgSizeValueList.append(self.CurImgSizeList)
+            else:
+                    self.imgSizeValueList.append(self.CurImgSizeList)
 
         
     def analysisImageSize(self):
@@ -785,6 +792,14 @@ class MakeClassSource(CvatXml):
         showLog(f'- Avgarge Szie   : {round(widthAvg*heightAvg,2)}')
         showLog('--------------------------------------------------------------------------------------')
         print()
+
+    
+    def setImageAnalysisSaveList(self):
+        widthList   = [ each[WIDTH] for each in self.imgSizeValueList ]
+        heightList  = [ each[HEIGHT] for each in self.imgSizeValueList ]
+
+        for eachIdx in range(len(self.imgSizeValueList)):
+            self.imgSizeSaveList.append(f'{widthList[eachIdx]} {heightList[eachIdx]}')
         
 
     def listToString(self, fromList):
@@ -844,6 +859,10 @@ class MakeClassSource(CvatXml):
 
         if self.SizeFilterLogList:
             self.saveMakeClassFile(CHECK_EXTRACT_TXT, self.SizeFilterLogList)
+
+        if ANALYSIS_IMAGE_SIZE is True:
+            self.setImageAnalysisSaveList()
+            self.saveMakeClassFile(SIZE_ANALYSIS_TXT, self.imgSizeSaveList)
 
 
     # ABS FUNC(가상 함수) 재정의 함수
