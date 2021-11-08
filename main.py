@@ -1,8 +1,8 @@
 # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 # *  TITLE        |  Attribute Program                        *
-# *  DATE         |  2021-11-07                               *
-# *  VERSION      |  1.0.7                                    *
-# *  IDE          |  Visual Studio Code 1.61.0                *
+# *  DATE         |  2021-11-08                               *
+# *  VERSION      |  1.0.8                                    *
+# *  IDE          |  Visual Studio Code 1.62.0                *
 # *  OS           |  Windows 10                               *
 # *  AUTHOR       |  SO BYUNG JUN                             *
 # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -30,6 +30,7 @@ from UI.ChoiceProgramUI.ChoiceProgramUIClass    import *
 # Main Function
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 def main():
+    showProgramInfo()
     App                 = QApplication(sys.argv)
     ChoiceProgram       = ChoiceProgramUI(App)
 
@@ -37,7 +38,7 @@ def main():
         ProgramClsName  = ChoiceProgram.run()
 
         if ProgramClsName == 'EXIT':
-            NoticeLog('Program Finished')
+            NoticeLog('Attribute Program Finished... Close still running programs\n')
             break
 
         SelectedProgram = eval(f'{ProgramClsName}(App)')

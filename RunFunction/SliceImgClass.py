@@ -42,6 +42,7 @@ from CoreDefine import *
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 from Core.CommonUse         import *
 from Core.CvatXmlClass      import CvatXml
+from Core.SingletonClass    import Singleton
 
 
 # UI
@@ -122,7 +123,7 @@ def imwrite(fileName, img, params=None):
 
 # Class
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-class SliceImage(CvatXml):
+class SliceImage(Singleton, CvatXml):
     def __init__(self, QApp):
         super().__init__(OriginXmlDirPath)
         self.app = QApp
@@ -161,7 +162,6 @@ class SliceImage(CvatXml):
         self.app.exec()
 
         if self.selectUi.isSelectDone is False:
-            self.run = self.setRunToProgramExit
             return
 
         self.initCvatXmlClass()
@@ -175,9 +175,6 @@ class SliceImage(CvatXml):
             sys.exit(-1)
 
         self.TotalImageCount = len(self.OriginImgDict)
-        
-    def setRunToProgramExit(self):
-        NoticeLog(f'{self.__class__.__name__} Program EXIT')
 
     # SelectUI Function
     # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -432,8 +429,11 @@ class SliceImage(CvatXml):
 
 
     def run(self):
-        super().run()
-        os.startfile(ResultDirPath)
+        if self.selectUi.isSelectDone is False:
+            NoticeLog(f'{self.__class__.__name__} Program EXIT\n')
+        else:
+            super().run()
+            os.startfile(ResultDirPath)
 
 
 if __name__ == "__main__":

@@ -35,6 +35,7 @@ from CoreDefine import *
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 from Core.CommonUse         import *
 from Core.ExcelDataClass    import ExcelData
+from Core.SingletonClass    import Singleton
 
 # UI
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -82,7 +83,7 @@ SplitPercent    = 75    # 몇 대 몇으로 슬라이스 할지(백분위)
 
 # 파일 추출 클래스
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-class ExtractAnnotation:
+class ExtractAnnotation(Singleton):
     def __init__(self, QApp):
         self.app = QApp
         self.ProgramName            = "ExtractAnnotation"
@@ -139,7 +140,6 @@ class ExtractAnnotation:
         self.app.exec()
 
         if self.selectUi.isSelectDone is False:
-            self.run = self.setRunToProgramExit
             return
 
         self.classData = ExcelData()
@@ -163,10 +163,6 @@ class ExtractAnnotation:
 
         if self.classNameDict is None:
             error_handling('Load ClassName Failed', filename(), lineNum())
-
-
-    def setRunToProgramExit(self):
-        NoticeLog(f'{self.__class__.__name__} Program EXIT')
 
 
     def setInitSettingForSelectUI(self):
@@ -570,18 +566,21 @@ class ExtractAnnotation:
 
 
     def run(self):
-        if RUN_RANDOM_EXTRACT is True:
-            self.RunRandomExtract()
+        if self.selectUi.isSelectDone is False:
+            NoticeLog(f'{self.__class__.__name__} Program EXIT\n')
+        else:
+            if RUN_RANDOM_EXTRACT is True:
+                self.RunRandomExtract()
 
-        if RUN_SPLIT_TRAIN_TEST is True:
-            self.RunSplitAnnotation()
+            if RUN_SPLIT_TRAIN_TEST is True:
+                self.RunSplitAnnotation()
 
-        self.saveResult()
+            self.saveResult()
 
-        self.showResult()
-        self.saveResultByExcel()
+            self.showResult()
+            self.saveResultByExcel()
 
-        os.startfile(self.ResultDirPath)
+            os.startfile(self.ResultDirPath)
 
 
 if __name__ == "__main__":

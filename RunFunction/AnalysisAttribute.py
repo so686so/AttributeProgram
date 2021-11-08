@@ -35,6 +35,7 @@ from CoreDefine import *
 from Core.CommonUse         import *
 from Core.ExcelDataClass    import ExcelData
 from Core.CvatXmlClass      import CvatXml
+from Core.SingletonClass    import Singleton
 
 
 # UI
@@ -65,44 +66,12 @@ CHECK_SIZE_VALUE        = 23
 
 # FILE & DIR NAME
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-EXCEL_FILE_NAME     = "AnalysisAttribute.xlsx"
+EXCEL_FILE_NAME         = "AnalysisAttribute.xlsx"
 
 
 # SIZE_FILTERING DICT
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-SIZE_FILTERING_DICT     =   {   'common':
-                                {
-                                    'isCheck'   : False,
-                                    'CheckSize' : False,    # Size(True) / Width&Height(False)
-                                    'Width'     : 0,
-                                    'Height'    : 0,
-                                    'Size'      : 0
-                                },
-                            'head':
-                                {
-                                    'isCheck'   : False,
-                                    'CheckSize' : False,
-                                    'Width'     : 0,
-                                    'Height'    : 0,
-                                    'Size'      : 0
-                                },
-                            'upper':
-                                {
-                                    'isCheck'   : False,
-                                    'CheckSize' : False,
-                                    'Width'     : 0,
-                                    'Height'    : 0,
-                                    'Size'      : 0
-                                },
-                            'lower':
-                                {
-                                    'isCheck'   : False,
-                                    'CheckSize' : False,
-                                    'Width'     : 0,
-                                    'Height'    : 0,
-                                    'Size'      : 0
-                                },                                                        
-                        }
+SIZE_FILTERING_DICT     = copy.copy(CORE_SIZE_FILTER_DICT)
 
 
 # CONST DEFINE
@@ -141,7 +110,7 @@ def imread(fileName, flags=cv2.IMREAD_COLOR, dtype=np.uint8):
 
 # Class
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-class AnalysisAttribute(CvatXml):
+class AnalysisAttribute(Singleton, CvatXml):
     def __init__(self, QApp):
         super().__init__(OriginImgDirPath)
         self.app        = QApp
@@ -194,7 +163,6 @@ class AnalysisAttribute(CvatXml):
         self.app.exec()
 
         if self.selectUi.isSelectDone is False:
-            self.run = self.setRunToProgramExit
             return
 
         self.ClassData = ExcelData()
@@ -223,10 +191,6 @@ class AnalysisAttribute(CvatXml):
         if SIZE_FILTERING is True:
             ModeLog('SIZE_FILTERING ON')
             self.condClass.addCondition(['SizeFilter', self.SizeFilter, self.getArgs_SizeFilter])
-
-
-    def setRunToProgramExit(self):
-        NoticeLog(f'{self.__class__.__name__} Program EXIT')
 
 
     def setimgSizeAnalysisList(self):
@@ -787,8 +751,11 @@ class AnalysisAttribute(CvatXml):
 
 
     def run(self):
-        super().run()
-        os.startfile(ResultDirPath)
+        if self.selectUi.isSelectDone is False:
+            NoticeLog(f'{self.__class__.__name__} Program EXIT\n')
+        else:
+            super().run()
+            os.startfile(ResultDirPath)
 
 
 if __name__ == "__main__":

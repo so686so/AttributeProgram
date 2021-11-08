@@ -91,8 +91,8 @@ class CheckCondition:
 
     def __init__(self, defaultAddConditionList:list):
         """
-        클래스 생성시 인자로 받은 defaultAddConditionList 를 
-        ConditionList 에 등록시키는 init 부분
+            클래스 생성시 인자로 받은 defaultAddConditionList 를 
+            ConditionList 에 등록시키는 init 부분
         """
         self.condDict = {}
         self.condArgsDict = {}
@@ -150,7 +150,6 @@ class CheckCondition:
                 ========================
                 def getArgs_CheckMissingImg(self):
                     return self.getCurImgName()
-                
         """
         # 등록하려는 ConditionName 이 이미 있다면 등록 실패 처리 : Condition Check 가 꼬일 수도 있기 때문에
         if AddConditionElem[CONDITION_NAME] in self.getCondNameList():

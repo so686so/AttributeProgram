@@ -107,9 +107,11 @@ class ChoiceProgramUI(QMainWindow):
 
     def selectDone(self):
         self.res = self.ui.selectProgramComboBox.currentText()
+        NoticeLog(f'{self.res} Program INIT')
         QCoreApplication.instance().quit()
 
     def run(self):
+        NoticeLog('Select the program you want to run from the UI')
         self.res = 'EXIT'
         self.show()
         self.app.exec()

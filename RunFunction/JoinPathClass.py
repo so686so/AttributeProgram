@@ -26,7 +26,7 @@ from CoreDefine import *
 # Custom Modules
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 from Core.CommonUse         import *
-
+from Core.SingletonClass    import Singleton
 
 
 # UI
@@ -52,7 +52,7 @@ JoinDirPath         = r"Please Write This..."
 
 # 파일 경로 병합 클래스
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-class JoinPath:
+class JoinPath(Singleton):
     def __init__(self, QApp):
         self.app = QApp
         self.ProgramName = "JoinPath"
@@ -68,14 +68,9 @@ class JoinPath:
         self.app.exec()
 
         if self.selectUi.isSelectDone is False:
-            self.run = self.setRunToProgramExit
             return
 
         NoticeLog(f'JoinPath : {JoinDirPath}')
-
-
-    def setRunToProgramExit(self):
-        NoticeLog(f'{self.__class__.__name__} Program EXIT')
 
 
     def openImgListFile(self):
@@ -138,10 +133,13 @@ class JoinPath:
         print()
 
     def run(self):
-        self.openImgListFile()
-        self.writeImgListFileWithJoinPath()
+        if self.selectUi.isSelectDone is False:
+            NoticeLog(f'{self.__class__.__name__} Program EXIT\n')
+        else:
+            self.openImgListFile()
+            self.writeImgListFileWithJoinPath()
 
-        os.startfile(ResultDirPath)
+            os.startfile(ResultDirPath)
 
 
 if __name__ == "__main__":

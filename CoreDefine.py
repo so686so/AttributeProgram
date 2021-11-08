@@ -1,9 +1,9 @@
 # Program Info
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 TITLE   = 'Attribute Program'
-DATE    = '2021-11-07'
-VERSION = '1.0.7'
-IDE     = 'Visual Studio Code 1.61.0'
+DATE    = '2021-11-08'
+VERSION = '1.0.8'
+IDE     = 'Visual Studio Code 1.62.0'
 OS      = 'Windows 10'
 AUTHOR  = 'SO BYUNG JUN'
 
@@ -60,13 +60,49 @@ Result_Dir_Path             = r"C:/PythonHN/Data/Res1017"
 Abbreviated_Img_Path        = r"C:\PythonHN\Data\ABB TEST\condition_common_img"   # 축약시킨 이미지 들어있는 폴더
 RealExistCheck_Path         = r""
 
-Pre_Search_Remember_Path    = r"C:/PythonHN/Data/Res1107"
+Pre_Search_Remember_Path    = r"D:/PyCharm"
 
 
 # OTHER DEFINES
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 CORE_ENCODING_FORMAT    = 'utf-8'   # 파일 Read 할 때, 인코딩 포맷
 VALID_IMG_FORMAT        = ['jpg', 'png', 'jpeg']   # Img 유효한 확장자
+
+# SIZE_FILTER_DICT
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+CORE_SIZE_FILTER_DICT   =   {   'common':
+                                    {
+                                        'isCheck'   : False,
+                                        'CheckSize' : False,    # Size(True) / Width&Height(False)
+                                        'Width'     : 0,
+                                        'Height'    : 0,
+                                        'Size'      : 0
+                                    },
+                                'head':
+                                    {
+                                        'isCheck'   : False,
+                                        'CheckSize' : False,
+                                        'Width'     : 0,
+                                        'Height'    : 0,
+                                        'Size'      : 0
+                                    },
+                                'upper':
+                                    {
+                                        'isCheck'   : False,
+                                        'CheckSize' : False,
+                                        'Width'     : 0,
+                                        'Height'    : 0,
+                                        'Size'      : 0
+                                    },
+                                'lower':
+                                    {
+                                        'isCheck'   : False,
+                                        'CheckSize' : False,
+                                        'Width'     : 0,
+                                        'Height'    : 0,
+                                        'Size'      : 0
+                                    },                                                        
+                            }
 
 
 # CONST DEFINE

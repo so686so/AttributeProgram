@@ -2,7 +2,29 @@
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 from PyQt6 import QtCore, QtGui, QtWidgets
 
+
+# Import Packages and Modules
+# Standard Library
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+import sys
+import os
+import copy
+
+
+# Add Import Path
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../'))
+
+
+# Refer to CoreDefine.py
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+from CoreDefine import *
+
+
+# Var
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 ComboBoxList = ['common', 'head', 'upper', 'lower']
+
 
 class SizeFilterDialog(QtWidgets.QDialog):
     def __init__(self, defaultDict:dict):
@@ -133,39 +155,7 @@ class SizeFilterDialog(QtWidgets.QDialog):
         return super().exec()
 
     def getFilterDict(self):
-        resDict =   {   'common':
-                                {
-                                    'isCheck'   : False,
-                                    'CheckSize' : False,    # Size(True) / Width&Height(False)
-                                    'Width'     : 0,
-                                    'Height'    : 0,
-                                    'Size'      : 0
-                                },
-                            'head':
-                                {
-                                    'isCheck'   : False,
-                                    'CheckSize' : False,
-                                    'Width'     : 0,
-                                    'Height'    : 0,
-                                    'Size'      : 0
-                                },
-                            'upper':
-                                {
-                                    'isCheck'   : False,
-                                    'CheckSize' : False,
-                                    'Width'     : 0,
-                                    'Height'    : 0,
-                                    'Size'      : 0
-                                },
-                            'lower':
-                                {
-                                    'isCheck'   : False,
-                                    'CheckSize' : False,
-                                    'Width'     : 0,
-                                    'Height'    : 0,
-                                    'Size'      : 0
-                                },                                                        
-                        }
+        resDict = copy.copy(CORE_SIZE_FILTER_DICT)
 
         selectLabelName = self.selectSortComboBox.currentText()
 

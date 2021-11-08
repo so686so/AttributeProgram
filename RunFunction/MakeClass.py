@@ -44,6 +44,7 @@ from CoreDefine import *
 from Core.CommonUse         import *
 from Core.ExcelDataClass    import ExcelData
 from Core.CvatXmlClass      import CvatXml
+from Core.SingletonClass    import Singleton
 
 
 # UI
@@ -101,44 +102,12 @@ ANALYSIS_IMAGE_SIZE = True
 
 # SIZE_FILTERING DICT
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-SIZE_FILTERING_DICT     =   {   'common':
-                                {
-                                    'isCheck'   : False,
-                                    'CheckSize' : False,    # Size(True) / Width&Height(False)
-                                    'Width'     : 0,
-                                    'Height'    : 0,
-                                    'Size'      : 0
-                                },
-                            'head':
-                                {
-                                    'isCheck'   : False,
-                                    'CheckSize' : False,
-                                    'Width'     : 0,
-                                    'Height'    : 0,
-                                    'Size'      : 0
-                                },
-                            'upper':
-                                {
-                                    'isCheck'   : False,
-                                    'CheckSize' : False,
-                                    'Width'     : 0,
-                                    'Height'    : 0,
-                                    'Size'      : 0
-                                },
-                            'lower':
-                                {
-                                    'isCheck'   : False,
-                                    'CheckSize' : False,
-                                    'Width'     : 0,
-                                    'Height'    : 0,
-                                    'Size'      : 0
-                                },                                                        
-                        }
+SIZE_FILTERING_DICT     = copy.copy(CORE_SIZE_FILTER_DICT)
 
 
 # MakeClassSource Class
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-class MakeClassSource(CvatXml):
+class MakeClassSource(Singleton, CvatXml):
     """
         OriginXmlDirPath 경로의 Xml 파일들과, OriginImgDirPath 경로의 Img 파일들을 참조하여
         83 / 66 / 39 Class 의 Annotation Text / Annotation_img Text 생성하는 클래스
@@ -188,7 +157,7 @@ class MakeClassSource(CvatXml):
             - setRunFunctionParam()
             - setFinishFunctionParam()
     """
-    def __init__(self, QApp=None):
+    def __init__(self, QApp):
         """
             class 내부 변수 할당 및 ExcelData 클래스 생성
         """
@@ -247,7 +216,6 @@ class MakeClassSource(CvatXml):
         self.app.exec()
 
         if self.selectUi.isSelectDone is False:
-            self.run = self.setRunToProgramExit
             return
 
         self.ClassData = ExcelData()
@@ -257,10 +225,6 @@ class MakeClassSource(CvatXml):
 
         # Define 값 기준 MODE 설정
         self.setMode()
-
-
-    def setRunToProgramExit(self):
-        NoticeLog(f'{self.__class__.__name__} Program EXIT')
 
 
     def setMode(self):
@@ -384,7 +348,11 @@ class MakeClassSource(CvatXml):
             if returnDict.get(Arg[NAME]) != None:
                 # 해당 변수명에 SelectUI 에서 갱신된 값 집어넣기
                 globals()[Arg[NAME]] = returnDict[Arg[NAME]]
-                showLog(f'- {Arg[NAME]:40} -> {globals()[Arg[NAME]]}')
+
+                if Arg[NAME] == "SIZE_FILTERING_DICT":
+                    showLog(f'- {Arg[NAME]:40} -> {summaryFilterDict(globals()[Arg[NAME]])}')
+                else:
+                    showLog(f'- {Arg[NAME]:40} -> {globals()[Arg[NAME]]}')
         print()
 
         # CvatXmlClass 와 연동되는 부분, 생성할 때 가져갔던 OriginXmlDirPath 와 바뀌었을 수 있으니 변경
@@ -950,8 +918,11 @@ class MakeClassSource(CvatXml):
             클래스를 실행하는 함수
             cvatXmlList 클래스의 run() 함수를 그대로 물려받아 사용한다.
         """
-        super().run()
-        os.startfile(ResultDirPath)
+        if self.selectUi.isSelectDone is False:
+            NoticeLog(f'{self.__class__.__name__} Program EXIT\n')
+        else:
+            super().run()
+            os.startfile(ResultDirPath)
 
 
 if __name__ == "__main__":

@@ -66,3 +66,8 @@
 [1.0.7] 2021-11-07
 ==================
     - (ADD) 특정 Attribute 조건 하에서 ImageSize 평균값 계산 및 이미지 이름별 사이즈 결과 txt 출력 추가
+
+
+[1.0.8] 2021-11-08
+==================
+    - (FIX) 각 RunFunction class instance 및 ExcelDataClass를 Singleton으로 변환

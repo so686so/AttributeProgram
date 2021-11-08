@@ -31,14 +31,13 @@ from CoreDefine import *
 
 # IMPORT CORE
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-from Core.CommonUse import *
+from Core.CommonUse         import *
+from Core.SingletonClass    import Singleton
 
 
 # INSTALLED PACKAGE IMPORT
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 import pandas as pd
-
-from UI.FilterDialogUI.ui_dialog import ClassNum
 
 
 # EXCEL PATH
@@ -74,7 +73,7 @@ EQUIPED_HAT_END_IDX     = 41
 
 # ExcelData Class
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-class ExcelData:
+class ExcelData(Singleton):
     """
     pandas 를 이용해서 Excel 내부 ClassData 와 MergeData 를 읽고 처리하는 클래스
 

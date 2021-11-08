@@ -29,6 +29,7 @@ from CoreDefine import *
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 from Core.CommonUse         import *
 from Core.ExcelDataClass    import ExcelData
+from Core.SingletonClass    import Singleton
 
 # UI
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -71,50 +72,18 @@ SIZE_FILTERING          = False
 # CONDITION EXTRACT STRING
 # 조건식 내 문자열은 항상 "" 로 작성
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-FILTER_CONDITION   = '(Attribute[0] == "1")'
-LIMIT_COUNT       = 0
+FILTER_CONDITION        = '(Attribute[0] == "1")'
+LIMIT_COUNT             = 0
 
 
 # SIZE_FILTERING DICT
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-SIZE_FILTERING_DICT     =   {   'common':
-                                {
-                                    'isCheck'   : False,
-                                    'CheckSize' : False,    # Size(True) / Width&Height(False)
-                                    'Width'     : 0,
-                                    'Height'    : 0,
-                                    'Size'      : 0
-                                },
-                            'head':
-                                {
-                                    'isCheck'   : False,
-                                    'CheckSize' : False,
-                                    'Width'     : 0,
-                                    'Height'    : 0,
-                                    'Size'      : 0
-                                },
-                            'upper':
-                                {
-                                    'isCheck'   : False,
-                                    'CheckSize' : False,
-                                    'Width'     : 0,
-                                    'Height'    : 0,
-                                    'Size'      : 0
-                                },
-                            'lower':
-                                {
-                                    'isCheck'   : False,
-                                    'CheckSize' : False,
-                                    'Width'     : 0,
-                                    'Height'    : 0,
-                                    'Size'      : 0
-                                },                                                        
-                        }
+SIZE_FILTERING_DICT     = copy.copy(CORE_SIZE_FILTER_DICT)
 
 
 # 파일 추출 클래스
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-class FilterCondition:
+class FilterCondition(Singleton):
     def __init__(self, QApp):
         self.app = QApp
         self.ProgramName            = "Condition Filter"
@@ -163,7 +132,6 @@ class FilterCondition:
         self.app.exec()
 
         if self.selectUi.isSelectDone is False:
-            self.run = self.setRunToProgramExit
             return
 
         self.classData = ExcelData()
@@ -193,10 +161,6 @@ class FilterCondition:
 
         if self.classNameDict is None:
             error_handling('Load ClassName Failed', filename(), lineNum())
-
-
-    def setRunToProgramExit(self):
-        NoticeLog(f'{self.__class__.__name__} Program EXIT')
 
 
     def setInitSettingForSelectUI(self):
@@ -250,7 +214,11 @@ class FilterCondition:
             if returnDict.get(Arg[NAME]) != None:
                 # 해당 변수명에 SelectUI 에서 갱신된 값 집어넣기
                 globals()[Arg[NAME]] = returnDict[Arg[NAME]]
-                showLog(f'- {Arg[NAME]:40} -> {globals()[Arg[NAME]]}')
+
+                if Arg[NAME] == "SIZE_FILTERING_DICT":
+                    showLog(f'- {Arg[NAME]:40} -> {summaryFilterDict(globals()[Arg[NAME]])}')
+                else:
+                    showLog(f'- {Arg[NAME]:40} -> {globals()[Arg[NAME]]}')
         print()
 
         self.AnnotationTxtPath  = AnnotationFile
@@ -672,24 +640,28 @@ class FilterCondition:
 
 
     def run(self):
-        if RUN_CONDITION_FILTER is True:
-            self.RunFilterCondition()
+        if self.selectUi.isSelectDone is False:
+            NoticeLog(f'{self.__class__.__name__} Program EXIT\n')
 
-        if RUN_SHUFFLE_FILE is True:
-            self.RunShuffle()
+        else:
+            if RUN_CONDITION_FILTER is True:
+                self.RunFilterCondition()
 
-        if RUN_LIMIT_COUNT is True:
-            self.RunExtractLimitCount()
+            if RUN_SHUFFLE_FILE is True:
+                self.RunShuffle()
 
-        if SIZE_FILTERING:
-            self.RunAnalysisFilteredSize()
+            if RUN_LIMIT_COUNT is True:
+                self.RunExtractLimitCount()
 
-        self.saveResult()
+            if SIZE_FILTERING:
+                self.RunAnalysisFilteredSize()
 
-        self.showResult()
-        self.saveResultByExcel()
+            self.saveResult()
 
-        os.startfile(self.ResultDirPath)
+            self.showResult()
+            self.saveResultByExcel()
+
+            os.startfile(self.ResultDirPath)
 
 
 if __name__ == "__main__":

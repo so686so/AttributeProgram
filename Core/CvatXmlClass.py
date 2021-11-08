@@ -47,7 +47,7 @@ from CoreDefine import *
 # IMPORT CORE
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 from Core.CommonUse         import *
-from Core.CheckCondClass    import CONDITION_FUNC, CheckCondition
+from Core.CheckCondClass    import CheckCondition
 from Core.SaveLogClass      import SaveErrorLog
 
 
@@ -143,8 +143,6 @@ class CvatXml(metaclass=ABCMeta):
             setInitCheckCondList() 을 통해 Default CheckCond List 를 CvatXml 생성시 바로 할당
             SelectUI 에서 새로 경로를 받는 Case 때문에, __init__ 시 자동 실행이 아닌 수동 실행
         """
-        # 현재 프로그램 정보 출력
-        showProgramInfo()
 
         # 주어진 경로로부터 cvatXml 파일들의 리스트를 추출하고, 만약 xml 파일이 없다면 바로 종료
         self.extract_cvatXmlList()

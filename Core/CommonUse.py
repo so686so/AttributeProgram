@@ -471,3 +471,27 @@ def showErrorList():
     else:
         print("- Error Not Detected! :D")
     print()
+
+
+# Summarize a dict of the form CORE_SIZE_FILTER_DICT
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+def summaryFilterDict(filterDict:dict):
+    resMsg      = ""
+    validSort   = ""
+    validCond   = ""
+
+    for k, v in filterDict.items():
+        if v['isCheck'] == True:
+            validSort = k
+
+    if not validSort:
+        return "None"
+
+    if filterDict[validSort]['CheckSize'] is True:
+        validCond = f"[ AreaSize >= {filterDict[validSort]['Size']} ]"
+    else:
+        validCond = f"[ (WIDTH >= {filterDict[validSort]['Width']}) AND (HEIGHT >= {filterDict[validSort]['Height']}) ]"
+
+    resMsg = f"[ {validSort.upper()} ] {validCond}"
+
+    return resMsg
