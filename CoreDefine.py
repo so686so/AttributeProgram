@@ -60,7 +60,7 @@ Result_Dir_Path             = r"C:/PythonHN/Data/Res1017"
 Abbreviated_Img_Path        = r"C:\PythonHN\Data\ABB TEST\condition_common_img"   # 축약시킨 이미지 들어있는 폴더
 RealExistCheck_Path         = r""
 
-Pre_Search_Remember_Path    = r"D:/PyCharm"
+Pre_Search_Remember_Path    = r"C:/PythonHN/Data/1108"
 
 
 # OTHER DEFINES

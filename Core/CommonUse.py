@@ -495,3 +495,9 @@ def summaryFilterDict(filterDict:dict):
     resMsg = f"[ {validSort.upper()} ] {validCond}"
 
     return resMsg
+
+def CheckExit(CheckName):
+    if CheckName == 'EXIT':
+        NoticeLog('Attribute Program Finished... Close still running programs\n')
+        return True
+    return False

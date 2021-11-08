@@ -746,33 +746,48 @@ class AnalysisAttribute(Singleton, CvatXml):
         upper_idx = np.arange(len(x[:SLICE_IDX]))
         under_idx = np.arange(len(x[SLICE_IDX:]))
 
-        print(upper_idx)
-        print(under_idx)
-        print(x[:SLICE_IDX])
-
         plt.bar(upper_idx, y[:SLICE_IDX], bar_width, color='b', alpha=alpha, label='Origin')
         if COMPARE_WITH_EXCEL is True:
             plt.bar(upper_idx + bar_width, self.compareExcelDataList[:SLICE_IDX], bar_width, color='r', alpha=alpha, label='Compare')
 
-        # for i, v in enumerate(x[:SLICE_IDX]):
-        #     plt.text(v, y[i], y[i],                 # 좌표 (x축 = v, y축 = y[0]..y[1], 표시 = y[0]..y[1])
-        #             fontsize = 9, 
-        #             color='blue',
-        #             horizontalalignment='center',  # horizontalalignment (left, center, right)
-        #             verticalalignment='bottom')    # verticalalignment (top, center, bottom)
+        for i in upper_idx:
+            plt.text(i, y[i], y[i],                 # 좌표 (x축 = v, y축 = y[0]..y[1], 표시 = y[0]..y[1])
+                    fontsize = 9, 
+                    color='blue',
+                    horizontalalignment='center',  # horizontalalignment (left, center, right)
+                    verticalalignment='bottom')    # verticalalignment (top, center, bottom)
         plt.xticks(upper_idx, x[:SLICE_IDX], rotation=45, ha='right')
+    
+        if COMPARE_WITH_EXCEL is True:
+            for i in upper_idx:
+                plt.text(i+ bar_width, self.compareExcelDataList[i], self.compareExcelDataList[i],
+                        fontsize = 9,
+                        color='red',
+                        horizontalalignment='center',
+                        verticalalignment='bottom')
+
+        plt.legend()
 
         plt.subplot(212)
         plt.bar(under_idx, y[SLICE_IDX:], bar_width, color='b', alpha=alpha)
         if COMPARE_WITH_EXCEL is True:
             plt.bar(under_idx + bar_width, self.compareExcelDataList[SLICE_IDX:], bar_width, color='r', alpha=alpha)
 
-        # for i, v in enumerate(x[SLICE_IDX:]):
-        #     plt.text(v, y[SLICE_IDX+i], y[SLICE_IDX+i],
-        #             fontsize = 9, 
-        #             color='blue',
-        #             horizontalalignment='center',  
-        #             verticalalignment='bottom')   
+        for i, v in enumerate(x[SLICE_IDX:]):
+            plt.text(under_idx[i], y[SLICE_IDX+i], y[SLICE_IDX+i],
+                    fontsize = 9, 
+                    color='blue',
+                    horizontalalignment='center',  
+                    verticalalignment='bottom')
+
+        if COMPARE_WITH_EXCEL is True:
+            for i in under_idx:
+                plt.text(i+ bar_width, self.compareExcelDataList[i+SLICE_IDX], self.compareExcelDataList[i+SLICE_IDX],
+                        fontsize = 9,
+                        color='red',
+                        horizontalalignment='center',
+                        verticalalignment='bottom')                
+
         plt.xticks(under_idx, x[SLICE_IDX:], rotation=45, ha='right')
 
 

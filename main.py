@@ -27,23 +27,23 @@ from UI.SelectUI.SelectUIClass                  import *
 from UI.ChoiceProgramUI.ChoiceProgramUIClass    import *
 
 
+# Activate Function
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+def Activate(Program, App): return eval(f'{Program}(App)')  # type:class
+
 # Main Function
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 def main():
     showProgramInfo()
-    App                 = QApplication(sys.argv)
-    ChoiceProgram       = ChoiceProgramUI(App)
+    App             = QApplication(sys.argv)
+    ChoiceProgram   = ChoiceProgramUI(App)
 
     while True:
-        ProgramClsName  = ChoiceProgram.run()
+        ProgramName = ChoiceProgram.run()
+        if CheckExit(ProgramName) : break
+        Activate(ProgramName, App).run()
 
-        if ProgramClsName == 'EXIT':
-            NoticeLog('Attribute Program Finished... Close still running programs\n')
-            break
-
-        SelectedProgram = eval(f'{ProgramClsName}(App)')
-        SelectedProgram.run() 
-
-
+# RUN
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 if __name__ == "__main__":
     main()

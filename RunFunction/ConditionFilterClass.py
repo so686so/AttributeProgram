@@ -464,43 +464,14 @@ class FilterCondition(Singleton):
                     ConditionHeightList.append(self.AnalysisSrcHeightList[Idx])
 
         if SIZE_FILTERING is True:
-            recvCondSize    = SIZE_FILTERING_DICT
-            if recvCondSize['common']['isCheck'] is False:
-                ErrorLog('Check FilterSize Condition in \'common\' Category!', lineNum=lineNum(), errorFileName=filename())
-                sys.exit(-1)
-
-            CondisSize      = recvCondSize['common']['CheckSize']
-            CondWidth       = recvCondSize['common']['Width']
-            CondHeight      = recvCondSize['common']['Height']
-            CondSize        = recvCondSize['common']['Size']
-
-            TempAnnList     = []
-            TempImgList     = []
-            TempWidList     = []
-            TempHghList     = []
-
-            # 가로 세로 말고 넓이로 체크
-            if CondisSize is True:
-                for Idx, Attribute in enumerate(ConditionAnnotationList):
-                    Size = ConditionWidthList[Idx] * ConditionHeightList[Idx]
-                    if Size >= CondSize:
-                        TempAnnList.append(Attribute)
-                        TempImgList.append(ConditionImgList[Idx])
-                        TempWidList.append(ConditionWidthList[Idx])
-                        TempHghList.append(ConditionHeightList[Idx])
-            else:
-                for Idx, Attribute in enumerate(ConditionAnnotationList):
-                    if  (ConditionWidthList[Idx] >= CondWidth) and \
-                        (ConditionHeightList[Idx] >= CondHeight):
-                        TempAnnList.append(Attribute)
-                        TempImgList.append(ConditionImgList[Idx])
-                        TempWidList.append(ConditionWidthList[Idx])
-                        TempHghList.append(ConditionHeightList[Idx])
-
-            ConditionAnnotationList = TempAnnList
-            ConditionImgList        = TempImgList
-            ConditionWidthList      = TempWidList
-            ConditionHeightList     = TempHghList
+            ConditionAnnotationList,    \
+            ConditionImgList,           \
+            ConditionWidthList,         \
+            ConditionHeightList         = self.subRunFilter(    ConditionAnnotationList,    \
+                                                                ConditionImgList,           \
+                                                                ConditionWidthList,         \
+                                                                ConditionHeightList         \
+                                                            )
 
         self.ConditionResTxtList = ConditionAnnotationList
         self.ConditionResImgList = ConditionImgList
@@ -508,6 +479,43 @@ class FilterCondition(Singleton):
         self.ConditionHeightList = ConditionHeightList
 
         self.checkFilterObjectSum()
+
+
+    def subRunFilter(self, annList, imgList, widList, hgtList):
+        recvCondSize    = SIZE_FILTERING_DICT
+        if recvCondSize['common']['isCheck'] is False:
+            ErrorLog('Check FilterSize Condition in \'common\' Category!', lineNum=lineNum(), errorFileName=filename())
+            sys.exit(-1)
+
+        CondisSize      = recvCondSize['common']['CheckSize']
+        CondWidth       = recvCondSize['common']['Width']
+        CondHeight      = recvCondSize['common']['Height']
+        CondSize        = recvCondSize['common']['Size']
+
+        TempAnnList     = []
+        TempImgList     = []
+        TempWidList     = []
+        TempHghList     = []
+
+        # 가로 세로 말고 넓이로 체크
+        if CondisSize is True:
+            for Idx, Attribute in enumerate(annList):
+                Size = widList[Idx] * hgtList[Idx]
+                if Size >= CondSize:
+                    TempAnnList.append(Attribute)
+                    TempImgList.append(imgList[Idx])
+                    TempWidList.append(widList[Idx])
+                    TempHghList.append(hgtList[Idx])
+        else:
+            for Idx, Attribute in enumerate(annList):
+                if  (widList[Idx] >= CondWidth) and \
+                    (hgtList[Idx] >= CondHeight):
+                    TempAnnList.append(Attribute)
+                    TempImgList.append(imgList[Idx])
+                    TempWidList.append(widList[Idx])
+                    TempHghList.append(hgtList[Idx])
+
+        return TempAnnList, TempImgList, TempWidList, TempHghList
 
 
     def RunShuffle(self):
