@@ -1,7 +1,7 @@
 """
 Function collection file commonly used in AttributeProgram.
 
-LAST_UPDATE : 2021/10/15
+LAST_UPDATE : 2021/11/08
 AUTHOR      : SO BYUNG JUN
 """
 
@@ -485,7 +485,7 @@ def summaryFilterDict(filterDict:dict):
             validSort = k
 
     if not validSort:
-        return "None"
+        return "Not Checked"
 
     if filterDict[validSort]['CheckSize'] is True:
         validCond = f"[ AreaSize >= {filterDict[validSort]['Size']} ]"

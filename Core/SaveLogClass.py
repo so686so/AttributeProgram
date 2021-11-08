@@ -1,7 +1,7 @@
 """
 ConditionCheck Error 를 엑셀로 저장하는 클래스
 
-LAST_UPDATE : 2021/10/15
+LAST_UPDATE : 2021/11/08
 AUTHOR      : SO BYUNG JUN
 """
 
@@ -19,7 +19,7 @@ import pandas as pd
 
 # Refer to CoreDefine.py
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-from CoreDefine import *
+from CoreDefine     import *
 
 
 # IMPORT CORE
@@ -77,15 +77,15 @@ class SaveErrorLog():
         if self.ErrorLogList:
             save_path   = os.path.join(self.ResDirPath, SAVE_LOG_EXCEL_PATH)
 
-            tryCount    = 0
-            EditPath    = ""
+            # tryCount    = 0
+            # EditPath    = ""
 
-            while True:
-                if os.path.isfile(save_path) is False:
-                    break
-                EditPath    = f'{SAVE_LOG_EXCEL_PATH.split(".")[0]}_{tryCount}.xlsx'
-                tryCount    += 1
-                save_path   = os.path.join(self.ResDirPath, EditPath)
+            # while True:
+            #     if os.path.isfile(save_path) is False:
+            #         break
+            #     EditPath    = f'{SAVE_LOG_EXCEL_PATH.split(".")[0]}_{tryCount}.xlsx'
+            #     tryCount    += 1
+            #     save_path   = os.path.join(self.ResDirPath, EditPath)
 
             raw_data = self.ListToDataFrame()
             raw_data.to_excel(excel_writer=save_path)

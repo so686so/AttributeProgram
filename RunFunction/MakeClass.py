@@ -353,7 +353,7 @@ class MakeClassSource(Singleton, CvatXml):
                     showLog(f'- {Arg[NAME]:40} -> {summaryFilterDict(globals()[Arg[NAME]])}')
                 else:
                     showLog(f'- {Arg[NAME]:40} -> {globals()[Arg[NAME]]}')
-        print()
+        print("--------------------------------------------------------------------------------------\n")
 
         # CvatXmlClass 와 연동되는 부분, 생성할 때 가져갔던 OriginXmlDirPath 와 바뀌었을 수 있으니 변경
         self.setChanged_Xml_n_Res_Path(OriginXmlDirPath, ResultDirPath)
@@ -422,7 +422,8 @@ class MakeClassSource(Singleton, CvatXml):
             for root, _, files in os.walk(AbbreviatedImgPath):
                 if len(files) > 0:
                     for file_name in files:
-                        if file_name.split('.')[-1] in validImgFormat:
+                        _, ext = os.path.splitext(file_name)
+                        if ext in validImgFormat:
                             self.AbbreviatedImgDict[file_name] = root
 
             # 유효한 이미지가 있었을 때
@@ -457,7 +458,8 @@ class MakeClassSource(Singleton, CvatXml):
             for root, _, files in os.walk(CheckRealExistPath):
                 if len(files) > 0:
                     for file_name in files:
-                        if file_name.split('.')[-1] in validImgFormat:
+                        _, ext = os.path.splitext(file_name)
+                        if ext in validImgFormat:
                             self.CheckRealExistDict[file_name] = root
 
             # 유효한 이미지가 있었을 때
@@ -754,6 +756,8 @@ class MakeClassSource(Singleton, CvatXml):
 
         print()
         showLog('# [ SIZE ANALYSIS ]')
+        showLog('--------------------------------------------------------------------------------------')
+        showLog(f'- Condition      : {summaryFilterDict(SIZE_FILTERING_DICT)}')
         showLog('--------------------------------------------------------------------------------------')
         showLog(f'- Avgarge Width  : {round(widthAvg,2)}')
         showLog(f'- Avgarge Height : {round(heightAvg,2)}')

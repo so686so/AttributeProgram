@@ -26,7 +26,7 @@ Classes :
             - FinishFunction()
             - setFinishFunctionParam()
 
-LAST_UPDATE : 2021/10/15
+LAST_UPDATE : 2021/11/08
 AUTHOR      : SO BYUNG JUN
 """
 
@@ -143,10 +143,6 @@ class CvatXml(metaclass=ABCMeta):
             setInitCheckCondList() 을 통해 Default CheckCond List 를 CvatXml 생성시 바로 할당
             SelectUI 에서 새로 경로를 받는 Case 때문에, __init__ 시 자동 실행이 아닌 수동 실행
         """
-
-        # 주어진 경로로부터 cvatXml 파일들의 리스트를 추출하고, 만약 xml 파일이 없다면 바로 종료
-        self.extract_cvatXmlList()
-
         # CheckCondition 생성과 동시에 Default CheckCond List ADD
         self.condClass = CheckCondition(self.setInitCheckCondList())
 
@@ -168,14 +164,14 @@ class CvatXml(metaclass=ABCMeta):
             sys.exit(-1)
 
         # 실제 있는 경로면, xml 파일들만 목록에 추가
-        fileList    = os.listdir(self.OriginXmlDirPath)
-        for eachFile in fileList:
-            _, ext  = os.path.splitext(eachFile)
-            
-            if ext != ".xml":
-                error_handling(f"{eachFile} is Not XML", filename(), lineNum())
-            else:
-                self.cvatXmlList.append(eachFile)
+        for path, _, files in os.walk(self.OriginXmlDirPath):
+            for eachFile in files:
+                _, ext = os.path.splitext(eachFile)
+                if ext != ".xml":
+                    error_handling(f"{eachFile} is Not XML", filename(), lineNum())
+                    break
+                else:
+                    self.cvatXmlList.append(os.path.join(path, eachFile))
 
         if not self.cvatXmlList:
             error_handling("cvatXmlList is Empty. There are no files to run the program. Quit the program.", filename(), lineNum())
@@ -617,7 +613,7 @@ class CvatXml(metaclass=ABCMeta):
 
                 noteImage   : 해당 xml 파일 내 모든 이미지 값들 (type : list)
         """
-        FullXmlPath     = os.path.join(self.OriginXmlDirPath, eachXmlFile)
+        FullXmlPath     = eachXmlFile
         tree            = ET.parse(FullXmlPath)
         note            = tree.getroot()
 

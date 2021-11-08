@@ -15,7 +15,7 @@ Need Installed Package :
     - pandas
     - openpyxl
 
-LAST_UPDATE : 2021/10/15
+LAST_UPDATE : 2021/11/08
 AUTHOR      : SO BYUNG JUN
 """
 
@@ -196,10 +196,14 @@ class ExcelData(Singleton):
             - ClassData 시트에서 새로 merge 되는 idx 들의 mergedIdx 3 으로 기입
             - self.mergeDict[curOriginIdx] = [curMerge66Idx, curMerge39Idx, curMerge25Idx]
         """
+        TotalOriginList     = self.df_MergeData['originIdx'].tolist()
+        Total66MergList     = self.df_MergeData['mergeIdx_66'].tolist()
+        Total39MergList     = self.df_MergeData['mergeIdx_39'].tolist()
+
         for idx in range(0, MergeIdxNum):
-            curOriginIdx    = self.df_MergeData.loc[idx]['originIdx']
-            curMerge66Idx   = self.df_MergeData.loc[idx]['mergeIdx_66']
-            curMerge39Idx   = self.df_MergeData.loc[idx]['mergeIdx_39']
+            curOriginIdx    = TotalOriginList[idx]
+            curMerge66Idx   = Total66MergList[idx]
+            curMerge39Idx   = Total39MergList[idx]
             self.mergeDict[curOriginIdx] = [curMerge66Idx, curMerge39Idx]
 
         self.mergeList = [ [] for _ in range(0, MergeIdxNum) ]
@@ -209,17 +213,24 @@ class ExcelData(Singleton):
         """
             엑셀 파일 중 NameData 시트에 해당하는 부분 전처리하는 함수
         """
+        Total83NameList     = self.df_NameData['class83'].tolist()
+        Total66NameList     = self.df_NameData['class66'].tolist()
+        Total39NameList     = self.df_NameData['class39'].tolist()
+
         for idx in range(DEFAULT_CLASS_NUM):
-            self.class83NameDict[idx] = self.df_NameData.loc[idx]['class83']
-            self.class66NameDict[idx] = self.df_NameData.loc[idx]['class66']
-            self.class39NameDict[idx] = self.df_NameData.loc[idx]['class39']
+            self.class83NameDict[idx] = Total83NameList[idx]
+            self.class66NameDict[idx] = Total66NameList[idx]
+            self.class39NameDict[idx] = Total39NameList[idx]
+
 
     def pretreatmentCategoryNameData(self):
-        CategoryIdxNum = len(self.df_CtgrData)
-        for idx in range(CategoryIdxNum):
-            curCategoryIdx  = self.df_CtgrData.loc[idx]['categoryIdx']
-            curCategoryName = self.df_CtgrData.loc[idx]['categoryName']
+        CategoryIdxNum      = len(self.df_CtgrData)
+        TotalCtIdxList      = self.df_CtgrData['categoryIdx'].tolist()
+        TotalCtNameList     = self.df_CtgrData['categoryName'].tolist()
 
+        for idx in range(CategoryIdxNum):
+            curCategoryIdx  = TotalCtIdxList[idx]
+            curCategoryName = TotalCtNameList[idx]
             self.categoryNameDict[curCategoryIdx] = curCategoryName
 
 
@@ -228,15 +239,24 @@ class ExcelData(Singleton):
             엑셀 파일 중 ClassData 시트에 해당하는 부분 전처리하는 함수
             deleteList 와 mergeList 할당
         """
-        # Excel ClassData Sheet 한 줄씩 읽으면서 값 추출
+        # Excel ClassData Sheet 한 줄씩 읽으면서 값 추출 -> 변경 : 미리 열(Column) 단위로 읽고 가져다쓰기
+        TotalClassNameList  = self.df_ClassData['className'].tolist()
+        TotalAttNameList    = self.df_ClassData['attName'].tolist()
+        TotalAttTextList    = self.df_ClassData['attText'].tolist()
+        TotalMergeIdxList   = self.df_ClassData['mergedIdx'].tolist()
+        TotalIsDeleteList   = self.df_ClassData['isDeleted'].tolist()
+        TotalUnKnownList    = self.df_ClassData['unknownDeleted'].tolist()
+        TotalCategoryList   = self.df_ClassData['category'].tolist()
+
+        # TotalList 원소들 하나씩 돌면서 적절히 집어넣기
         for idx in range(0, DEFAULT_CLASS_NUM):
-            className   = self.df_ClassData.loc[idx]['className']
-            curAttName  = self.df_ClassData.loc[idx]['attName']
-            curAttText  = self.df_ClassData.loc[idx]['attText']
-            curMergeIdx = self.df_ClassData.loc[idx]['mergedIdx']
-            curIsDelete = self.df_ClassData.loc[idx]['isDeleted']
-            curUnKnown  = self.df_ClassData.loc[idx]['unknownDeleted']
-            curCategory = self.df_ClassData.loc[idx]['category']
+            className       = TotalClassNameList[idx]
+            curAttName      = TotalAttNameList[idx]
+            curAttText      = TotalAttTextList[idx]
+            curMergeIdx     = TotalMergeIdxList[idx]
+            curIsDelete     = TotalIsDeleteList[idx]
+            curUnKnown      = TotalUnKnownList[idx]
+            curCategory     = TotalCategoryList[idx]
 
             # 나중에 Merge/Delete 시킬 추가 MakeClass 생기면 여기도 조절해 적어야함!
             """
@@ -477,6 +497,7 @@ class ExcelData(Singleton):
 
     def getClassCategoryDict(self):
         return self.categoryDict
+
 
     def getCategoryNameDict(self):
         return self.categoryNameDict

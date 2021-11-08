@@ -14,13 +14,14 @@ Tasks:
         ☐ Scoring RunFunction
         ☐ Adjust Scoring RunFunction AI
         ☐ Code Compression
+        ☐ Add Compare Excel Function at AnalysisAttribute.py
 
     TodoTinyList:
         ✔ Fix ExtractAnnotationClass.RunConditionExtract @done (2021. 11. 6. 오전 3:15:57)
         ☐ CleanUp README
         ✔ Add .bat File @done (2021. 11. 5. 오후 4:01:57)
         ✔ Color print readjustment @done (2021. 11. 5. 오후 5:20:53)
-        ☐ change ExcelDataClass to Singleton
+        ✔ change ExcelDataClass to Singleton @done (2021. 11. 8. 오후 4:43:58)
 
     OHN:
         ☐ Find Crushed Text File

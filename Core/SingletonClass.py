@@ -1,3 +1,10 @@
+"""
+원하는 클래스를 Singleton 패턴으로 바꾸기 위한 상속 클래스
+
+LAST_UPDATE : 2021/11/08
+AUTHOR      : SO BYUNG JUN
+"""
+
 # Globals
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 TOTAL_SINGLETON_INSTANCE_COUNT  = 0

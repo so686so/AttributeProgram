@@ -281,7 +281,8 @@ class SliceImage(Singleton, CvatXml):
         for root, _, files in os.walk(workPath):
             if len(files) > 0:
                 for file_name in files:
-                    if file_name.split('.')[-1] in validImgFormat:
+                    _, ext = os.path.splitext(file_name)
+                    if ext in validImgFormat:
                         self.OriginImgDict[file_name] = root
 
         # 유효한 이미지가 있었을 때

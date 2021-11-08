@@ -66,7 +66,7 @@ Pre_Search_Remember_Path    = r"D:/PyCharm"
 # OTHER DEFINES
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 CORE_ENCODING_FORMAT    = 'utf-8'   # 파일 Read 할 때, 인코딩 포맷
-VALID_IMG_FORMAT        = ['jpg', 'png', 'jpeg']   # Img 유효한 확장자
+VALID_IMG_FORMAT        = ['.jpg', '.png', '.jpeg']   # Img 유효한 확장자
 
 # SIZE_FILTER_DICT
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-

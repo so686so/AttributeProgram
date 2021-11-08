@@ -219,7 +219,7 @@ class FilterCondition(Singleton):
                     showLog(f'- {Arg[NAME]:40} -> {summaryFilterDict(globals()[Arg[NAME]])}')
                 else:
                     showLog(f'- {Arg[NAME]:40} -> {globals()[Arg[NAME]]}')
-        print()
+        print("--------------------------------------------------------------------------------------\n")
 
         self.AnnotationTxtPath  = AnnotationFile
         self.AnnotationImgPath  = ImgListFile
@@ -411,7 +411,7 @@ class FilterCondition(Singleton):
         raw_data.to_excel(excel_writer=savePath)
 
         SuccessLog(f'RandomExtract Summary Log Save to Excel File -> {savePath}')
-        # TODO
+
 
     def SaveFilterResult(self):
         ConditionAnnoSavePath   = os.path.join(self.ResultDirPath, f'{ConditionFilterPrefix}_Annotation.txt')
@@ -618,11 +618,12 @@ class FilterCondition(Singleton):
         print()
         showLog('# [ SIZE ANALYSIS ]')
         showLog('--------------------------------------------------------------------------------------')
-        showLog(f'- Condition : {FILTER_CONDITION}')
+        showLog(f'- Filter Condition : {FILTER_CONDITION}')
+        showLog(f'- Size Condition   : {summaryFilterDict(SIZE_FILTERING_DICT)}')
         showLog('--------------------------------------------------------------------------------------')
-        showLog(f'- Avgarge Width  : {round(widthAvg,2)}')
-        showLog(f'- Avgarge Height : {round(heightAvg,2)}')
-        showLog(f'- Avgarge Szie   : {round(widthAvg*heightAvg,2)}')
+        showLog(f'- Avgarge Width    : {round(widthAvg,2)}')
+        showLog(f'- Avgarge Height   : {round(heightAvg,2)}')
+        showLog(f'- Avgarge Szie     : {round(widthAvg*heightAvg,2)}')
         showLog('--------------------------------------------------------------------------------------')
         print()
 
