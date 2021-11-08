@@ -144,14 +144,14 @@ class FilterCondition(Singleton):
             ErrorLog(f'{self.AnnotationImgPath} is Not Exist! Program Quit.')
             sys.exit(-1)
 
+        self.extractTxtListByFile()
+        self.extractImgListByFile()
+
         if SIZE_FILTERING is True:
             if os.path.isfile(self.AnalysisImgSizePath) is False:
                 ErrorLog(f'{self.AnalysisImgSizePath} is Not Exist! Program Quit.')
                 sys.exit(-1)
-
-        self.extractTxtListByFile()
-        self.extractImgListByFile()
-        self.extractImgSizeSrcListByFile()
+            self.extractImgSizeSrcListByFile()
 
         if self.checkTotalObjectSum() is False:
             error_handling(f'checkTotalObjectSum() Faild', filename(), lineNum())
