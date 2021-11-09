@@ -55,8 +55,7 @@ from UI.SelectUI.SelectUIClass  import *
 # SOURCE & DEST PATH
 # 해당 OriginXmlDirPath 과 ResultDirPath 값을 변경하고 싶으면, CoreDefine.py 에서 변경하면 됨! ( 경로 변경 통합 )
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-# OriginXmlDirPath    = copy.copy(OriginSource_cvatXml_Path)
-OriginXmlDirPath    = LinkName('OriginSource_cvatXml_Path', 'OriginXmlDirPath')
+OriginXmlDirPath    = copy.copy(OriginSource_cvatXml_Path)
 OriginImgDirPath    = copy.copy(OriginSource_Img_Path)
 ResultDirPath       = copy.copy(Result_Dir_Path)
 AbbreviatedImgPath  = copy.copy(Abbreviated_Img_Path)
@@ -155,7 +154,6 @@ class MakeClassSource(Singleton, CvatXml):
         """
             class 내부 변수 할당 및 ExcelData 클래스 생성
         """
-        global OriginXmlDirPath
         super().__init__(OriginXmlDirPath)
         self.app                            = QApp
 
@@ -187,8 +185,6 @@ class MakeClassSource(Singleton, CvatXml):
 
         # UI 연동용 인자 리스트
         self.sendArgsList                   = []
-
-        OriginXmlDirPath = getCoreValue('OriginXmlDirPath')
 
         self.initializeMC()
 
@@ -303,6 +299,7 @@ class MakeClassSource(Singleton, CvatXml):
                 getRunFunctionName  : RunFuntion 이름 (type : str)
                 sendArgsList        : List 내 상세 정보는 위 참조 (type : 2D List)
         """
+        self.SyncAllValue()
         self.sendArgsList = [   ['FD', 'OriginXmlDirPath',              True,   f'{OriginXmlDirPath}'],
                                 ['FD', 'OriginImgDirPath',              True,   f'{OriginImgDirPath}'],
                                 ['FD', 'ResultDirPath',                 True,   f'{ResultDirPath}'],
@@ -355,14 +352,27 @@ class MakeClassSource(Singleton, CvatXml):
                     showLog(f'- {eachTarget:40} -> {globals()[eachTarget]}')
         print("--------------------------------------------------------------------------------------\n")
 
-        setCoreValue('OriginXmlDirPath', returnDict['OriginXmlDirPath'])
-        globals()['OriginXmlDirPath'] = getCoreValue('OriginXmlDirPath')
-
+        self.SyncAllValue()
         setResultDir(ResultDirPath)
         # CvatXmlClass 와 연동되는 부분, 생성할 때 가져갔던 OriginXmlDirPath 와 바뀌었을 수 있으니 변경
         self.setChanged_Xml_n_Res_Path(OriginXmlDirPath, ResultDirPath)
 
     # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+
+
+    def SyncAllValue(self):
+        self.SyncEachValue('OriginSource_cvatXml_Path', 'OriginXmlDirPath')
+        self.SyncEachValue('OriginSource_Img_Path',     'OriginImgDirPath')
+        self.SyncEachValue('Result_Dir_Path',           'ResultDirPath')
+        self.SyncEachValue('CORE_SIZE_FILTER_DICT',     'SIZE_FILTERING_DICT')
+
+    def SyncEachValue(self, CoreName, LinkName, SENDER_DEPTH=3):
+        # set 하기 전에 CoreDefine.py의 값을 get
+        if callername(SENDER_DEPTH) == 'setInitSettingSelectUI':
+            globals()[LinkName] = getCoreValue(CoreName)
+
+        elif callername(SENDER_DEPTH) == 'getEditSettingSelectUI':
+            setCoreValue(CoreName, globals()[LinkName])
 
 
     # Add CheckCond List

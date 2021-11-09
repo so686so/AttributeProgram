@@ -172,6 +172,7 @@ class FilterCondition(Singleton):
             - ImgListFile         
             - ResultDirPath       
         """
+        self.SyncAllValue()
         self.sendArgsList = [   ['FD', 'AnnotationFile',            False,  f'{AnnotationFile}'],
                                 ['FD', 'ImgListFile',               False,  f'{ImgListFile}'],
                                 ['FD', 'ResultDirPath',             True,   f'{ResultDirPath}'],
@@ -225,8 +226,24 @@ class FilterCondition(Singleton):
                     showLog(f'- {eachTarget:40} -> {globals()[eachTarget]}')
         print("--------------------------------------------------------------------------------------\n")
 
+        self.SyncAllValue()
         self.ExtractCount = int(LIMIT_COUNT)
         setResultDir(ResultDirPath)
+
+    def SyncAllValue(self):
+        self.SyncEachValue('OriginSource_AnntationPath',    'AnnotationFile')
+        self.SyncEachValue('OriginSource_ImageListPath',    'ImgListFile')
+        self.SyncEachValue('Result_Dir_Path',               'ResultDirPath')
+        self.SyncEachValue('CORE_SIZE_FILTER_DICT',         'SIZE_FILTERING_DICT')
+        self.SyncEachValue('CORE_FILTER_CONDITION',         'FILTER_CONDITION')
+
+    def SyncEachValue(self, CoreName, LinkName, SENDER_DEPTH=3):
+        # set 하기 전에 CoreDefine.py의 값을 get
+        if callername(SENDER_DEPTH) == 'setInitSettingSelectUI':
+            globals()[LinkName] = getCoreValue(CoreName)
+
+        elif callername(SENDER_DEPTH) == 'getEditSettingSelectUI':
+            setCoreValue(CoreName, globals()[LinkName])
 
 
     def countClassNum(self):

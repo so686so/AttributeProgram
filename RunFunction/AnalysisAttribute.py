@@ -50,8 +50,7 @@ from UI.SelectUI.SelectUIClass  import *
 # SOURCE & DEST PATH
 # 해당 OriginXmlDirPath 과 ResultDirPath 값을 변경하고 싶으면, CoreDefine.py 에서 변경하면 됨! ( 경로 변경 통합 )
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-# OriginXmlDirPath    = copy.copy(OriginSource_cvatXml_Path)
-OriginXmlDirPath    = LinkName('OriginSource_cvatXml_Path', 'OriginXmlDirPath')
+OriginXmlDirPath    = copy.copy(OriginSource_cvatXml_Path)
 OriginImgDirPath    = copy.copy(OriginSource_Img_Path)
 ResultDirPath       = copy.copy(Result_Dir_Path)
 CrushedImgFilePath  = os.path.join(ResultDirPath, CrushedImgFileName)
@@ -254,6 +253,7 @@ class AnalysisAttribute(Singleton, CvatXml):
             - CHECK_SIZE_VALUE
     """
     def setInitSettingSelectUI(self):
+        self.SyncAllValue()
         self.sendArgsList = [   ['FD', 'OriginXmlDirPath',          True,   f'{OriginXmlDirPath}'],
                                 ['FD', 'OriginImgDirPath',          True,   f'{OriginImgDirPath}'],
                                 ['FD', 'ResultDirPath',             True,   f'{ResultDirPath}'],
@@ -303,14 +303,27 @@ class AnalysisAttribute(Singleton, CvatXml):
                     showLog(f'- {eachTarget:40} -> {globals()[eachTarget]}')
         showLog("--------------------------------------------------------------------------------------\n")
 
-        setCoreValue('OriginXmlDirPath', returnDict['OriginXmlDirPath'])
-        globals()['OriginXmlDirPath'] = getCoreValue('OriginXmlDirPath')
-        
+        self.SyncAllValue()
         self.setChanged_Xml_n_Res_Path(OriginXmlDirPath, ResultDirPath)
         self.checkSize = int(CHECK_SIZE_VALUE)
         setResultDir(ResultDirPath)
 
     # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+
+
+    def SyncAllValue(self):
+        self.SyncEachValue('OriginSource_cvatXml_Path', 'OriginXmlDirPath')
+        self.SyncEachValue('OriginSource_Img_Path',     'OriginImgDirPath')
+        self.SyncEachValue('Result_Dir_Path',           'ResultDirPath')
+        self.SyncEachValue('CORE_SIZE_FILTER_DICT',     'SIZE_FILTERING_DICT')
+
+    def SyncEachValue(self, CoreName, LinkName, SENDER_DEPTH=3):
+        # set 하기 전에 CoreDefine.py의 값을 get
+        if callername(SENDER_DEPTH) == 'setInitSettingSelectUI':
+            globals()[LinkName] = getCoreValue(CoreName)
+
+        elif callername(SENDER_DEPTH) == 'getEditSettingSelectUI':
+            setCoreValue(CoreName, globals()[LinkName])
 
 
     # Add CheckCond List

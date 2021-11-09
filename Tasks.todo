@@ -13,7 +13,7 @@ Tasks:
         ✔ CleanUp Filtered ImgSize Check Function @done (2021. 11. 9. 오후 1:26:15)
         ☐ Scoring RunFunction
         ☐ Adjust Scoring RunFunction AI
-        ☐ Code Compression
+        ✔ Code Compression @done (2021. 11. 9. 오후 9:24:24)
         ✔ Add Compare Excel Function at AnalysisAttribute.py @done (2021. 11. 9. 오후 1:26:16)
 
     TodoTinyList:

@@ -329,7 +329,7 @@ def funcname():
 
 # Return Run Caller Name
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-def callername():
+def callername(Depth=2):
     """
     callername() 를 호출한 함수의 caller(해당 함수의 호출자, 한 번 더 타고 올라간 함수) 출력하는 함수
     ---------------------------------------------------------------------
@@ -352,7 +352,7 @@ def callername():
         INPUT   -> callername()
         OUTPUT  -> "WrapRun"
     """
-    return sys._getframe(2).f_code.co_name
+    return sys._getframe(Depth).f_code.co_name
 
 
 # Return Current FileName expect Format

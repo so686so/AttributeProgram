@@ -84,6 +84,7 @@ class JoinPath(Singleton):
             - ResultDirPath         
             - JoinDirPath       
         """
+        self.SyncAllValue()
         self.sendArgsList = [   ['FD', 'ImgListFile',   False,  f'{ImgListFile}'],
                                 ['FD', 'ResultDirPath', True,   f'{ResultDirPath}'],
 
@@ -115,7 +116,22 @@ class JoinPath(Singleton):
                 globals()[eachTarget] = returnDict[eachTarget]
                 showLog(f'- {eachTarget:40} -> {globals()[eachTarget]}')
         print("--------------------------------------------------------------------------------------\n")
+        self.SyncAllValue()
         setResultDir(ResultDirPath)
+
+
+    def SyncAllValue(self):
+        self.SyncEachValue('OriginSource_ImageListPath',    'ImgListFile')
+        self.SyncEachValue('Result_Dir_Path',               'ResultDirPath')
+
+
+    def SyncEachValue(self, CoreName, LinkName, SENDER_DEPTH=3):
+        # set 하기 전에 CoreDefine.py의 값을 get
+        if callername(SENDER_DEPTH) == 'setInitSettingSelectUI':
+            globals()[LinkName] = getCoreValue(CoreName)
+
+        elif callername(SENDER_DEPTH) == 'getEditSettingSelectUI':
+            setCoreValue(CoreName, globals()[LinkName])
 
 
     def run(self):

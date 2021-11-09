@@ -67,12 +67,12 @@ OriginSource_ImageListPath  = r"C:/PythonHN/Data/Result/39Class_ImgList.txt"
 
 OriginSource_AnalysisPath   = r"C:\PythonHN\Data\Res1107\ImageSize_Analysis_Source.txt"
 
-Result_Dir_Path             = r"C:/PythonHN/Data/Res1017"
+Result_Dir_Path             = r"C:\PythonHN\Data\1108"
 
 Abbreviated_Img_Path        = r"C:\PythonHN\Data\ABB TEST\condition_common_img"   # 축약시킨 이미지 들어있는 폴더
 RealExistCheck_Path         = r""
 
-Pre_Search_Remember_Path    = r"D:/PyCharm"
+Pre_Search_Remember_Path    = r"C:/PythonHN/Data"
 
 
 # OTHER DEFINES
@@ -135,45 +135,8 @@ CORE_SAVE_VALUE = 1
 
 # FunctionDefine
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-def LinkName(CoreName, LinkName):
-    global CORE_LINK_DICT
-    value = None
+def setCoreValue(CoreName, Value):
+    globals()[CoreName] = Value
 
-    try:
-        value = globals()[CoreName]
-    except Exception as e:
-        print(f"* {CoreName} is Not Defined in CoreDefine.py")
-        sys.exit(-1)
-
-    # 처음 등록할 때
-    if CORE_LINK_DICT.get(CoreName) is None:
-        CORE_LINK_DICT[CoreName] = [[LinkName], value]
-
-    # 이미 등록을 했던 값일 때
-    else:
-        alreadyExist = False
-        for eachLinkName in CORE_LINK_DICT[CoreName][LINK_NAME_LIST]:
-            if LinkName == eachLinkName:
-                alreadyExist = True
-        if alreadyExist:
-            pass
-        else:
-            CORE_LINK_DICT[CoreName][LINK_NAME_LIST].append(LinkName)
-
-    print(CORE_LINK_DICT)
-    return value
-
-def setCoreValue(LinkName, setValue):
-    global CORE_LINK_DICT
-
-    for k, v in CORE_LINK_DICT.items():
-        for eachLinkName in v[LINK_NAME_LIST]:
-            if eachLinkName == LinkName:
-                v[CORE_SAVE_VALUE] = setValue
-                print(f'{k} --------> {v[CORE_SAVE_VALUE]}')
-
-def getCoreValue(LinkName):
-    for k, v in CORE_LINK_DICT.items():
-        for eachLinkName in v[LINK_NAME_LIST]:
-            if eachLinkName == LinkName:
-                return v[CORE_SAVE_VALUE]
+def getCoreValue(CoreName):
+    return globals()[CoreName]

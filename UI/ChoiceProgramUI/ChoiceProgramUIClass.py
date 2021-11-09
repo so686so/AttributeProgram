@@ -115,3 +115,58 @@ class ChoiceProgramUI(QMainWindow):
         self.show()
         self.app.exec()
         return self.res
+
+
+    def __del__(self):
+        ChangeCvatXmlPath       = getCoreValue('OriginSource_cvatXml_Path')
+        ChangeIamgePath         = getCoreValue('OriginSource_Img_Path')
+        ChangeAnnotationPath    = getCoreValue('OriginSource_AnntationPath')
+        ChangeImgaeListPath     = getCoreValue('OriginSource_ImageListPath')
+        ChangeResDirPath        = getCoreValue('Result_Dir_Path')
+
+        Rmb_CvatLine            = 0
+        Rmb_OriImgLine          = 0
+        Rmb_AnnoLine            = 0
+        Rmb_ImgListLine         = 0
+        Rmb_ResDirLine          = 0
+
+        LineSaveList            = []
+        readFileToList('CoreDefine.py', LineSaveList)
+
+
+        for idx, eachLine in enumerate(LineSaveList):
+            Tmp_Rmb_CvatLine    = eachLine.find('OriginSource_cvatXml_Path   =')
+            Tmp_Rmb_OriImgLine  = eachLine.find('OriginSource_Img_Path       =')
+            Tmp_Rmb_AnnoLine    = eachLine.find('OriginSource_AnntationPath  =')
+            Tmp_Rmb_ImgListLine = eachLine.find('OriginSource_ImageListPath  =')
+            Tmp_Rmb_ResDirLine  = eachLine.find('Result_Dir_Path             =')
+
+            if Tmp_Rmb_CvatLine >= 0:
+                Rmb_CvatLine    = idx
+            elif Tmp_Rmb_OriImgLine >= 0:
+                Rmb_OriImgLine  = idx
+            elif Tmp_Rmb_AnnoLine >= 0:
+                Rmb_AnnoLine    = idx
+            elif Tmp_Rmb_ImgListLine >= 0:
+                Rmb_ImgListLine = idx
+            elif Tmp_Rmb_ResDirLine >= 0:
+                Rmb_ResDirLine  = idx
+
+
+        with open('CoreDefine.py', 'w', encoding=CORE_ENCODING_FORMAT) as wf:
+            for idx, line in enumerate(LineSaveList):
+                if idx == Rmb_CvatLine:
+                    wf.write(f'OriginSource_cvatXml_Path   = r"{ChangeCvatXmlPath}"\n')
+                elif idx == Rmb_OriImgLine:
+                    wf.write(f'OriginSource_Img_Path       = r"{ChangeIamgePath}"\n')
+                elif idx == Rmb_AnnoLine:
+                    wf.write(f'OriginSource_AnntationPath  = r"{ChangeAnnotationPath}"\n')
+                elif idx == Rmb_ImgListLine:
+                    wf.write(f'OriginSource_ImageListPath  = r"{ChangeImgaeListPath}"\n')
+                elif idx == Rmb_ResDirLine:
+                    wf.write(f'Result_Dir_Path             = r"{ChangeResDirPath}"\n')
+                else:
+                    wf.write(f'{line}\n')
+
+        SuccessLog('Changed values are overwritten in CoreDefine\n')
+        

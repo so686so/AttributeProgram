@@ -17,7 +17,6 @@ from    random  import randint, sample
 import  os
 import  sys
 import  copy
-from typing import Text
 
 
 # Add Import Path
@@ -170,6 +169,7 @@ class ExtractAnnotation(Singleton):
             - ImgListFile         
             - ResultDirPath       
         """
+        self.SyncAllValue()
         self.sendArgsList = [   ['FD', 'AnnotationFile',            False,  f'{AnnotationFile}'],
                                 ['FD', 'ImgListFile',               False,  f'{ImgListFile}'],
                                 ['FD', 'ResultDirPath',             True,   f'{ResultDirPath}'],
@@ -216,10 +216,26 @@ class ExtractAnnotation(Singleton):
                 showLog(f'- {eachTarget:40} -> {globals()[eachTarget]}')
         print("--------------------------------------------------------------------------------------\n")
 
+        self.SyncAllValue()
         setResultDir(ResultDirPath)
         self.overCount          = int(overCount)    
         self.ExtractPercent     = int(ExtractPercent)
         self.SplitPercent       = int(SplitPercent)
+
+
+    def SyncAllValue(self):
+        self.SyncEachValue('OriginSource_AnntationPath',    'AnnotationFile')
+        self.SyncEachValue('OriginSource_ImageListPath',    'ImgListFile')
+        self.SyncEachValue('Result_Dir_Path',               'ResultDirPath')
+
+
+    def SyncEachValue(self, CoreName, LinkName, SENDER_DEPTH=3):
+        # set 하기 전에 CoreDefine.py의 값을 get
+        if callername(SENDER_DEPTH) == 'setInitSettingSelectUI':
+            globals()[LinkName] = getCoreValue(CoreName)
+
+        elif callername(SENDER_DEPTH) == 'getEditSettingSelectUI':
+            setCoreValue(CoreName, globals()[LinkName])
 
 
     def countClassNum(self):

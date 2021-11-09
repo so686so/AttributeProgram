@@ -13,8 +13,6 @@ import sys
 import os
 import copy
 
-from UI.FilterDialogUI.ui_dialog import ConditionFilterDialog
-
 
 # Add Import Path
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -42,6 +40,7 @@ from qt_core                import *
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 from .ui_main                       import Ui_MainWindow
 from SizeFilterDialogUI.ui_dialog   import SizeFilterDialog
+from UI.FilterDialogUI.ui_dialog    import ConditionFilterDialog
 
 
 # CONST DEFINE

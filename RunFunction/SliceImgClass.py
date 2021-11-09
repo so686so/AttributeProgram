@@ -206,6 +206,7 @@ class SliceImage(Singleton, CvatXml):
             - WORKING_IMG_FILES_ABBREVIATED
     """
     def setInitSettingSelectUI(self):
+        self.SyncAllValue()
         self.sendArgsList = [   ['FD', 'OriginXmlDirPath',              True,   f'{OriginXmlDirPath}'],
                                 ['FD', 'OriginImgDirPath',              True,   f'{OriginImgDirPath}'],
                                 ['FD', 'ResultDirPath',                 True,   f'{ResultDirPath}'],
@@ -235,10 +236,25 @@ class SliceImage(Singleton, CvatXml):
                 showLog(f'- {eachTarget:40} -> {globals()[eachTarget]}')            
         showLog("--------------------------------------------------------------------------------------\n")
 
+        self.SyncAllValue()
         setResultDir(ResultDirPath)
         self.setChanged_Xml_n_Res_Path(OriginXmlDirPath, ResultDirPath)
 
     # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+
+
+    def SyncAllValue(self):
+        self.SyncEachValue('OriginSource_cvatXml_Path', 'OriginXmlDirPath')
+        self.SyncEachValue('OriginSource_Img_Path',     'OriginImgDirPath')
+        self.SyncEachValue('Result_Dir_Path',           'ResultDirPath')
+
+    def SyncEachValue(self, CoreName, LinkName, SENDER_DEPTH=3):
+        # set 하기 전에 CoreDefine.py의 값을 get
+        if callername(SENDER_DEPTH) == 'setInitSettingSelectUI':
+            globals()[LinkName] = getCoreValue(CoreName)
+
+        elif callername(SENDER_DEPTH) == 'getEditSettingSelectUI':
+            setCoreValue(CoreName, globals()[LinkName])
 
 
     # COMMON / HEAD / UPPER / LOWER 중 사용할 폴더 생성하는 함수
