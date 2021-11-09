@@ -12,18 +12,22 @@ Classes :
         METHODS :
             - run()
 
-LAST_UPDATE : 21/10/15
+LAST_UPDATE : 21/11/09
 AUTHOR      : SO BYUNG JUN
 """
 
 
 # IMPORT
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-import numpy as np
 import os
 import cv2
 import sys
 import copy
+
+
+# INSTALLED PACKAGE IMPORT
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+import numpy                    as np
 
 
 # Add Import Path
@@ -35,27 +39,27 @@ sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../'))
 
 # Refer to CoreDefine.py
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-from CoreDefine import *
+from CoreDefine                 import *
 
 
 # Custom Modules
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-from Core.CommonUse         import *
-from Core.CvatXmlClass      import CvatXml
-from Core.SingletonClass    import Singleton
+from Core.CommonUse             import *
+from Core.CvatXmlClass          import CvatXml
+from Core.SingletonClass        import Singleton
 
 
 # UI
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-from UI.SelectUI.SelectUIClass import *
+from UI.SelectUI.SelectUIClass  import *
 
 
 # VARIABLE DEFINE
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-USE_COMMON  = True
-USE_HEAD    = True
-USE_UPPER   = True
-USE_LOWER   = True
+USE_COMMON          = True
+USE_HEAD            = True
+USE_UPPER           = True
+USE_LOWER           = True
 
 # 원본 이미지를 축약시킨 폴더 기준으로 작업할 때 :
 # 해당 cvat 이미지가 실제로 없어도 에러문구 없이 스킵한다
@@ -64,11 +68,11 @@ WORKING_IMG_FILES_ABBREVIATED = False
 
 # CONST DEFINE
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-COMMON_PATH = 0
-HEAD_PATH   = 1
-UPPER_PATH  = 2
-LOWER_PATH  = 3
-MAX_LABEL   = 4
+COMMON_PATH         = 0
+HEAD_PATH           = 1
+UPPER_PATH          = 2
+LOWER_PATH          = 3
+MAX_LABEL           = 4
 
 
 # SOURCE & DEST PATH
@@ -126,31 +130,32 @@ def imwrite(fileName, img, params=None):
 class SliceImage(Singleton, CvatXml):
     def __init__(self, QApp):
         super().__init__(OriginXmlDirPath)
-        self.app = QApp
+        self.app                = QApp
 
         # 결과값 저장할 경로
-        self.CommonImgDirPath    = ""
-        self.HeadImgDirPath      = ""
-        self.UpperImgDirPath     = ""
-        self.LowerImgDirPath     = ""
+        self.CommonImgDirPath   = ""
+        self.HeadImgDirPath     = ""
+        self.UpperImgDirPath    = ""
+        self.LowerImgDirPath    = ""
 
-        self.savePath = ["" for _ in range(MAX_LABEL) ]
+        self.savePath           = ["" for _ in range(MAX_LABEL) ]
 
         # getImgPath() 검색하기 위한 Dict
-        self.OriginImgDict = {}
-        self.TotalImageCount = 0
+        self.OriginImgDict      = {}
+        self.TotalImageCount    = 0
+
         # SliceImage 가 실패한 목록들 출력하기 위한 List
-        self.SliceFailList = []
+        self.SliceFailList      = []
 
-        self.CurBoxList = []
-        self.CurImgName = ""
+        self.CurBoxList         = []
+        self.CurImgName         = ""
 
-        self.sendArgsList = []
+        self.sendArgsList       = []
 
-        self.initialize()
+        self.initializeSI()
 
 
-    def initialize(self):
+    def initializeSI(self):
         # RunFunction 이름 지정 - 안하면 Error 뜸!
         self.setRunFunctionName('SLICE_IMAGE')
 
@@ -161,20 +166,21 @@ class SliceImage(Singleton, CvatXml):
         self.selectUi.show()
         self.app.exec()
 
-        if self.selectUi.isSelectDone is False:
+        if self.selectUi.isQuitProgram():
             return
 
-        self.initCvatXmlClass()
+        self.initAfterSetUI()
 
-        # 각자 파일 경로들 넣어주기
+
+    def initAfterSetUI(self):
+        self.initCvatXmlClass()
         self.savePath = self.make_dir_for_slice_img()
 
-        # Get Origin Image Data as Dict - ImgFileName:RootPath
-        # 만약 getOriginImgDataDict 가 제대로 불러와지지 않는다면 바로 프로그램 종료
         if self.getOriginImgDataDict() is False:
             sys.exit(-1)
 
-        self.TotalImageCount = len(self.OriginImgDict)
+        self.TotalImageCount = len(self.OriginImgDict)  
+
 
     # SelectUI Function
     # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -200,35 +206,36 @@ class SliceImage(Singleton, CvatXml):
             - WORKING_IMG_FILES_ABBREVIATED
     """
     def setInitSettingSelectUI(self):
-        self.sendArgsList = [   ['FD', 'OriginXmlDirPath',      True, f'{OriginXmlDirPath}'],
-                                ['FD', 'OriginImgDirPath',      True, f'{OriginImgDirPath}'],
-                                ['FD', 'ResultDirPath',         True, f'{ResultDirPath}'],
+        self.sendArgsList = [   ['FD', 'OriginXmlDirPath',              True,   f'{OriginXmlDirPath}'],
+                                ['FD', 'OriginImgDirPath',              True,   f'{OriginImgDirPath}'],
+                                ['FD', 'ResultDirPath',                 True,   f'{ResultDirPath}'],
                                 ['FD', 'HLINE_0',                       False,  'None'],
-                                ['FD', 'AbbreviatedImgPath',    True, f'{AbbreviatedImgPath}'],
-                                ['FD', 'CrushedImgFilePath',    True, f'{CrushedImgFilePath}'],
+                                ['FD', 'AbbreviatedImgPath',            True,   f'{AbbreviatedImgPath}'],
+                                ['FD', 'CrushedImgFilePath',            True,   f'{CrushedImgFilePath}'],
 
-                                ['CB', 'USE_COMMON', False, f'{USE_COMMON}'],
-                                ['CB', 'USE_HEAD', False, f'{USE_HEAD}'],
-                                ['CB', 'USE_UPPER', False, f'{USE_UPPER}'],
-                                ['CB', 'USE_LOWER', False, f'{USE_LOWER}'],
+                                ['CB', 'USE_COMMON',                    False,  f'{USE_COMMON}'],
+                                ['CB', 'USE_HEAD',                      False,  f'{USE_HEAD}'],
+                                ['CB', 'USE_UPPER',                     False,  f'{USE_UPPER}'],
+                                ['CB', 'USE_LOWER',                     False,  f'{USE_LOWER}'],
                                 ['CB', 'HLINE_1',                       False,  'None'],
-                                ['CB', 'WORKING_IMG_FILES_ABBREVIATED', False, f'{WORKING_IMG_FILES_ABBREVIATED}']
+                                ['CB', 'WORKING_IMG_FILES_ABBREVIATED', False,  f'{WORKING_IMG_FILES_ABBREVIATED}']
                             ]
         return self.getRunFunctionName(), self.sendArgsList
 
     def getEditSettingSelectUI(self):
         NAME = 1
-
         returnDict = self.selectUi.getReturnDict()
 
         print("\n* Change Path/Define Value By SelectUI")
         print("--------------------------------------------------------------------------------------")
         for Arg in self.sendArgsList:
-            if returnDict.get(Arg[NAME]) != None:
-                globals()[Arg[NAME]] = returnDict[Arg[NAME]]
-                showLog(f'- {Arg[NAME]:40} -> {globals()[Arg[NAME]]}')            
-        print()
+            eachTarget = Arg[NAME]
+            if returnDict.get(eachTarget) != None:
+                globals()[eachTarget] = returnDict[eachTarget]
+                showLog(f'- {eachTarget:40} -> {globals()[eachTarget]}')            
+        showLog("--------------------------------------------------------------------------------------\n")
 
+        setResultDir(ResultDirPath)
         self.setChanged_Xml_n_Res_Path(OriginXmlDirPath, ResultDirPath)
 
     # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -245,7 +252,7 @@ class SliceImage(Singleton, CvatXml):
             img_path = os.path.join(ResultDirPath, subPath)
             img_path = os.path.normpath(img_path)
             os.makedirs(img_path, exist_ok=True)
-            SuccessLog(f'{subPath} Create Done -> {img_path}')
+            SuccessLog(f'Create Done {subPath:15}-> {img_path}')
             return img_path
 
         if USE_COMMON is True:
@@ -270,26 +277,11 @@ class SliceImage(Singleton, CvatXml):
         else:
             workPath = OriginImgDirPath
 
-        # 해당 workPath 존재여부 확인
-        if os.path.isdir(workPath) is True:
-            NoticeLog(f'Target Source Img Path - {workPath}')
-        else:
-            ErrorLog(f'`{workPath}` is Not Vaild Img Path', lineNum=lineNum(), errorFileName=filename())
-            return False            
-
         # 돌리면서 유효한 이미지 확장자만 추가하기
-        for root, _, files in os.walk(workPath):
-            if len(files) > 0:
-                for file_name in files:
-                    _, ext = os.path.splitext(file_name)
-                    if ext in validImgFormat:
-                        self.OriginImgDict[file_name] = root
+        self.OriginImgDict = getImageSearchDict(workPath, validImgFormat)
 
         # 유효한 이미지가 있었을 때
-        if self.OriginImgDict:
-            SuccessLog(f'get Image Data Success - {len(self.OriginImgDict)} Files')
-        # 유효한 이미지가 하나도 없었을 때
-        else:
+        if self.OriginImgDict is None:
             ErrorLog(f'`{workPath}` is Nothing Vaild Image', lineNum=lineNum(), errorFileName=filename())
             return False
 
@@ -319,8 +311,7 @@ class SliceImage(Singleton, CvatXml):
     # Label(Common, Head, Upper, Lower) 값에 따라서 이미지를 실제로 Slice 하는 함수 
     def SliceByLabel(self, ResDir, ImgName, img:np.ndarray, box):
 
-        src     = img.copy()
-        croped  = self.ImageCrop(src, box)
+        croped  = self.ImageCrop(img, box)
         res     = imwrite(os.path.join(ResDir, ImgName), croped)
 
         if res is False:
@@ -367,8 +358,7 @@ class SliceImage(Singleton, CvatXml):
 
     # RunFunction 귀여워...
     def RunFunction(self):
-        res = self.SliceOneImg(self.CurImgName, self.CurBoxList)
-        return res
+        return self.SliceOneImg(self.CurImgName, self.CurBoxList)
 
 
     def setRunFunctionParam(self):
@@ -413,24 +403,14 @@ class SliceImage(Singleton, CvatXml):
         print("[ Crushed Image List ]")
 
         if self.SliceFailList:
-            for each in self.SliceFailList:
-                print(f'- {each}')
-
-            if os.path.isdir(ResultDirPath) is False:
-                os.makedirs(ResultDirPath, exist_ok=True)
-                NoticeLog(f'{ResultDirPath} is Not Exists, Create Done')
-
-            with open(CrushedImgFilePath, 'w') as f:
-                for line in self.SliceFailList:
-                    f.write(f"{line}\n")
-
-            SuccessLog(f'CrushImgList Save Done - {CrushedImgFilePath}')
+            showListLog(self.SliceFailList)
+            writeListToFile(CrushedImgFilePath, self.SliceFailList, encodingFormat)
         else:
             print("- Crushed Image Not Detected! :D")
 
 
     def run(self):
-        if self.selectUi.isSelectDone is False:
+        if self.selectUi.isQuitProgram():
             NoticeLog(f'{self.__class__.__name__} Program EXIT\n')
         else:
             super().run()
@@ -438,6 +418,6 @@ class SliceImage(Singleton, CvatXml):
 
 
 if __name__ == "__main__":
-    App = QApplication(sys.argv)
-    RunProgram = SliceImage(App)
+    App         = QApplication(sys.argv)
+    RunProgram  = SliceImage(App)
     RunProgram.run()

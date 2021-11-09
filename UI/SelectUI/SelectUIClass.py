@@ -545,4 +545,10 @@ class SelectUI(QMainWindow):
 
         # Done 버튼 집어넣기
         self.ui.mainLayout.addWidget(self.ui.quitButton, 1)
+
+    
+    def isQuitProgram(self):
+        if self.isSelectDone is False:
+            return True
+        return False
         

@@ -11,7 +11,7 @@ Classes :
         METHODS :
             - run()
 
-LAST_UPDATE : 21/10/20
+LAST_UPDATE : 21/11/09
 AUTHOR      : SO BYUNG JUN
 """
 
@@ -24,7 +24,7 @@ import sys
 
 # IMPORT INSTALLED
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-import numpy as np
+import numpy                    as np
 
 
 # Add Import Path
@@ -36,20 +36,20 @@ sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../'))
 
 # Refer to CoreDefine.py
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-from CoreDefine import *
+from CoreDefine                 import *
 
 
 # Custom Modules
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-from Core.CommonUse         import *
-from Core.ExcelDataClass    import ExcelData
-from Core.CvatXmlClass      import CvatXml
-from Core.SingletonClass    import Singleton
+from Core.CommonUse             import *
+from Core.ExcelDataClass        import ExcelData
+from Core.CvatXmlClass          import CvatXml
+from Core.SingletonClass        import Singleton
 
 
 # UI
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-from UI.SelectUI.SelectUIClass import *
+from UI.SelectUI.SelectUIClass  import *
 
 
 # SOURCE & DEST PATH
@@ -81,28 +81,23 @@ SIZE_ANALYSIS_TXT   = "ImageSize_Analysis_Source.txt"
 # DEFINE
 # True 체크한 값만 MakeClass 작동
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-MAKE_83_CLASS = True
-MAKE_66_CLASS = True
-MAKE_39_CLASS = True
+MAKE_83_CLASS       = True
+MAKE_66_CLASS       = True
+MAKE_39_CLASS       = True
+SIZE_FILTERING      = False
 
-# 조건에 따라 추출하고 싶을 때 :
-# 아랫 값 True 바꾸고 나서 SizeFilter() 함수 수정!
-SIZE_FILTERING = False
+CHECK_CRUSH_IMAGE   = False
+CHECK_REAL_EXIST    = False
+ANALYSIS_IMAGE_SIZE = True
 
 # 원본 이미지를 축약시킨 폴더 기준으로 작업할 때 :
 # 해당 cvat 이미지가 원본 이미지에 실제로 있는지 따져야함
 ORIGIN_IMG_FILES_ABBREVIATED = False
 
-# MAKECLASS 실행하면서, 해당 이미지 실제 존재 여부 체크할건지
-# 요거 체크하면 꽤느려질걸...
-CHECK_REAL_EXIST = False
-
-ANALYSIS_IMAGE_SIZE = True
-
 
 # SIZE_FILTERING DICT
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-SIZE_FILTERING_DICT     = copy.copy(CORE_SIZE_FILTER_DICT)
+SIZE_FILTERING_DICT = copy.copy(CORE_SIZE_FILTER_DICT)
 
 
 # MakeClassSource Class
@@ -120,7 +115,7 @@ class MakeClassSource(Singleton, CvatXml):
                 makeClass[N] 을 하고 나서 annotation text ( ex) 100010001001... ) 
                 형태로 변환된 결과물들의 리스트 (type : list)
 
-            ResultImgNameList :
+            Result_83_ImageNameList :
                 makeClass[83] 을 하고 나서 나온 imageName 들의 리스트 (type : list)
 
             ResultDeleteUnknown_66/39_List :
@@ -139,8 +134,6 @@ class MakeClassSource(Singleton, CvatXml):
 
         Methods:
             - initialize()
-            - checkCrushedImgListFile()
-            - LoadCrushedImgListFile()
             - createAttListByBoxList()
             - listToString(fromList)
             - saveMakeClassFile(SubPath, SaveList)
@@ -162,43 +155,41 @@ class MakeClassSource(Singleton, CvatXml):
             class 내부 변수 할당 및 ExcelData 클래스 생성
         """
         super().__init__(OriginXmlDirPath)
-        self.app = QApp
+        self.app                            = QApp
 
-        self.MakeClassFailList    = []
-        self.CrushImgFileNameList = []
+        self.MakeClassFailList              = []
+        self.CrushImgFileNameList           = []
 
-        self.Result_83_ClassList = []
-        self.Result_66_ClassList = []
-        self.Result_39_ClassList = []
-        self.ResultImgNameList   = []
+        self.Result_83_ClassList            = []
+        self.Result_66_ClassList            = []
+        self.Result_39_ClassList            = []
 
-        self.ResultDeleteUnknown_39_List = []
-        self.ResultDeleteUnknown_66_List = []
+        self.Result_83_ImageNameList        = []
+        self.ResultDeleteUnknown_39_List    = []
+        self.ResultDeleteUnknown_66_List    = []
 
-        self.Deleted_39_Count = 0
-        self.Deleted_66_Count = 0
+        self.Deleted_39_Count               = 0
+        self.Deleted_66_Count               = 0
 
-        self.imgSizeValueList = []
-        self.imgSizeSaveList  = []
+        self.imgSizeValueList               = []
+        self.imgSizeSaveList                = []
 
-        self.ClassData  = None
+        self.ClassData                      = None
 
-        self.CurBoxList = []
-        self.CurImgName = ""
-        self.CurImgSizeList = []
+        self.CurBoxList                     = []
+        self.CurImgName                     = ""
+        self.CurImgSizeList                 = []
 
-        self.AbbreviatedImgDict = {}
-        self.CheckRealExistDict = {}
-
-        self.SizeFilterLogList = []
+        self.AbbreviatedImgDict             = {}
+        self.CheckRealExistDict             = {}
 
         # UI 연동용 인자 리스트
-        self.sendArgsList = []
+        self.sendArgsList                   = []
 
-        self.initialize()
+        self.initializeMC()
 
 
-    def initialize(self):
+    def initializeMC(self):
         """
             SliceImage 실행 결과 저장된 CrushImageList.txt 를 불러오기 시도하고,
             그 결과 현재 원본 이미지 파일들에 Crushed Image 가 있다면
@@ -215,7 +206,7 @@ class MakeClassSource(Singleton, CvatXml):
         self.selectUi.show()
         self.app.exec()
 
-        if self.selectUi.isSelectDone is False:
+        if self.selectUi.isQuitProgram():
             return
 
         self.ClassData = ExcelData()
@@ -238,12 +229,15 @@ class MakeClassSource(Singleton, CvatXml):
                 - CONDITIONAL_EXTRACT
         """
         # CrushedImgListFile 이 있는지 체크함과 동시에 불러오는 함수
-        self.LoadCrushedImgListFile()
-
-        # 만약 해당 파일에 Crushed Image 가 있다면 ConditionCheck 등록
-        if self.CrushImgFileNameList:
+        if CHECK_CRUSH_IMAGE is True:
             ModeLog('CRUSH_IMG_FILTER ON\n')
-            self.condClass.addCondition(['CheckCrushImg', self.CheckCrushImg, self.getArgs_CheckCrushImg])
+            readFileToList(CrushedImgFilePath, self.CrushImgFileNameList, encodingFormat)
+
+            # 만약 해당 파일에 Crushed Image 가 있다면 ConditionCheck 등록
+            if self.CrushImgFileNameList:
+                self.condClass.addCondition(['CheckCrushImg', self.CheckCrushImg, self.getArgs_CheckCrushImg])
+            else:
+                ModeLog('CHECK_CRUSH_IMAGE FORCED CANCLELLATION')
 
         # 축약 이미지 폴더로 돌리는 옵셥일 때 : MakeClass 결과값들의 해당 이미지가 진짜 있는지 존재 체크 Condition 추가
         if ORIGIN_IMG_FILES_ABBREVIATED is True:
@@ -322,8 +316,9 @@ class MakeClassSource(Singleton, CvatXml):
                                 ['CB', 'HLINE_2',                       False,  'None'],
                                 ['CB', 'ORIGIN_IMG_FILES_ABBREVIATED',  False,  f'{ORIGIN_IMG_FILES_ABBREVIATED}'],
                                 ['CB', 'CHECK_REAL_EXIST',              False,  f'{CHECK_REAL_EXIST}'],
+                                ['CB', 'CHECK_CRUSH_IMAGE',             False,  f'{CHECK_CRUSH_IMAGE}'],
 
-                                ['UI',  'SIZE_FILTERING_DICT',            False, SIZE_FILTERING_DICT]
+                                ['UI',  'SIZE_FILTERING_DICT',          False,  SIZE_FILTERING_DICT]
                             ]
         return self.getRunFunctionName(), self.sendArgsList
 
@@ -345,16 +340,18 @@ class MakeClassSource(Singleton, CvatXml):
         print("\n* Change Path/Define Value By SelectUI")
         print("--------------------------------------------------------------------------------------")
         for Arg in self.sendArgsList:
-            if returnDict.get(Arg[NAME]) != None:
+            eachTarget = Arg[NAME]
+            if returnDict.get(eachTarget) != None:
                 # 해당 변수명에 SelectUI 에서 갱신된 값 집어넣기
-                globals()[Arg[NAME]] = returnDict[Arg[NAME]]
+                globals()[eachTarget] = returnDict[eachTarget]
 
-                if Arg[NAME] == "SIZE_FILTERING_DICT":
-                    showLog(f'- {Arg[NAME]:40} -> {summaryFilterDict(globals()[Arg[NAME]])}')
+                if eachTarget == "SIZE_FILTERING_DICT":
+                    showLog(f'- {eachTarget:40} -> {summaryFilterDict(globals()[eachTarget])}')
                 else:
-                    showLog(f'- {Arg[NAME]:40} -> {globals()[Arg[NAME]]}')
+                    showLog(f'- {eachTarget:40} -> {globals()[eachTarget]}')
         print("--------------------------------------------------------------------------------------\n")
 
+        setResultDir(ResultDirPath)
         # CvatXmlClass 와 연동되는 부분, 생성할 때 가져갔던 OriginXmlDirPath 와 바뀌었을 수 있으니 변경
         self.setChanged_Xml_n_Res_Path(OriginXmlDirPath, ResultDirPath)
 
@@ -376,35 +373,6 @@ class MakeClassSource(Singleton, CvatXml):
 
     # PreTreatment Code
     # -------------------------------------------------------------------------------------
-    def checkCrushedImgListFile(self):
-        """
-            CrushedImgListFile 이 있는지 체크하는 함수
-            ---------------------------------------------------------------------
-            Returns :
-                - 있다면 return True / 없다면 False
-            ---------------------------------------------------------------------
-        """
-        if os.path.isfile(CrushedImgFilePath):
-            return True
-        return False
-
-
-    def LoadCrushedImgListFile(self):
-        """
-            CrushedImgListFile 이 있는지 체크함과 동시에 불러오는 함수
-        """
-        if self.checkCrushedImgListFile() is True:
-            # 만약 파일이 존재한다면, 해당 파일에 한 줄씩 적힌 imgName 가져와서 List.append()
-            with open(CrushedImgFilePath, 'r', encoding=encodingFormat) as f:
-                for eachLine in f:
-                    eachLine = eachLine.strip('\n')
-                    self.CrushImgFileNameList.append(eachLine) 
-            SuccessLog(f'{CrushedImgFilePath} Load Done.')
-
-        else:
-            ErrorLog(f'`{CrushedImgFilePath}` is Not Vaild CrushedImg File Path', lineNum=lineNum(), errorFileName=filename())
-            self.CrushImgFileNameList.clear()
-
 
     # 이미지 검색하기 위한 Dict 만드는 함수
     def getAbbreviatedImgDataDict(self):
@@ -417,26 +385,11 @@ class MakeClassSource(Singleton, CvatXml):
                 True:
                     - 정상 작동 시
         """
-        # 유효한 경로일 때 - 유효한 이미지 확장자만 리스트에 추가
-        if os.path.isdir(AbbreviatedImgPath) is True:
-            for root, _, files in os.walk(AbbreviatedImgPath):
-                if len(files) > 0:
-                    for file_name in files:
-                        _, ext = os.path.splitext(file_name)
-                        if ext in validImgFormat:
-                            self.AbbreviatedImgDict[file_name] = root
+        self.AbbreviatedImgDict = getImageSearchDict(AbbreviatedImgPath, validImgFormat)
 
-            # 유효한 이미지가 있었을 때
-            if self.AbbreviatedImgDict:
-                SuccessLog(f'get Abbreviated Image Data Success - {len(self.AbbreviatedImgDict)} Files')
-            # 유효한 이미지가 하나도 없었을 때
-            else:
-                ErrorLog(f'`{AbbreviatedImgPath}` is Nothing Vaild Image', lineNum=lineNum(), errorFileName=filename())
-                return False
-
-        # 경로부터 틀렸을 때
-        else:
-            ErrorLog(f'`{AbbreviatedImgPath}` is Not Vaild Abbreviated Path', lineNum=lineNum(), errorFileName=filename())
+        # 유효한 이미지가 있었을 때
+        if self.AbbreviatedImgDict is None:
+            ErrorLog(f'`{AbbreviatedImgPath}` is Nothing Vaild Image', lineNum=lineNum(), errorFileName=filename())
             return False
 
         return True
@@ -454,25 +407,11 @@ class MakeClassSource(Singleton, CvatXml):
                     - 정상 작동 시
         """
         # 유효한 경로일 때 -  유효한 이미지 확장자만 리스트에 추가
-        if os.path.isdir(CheckRealExistPath) is True:
-            for root, _, files in os.walk(CheckRealExistPath):
-                if len(files) > 0:
-                    for file_name in files:
-                        _, ext = os.path.splitext(file_name)
-                        if ext in validImgFormat:
-                            self.CheckRealExistDict[file_name] = root
+        self.CheckRealExistDict = getImageSearchDict(CheckRealExistPath, validImgFormat)
 
-            # 유효한 이미지가 있었을 때
-            if self.CheckRealExistDict:
-                SuccessLog(f'get CheckRealExist Image Data Success - {len(self.CheckRealExistDict)} Files')
-            # 유효한 이미지가 하나도 없었을 때
-            else:
-                ErrorLog(f'`{CheckRealExistPath}` is Nothing Vaild Image', lineNum=lineNum(), errorFileName=filename())
-                return False
-
-        # 경로부터 틀렸을 때
-        else:
-            ErrorLog(f'`{CheckRealExistPath}` is Not Vaild Abbreviated Path', lineNum=lineNum(), errorFileName=filename())
+        # 유효한 이미지가 있었을 때
+        if self.CheckRealExistDict is None:
+            ErrorLog(f'`{CheckRealExistPath}` is Nothing Vaild Image', lineNum=lineNum(), errorFileName=filename())
             return False
 
         return True
@@ -661,6 +600,7 @@ class MakeClassSource(Singleton, CvatXml):
 
         return sendAttList
 
+
     # ABS FUNC(가상 함수) 재정의 함수
     def RunFunction(self):
         """
@@ -694,22 +634,22 @@ class MakeClassSource(Singleton, CvatXml):
         self.ClassData.setMakeClassDefaultData(attList)
 
         # 만든 값 불러오기
-        MCD = self.ClassData.getMakeClassDefaultData()
+        MCD                 = self.ClassData.getMakeClassDefaultData()
 
-        make83Class_Res = ""
-        make66Class_Res = ""
-        make39Class_Res = ""
+        make83Class_Res     = ""
+        make66Class_Res     = ""
+        make39Class_Res     = ""
 
-        isUnknownDelete_66 = False
-        isUnknownDelete_39 = False
+        isUnknownDelete_66  = False
+        isUnknownDelete_39  = False
 
-        imgName = self.CurImgName
+        imgName             = self.CurImgName
 
         # True 값 해둔 Case 만 실행
         # Annotation Text 값을 만들고 이때 사용한 이미지와 매칭시켜, 각각의 리스트에 저장
         if MAKE_83_CLASS is True:
-            make83Class_PreRes, _ = self.ClassData.refineMakeClass(83, MCD)
-            make83Class_Res = self.listToString(make83Class_PreRes)
+            make83Class_PreRes, _   = self.ClassData.refineMakeClass(83, MCD)
+            make83Class_Res         = self.listToString(make83Class_PreRes)
             self.Result_83_ClassList.append(make83Class_Res)
 
         # 66 / 39 는 Unknown 값 처리까지 같이
@@ -733,7 +673,7 @@ class MakeClassSource(Singleton, CvatXml):
 
         # Default Annotation 값 자체가 83 클래스니까, 그대로 전부 다 img append 해도 됨
         # 83 클래스 만드는 데 실패할 애들은 진작에 다 걸러졌음
-        self.ResultImgNameList.append(imgName)
+        self.Result_83_ImageNameList.append(imgName)
 
         if ANALYSIS_IMAGE_SIZE is True:
             # 39makeClass 체크했을 때는 그게 최우선
@@ -741,7 +681,7 @@ class MakeClassSource(Singleton, CvatXml):
                 if isUnknownDelete_39 is False:
                     self.imgSizeValueList.append(self.CurImgSizeList)
             else:
-                    self.imgSizeValueList.append(self.CurImgSizeList)
+                self.imgSizeValueList.append(self.CurImgSizeList)
 
         
     def analysisImageSize(self):
@@ -750,7 +690,6 @@ class MakeClassSource(Singleton, CvatXml):
 
         widthArray  = np.array(widthList)
         heightArray = np.array(heightList)
-
         widthAvg    = np.mean(widthArray)
         heightAvg   = np.mean(heightArray)
 
@@ -800,10 +739,7 @@ class MakeClassSource(Singleton, CvatXml):
             ---------------------------------------------------------------------
         """
         savePath = os.path.join(ResultDirPath, SubPath)
-        with open(savePath, 'w') as f:
-            for line in SaveList:
-                f.write(f"{line}\n")
-            SuccessLog(f"Save Done -> {SubPath}")
+        writeListToFile(savePath, SaveList, encodingFormat)
 
 
     def saveMakeClassFiles(self):
@@ -813,24 +749,15 @@ class MakeClassSource(Singleton, CvatXml):
         """
         if MAKE_83_CLASS is True:
             self.saveMakeClassFile(ANNOTATION_83_TXT, self.Result_83_ClassList)
+            self.saveMakeClassFile(IMAGE_LIST_83_TXT, self.Result_83_ImageNameList)
 
         if MAKE_66_CLASS is True:
             self.saveMakeClassFile(ANNOTATION_66_TXT, self.Result_66_ClassList)
+            self.saveMakeClassFile(IMAGE_LIST_66_TXT, self.ResultDeleteUnknown_66_List)
 
         if MAKE_39_CLASS is True:
             self.saveMakeClassFile(ANNOTATION_39_TXT, self.Result_39_ClassList)
-
-        if self.ResultImgNameList:
-            self.saveMakeClassFile(IMAGE_LIST_83_TXT, self.ResultImgNameList)
-
-        if self.ResultDeleteUnknown_66_List:
-            self.saveMakeClassFile(IMAGE_LIST_66_TXT, self.ResultDeleteUnknown_66_List)
-
-        if self.ResultDeleteUnknown_39_List:
             self.saveMakeClassFile(IMAGE_LIST_39_TXT, self.ResultDeleteUnknown_39_List)
-
-        if self.SizeFilterLogList:
-            self.saveMakeClassFile(CHECK_EXTRACT_TXT, self.SizeFilterLogList)
 
         if ANALYSIS_IMAGE_SIZE is True:
             self.setImageAnalysisSaveList()
@@ -851,10 +778,6 @@ class MakeClassSource(Singleton, CvatXml):
         showLog(f'- {"Deleted by UnknownCheck in 66Class":<35} [{CRED}{self.Deleted_66_Count:^8}{CRESET}]  ->  MakeClass 66 Image [{CYELLOW}{TotalLen_66_Img:^8}{CRESET}]')
         showLog(f'- {"Deleted by UnknownCheck in 39Class":<35} [{CRED}{self.Deleted_39_Count:^8}{CRESET}]  ->  MakeClass 39 Image [{CYELLOW}{TotalLen_39_Img:^8}{CRESET}]\n')
 
-        if os.path.isdir(ResultDirPath) is False:
-            os.makedirs(ResultDirPath, exist_ok=True)
-            NoticeLog(f'{ResultDirPath} is Not Exists, Create Done')
-
         self.saveMakeClassFiles()
 
         if ANALYSIS_IMAGE_SIZE is True:
@@ -867,8 +790,8 @@ class MakeClassSource(Singleton, CvatXml):
             CvatXml 의 가상함수를 상속받아 재정의한 함수
             RunFunction 에 들어가기 전 사용할 Param 을 setting 하는 함수
         """
-        self.CurBoxList = self.getCurBoxList()
-        self.CurImgName = self.getCurImgName()
+        self.CurBoxList     = self.getCurBoxList()
+        self.CurImgName     = self.getCurImgName()
         self.CurImgSizeList = self.getCurImgSize()
 
 
@@ -922,7 +845,7 @@ class MakeClassSource(Singleton, CvatXml):
             클래스를 실행하는 함수
             cvatXmlList 클래스의 run() 함수를 그대로 물려받아 사용한다.
         """
-        if self.selectUi.isSelectDone is False:
+        if self.selectUi.isQuitProgram():
             NoticeLog(f'{self.__class__.__name__} Program EXIT\n')
         else:
             super().run()
@@ -930,6 +853,6 @@ class MakeClassSource(Singleton, CvatXml):
 
 
 if __name__ == "__main__":
-    App = QApplication(sys.argv)
-    RunProgram = MakeClassSource(App)
+    App         = QApplication(sys.argv)
+    RunProgram  = MakeClassSource(App)
     RunProgram.run()

@@ -496,8 +496,74 @@ def summaryFilterDict(filterDict:dict):
 
     return resMsg
 
+
+# Main.py Check Exit
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 def CheckExit(CheckName):
     if CheckName == 'EXIT':
         NoticeLog('Attribute Program Finished... Close still running programs\n')
         return True
     return False
+
+
+# Check File or Dir Exist
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+def CheckExistFile(FileName):
+    if os.path.isfile(FileName) is False:
+        ErrorLog(f'{FileName} is Not Exist File! Program Quit.')
+        sys.exit(-1)
+
+def CheckExistDir(DirName):
+    if os.path.isdir(DirName) is False:
+        ErrorLog(f'{DirName} is Not Exist Directory! Program Quit.')
+        sys.exit(-1)
+
+
+def setResultDir(resDirPath):
+    if os.path.isdir(resDirPath) is False:
+        os.makedirs(resDirPath, exist_ok=True)
+        NoticeLog(f'{resDirPath} is Not Exists, Create Done')
+
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+def writeListToFile(filePath, wList, encodingFormat=CORE_ENCODING_FORMAT):
+    with open(filePath, 'w', encoding=encodingFormat) as f:
+        for line in wList:
+            f.write(f'{line}\n')
+    SuccessLog(f'Save Done >> {filePath}')
+
+
+def readFileToList(filePath, rList:list, encodingFormat=CORE_ENCODING_FORMAT):
+    CheckExistFile(filePath)
+    rList.clear()
+    with open(filePath, 'r', encoding=encodingFormat) as f:
+        for eachLine in f:
+            eachLine = eachLine.strip('\n')
+            rList.append(eachLine)
+    SuccessLog(f'Read Done << {filePath}')
+
+
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+def showListLog(showList):
+    if not showList:
+        return
+    for eachElem in showList:
+        showLog(f'- {eachElem}')
+
+
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+def getImageSearchDict(SearchDir, filterFormat):
+    CheckExistDir(SearchDir)
+    resDict = {}
+
+    for root, _, files in os.walk(SearchDir):
+        if len(files) > 0:
+            for file in files:
+                _, ext = os.path.splitext(file)
+                if ext in filterFormat:
+                    resDict[file] = root
+    
+    if resDict:
+        SuccessLog(f'Get ImageData Done << {SearchDir}')
+        return resDict
+
+    return None

@@ -76,18 +76,7 @@ class SaveErrorLog():
     def saveLogToFile(self):
         if self.ErrorLogList:
             save_path   = os.path.join(self.ResDirPath, SAVE_LOG_EXCEL_PATH)
-
-            # tryCount    = 0
-            # EditPath    = ""
-
-            # while True:
-            #     if os.path.isfile(save_path) is False:
-            #         break
-            #     EditPath    = f'{SAVE_LOG_EXCEL_PATH.split(".")[0]}_{tryCount}.xlsx'
-            #     tryCount    += 1
-            #     save_path   = os.path.join(self.ResDirPath, EditPath)
-
-            raw_data = self.ListToDataFrame()
+            raw_data    = self.ListToDataFrame()
             raw_data.to_excel(excel_writer=save_path)
 
             SuccessLog(f'Condition Error List Save to Excel File -> {save_path}')

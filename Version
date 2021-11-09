@@ -72,3 +72,8 @@
 ==================
     - (FIX) 각 RunFunction class instance 및 ExcelDataClass를 Singleton으로 변환
     - (FIX) ConditionCheckError.xlsx가 덮어씌워지도록 변경
+
+
+[1.0.9] 2021-11-09
+==================
+    - (FIX) CleanUp Code

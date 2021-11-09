@@ -10,11 +10,11 @@ Tasks:
         ☐ Annotation Rework
         ✔ Change CheckExtract Algorithm @done (2021. 11. 6. 오전 12:56:47)
         ✔ Separate conditional extraction program @done (2021. 11. 6. 오전 12:56:46)
-        ☐ CleanUp Filtered ImgSize Check Function
+        ✔ CleanUp Filtered ImgSize Check Function @done (2021. 11. 9. 오후 1:26:15)
         ☐ Scoring RunFunction
         ☐ Adjust Scoring RunFunction AI
         ☐ Code Compression
-        ☐ Add Compare Excel Function at AnalysisAttribute.py
+        ✔ Add Compare Excel Function at AnalysisAttribute.py @done (2021. 11. 9. 오후 1:26:16)
 
     TodoTinyList:
         ✔ Fix ExtractAnnotationClass.RunConditionExtract @done (2021. 11. 6. 오전 3:15:57)

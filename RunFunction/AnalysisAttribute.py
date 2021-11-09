@@ -1,22 +1,25 @@
 """
 cvatXml 파일과 그에 해당하는 img 원본 경로를 받아서 분석하는 코드
 
-LAST_UPDATE : 21/10/20
+LAST_UPDATE : 21/11/09
 AUTHOR      : SO BYUNG JUN
 """
 
 
 # IMPORT
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-import numpy as np
 import os
 import cv2
 import sys
 import copy
-import pandas as pd
 import shutil
 
-import matplotlib.pyplot as plt
+
+# INSTALLED PACKAGE IMPORT
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+import numpy                    as np
+import pandas                   as pd
+import matplotlib.pyplot        as plt
 
 
 # Add Import Path
@@ -28,20 +31,20 @@ sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../'))
 
 # Refer to CoreDefine.py
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-from CoreDefine import *
+from CoreDefine                 import *
 
 
 # Custom Modules
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-from Core.CommonUse         import *
-from Core.ExcelDataClass    import ExcelData
-from Core.CvatXmlClass      import CvatXml
-from Core.SingletonClass    import Singleton
+from Core.CommonUse             import *
+from Core.ExcelDataClass        import ExcelData
+from Core.CvatXmlClass          import CvatXml
+from Core.SingletonClass        import Singleton
 
 
 # UI
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-from UI.SelectUI.SelectUIClass import *
+from UI.SelectUI.SelectUIClass  import *
 
 
 # SOURCE & DEST PATH
@@ -79,19 +82,19 @@ SIZE_FILTERING_DICT     = copy.copy(CORE_SIZE_FILTER_DICT)
 
 # CONST DEFINE
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-CLASS_NUM   = 83
+CLASS_NUM       = 83
 
-COMMON_IDX  = 0
-HEAD_IDX    = 1
-UPPER_IDX   = 2
-LOWER_IDX   = 3
-MAX_LABEL   = 4
+COMMON_IDX      = 0
+HEAD_IDX        = 1
+UPPER_IDX       = 2
+LOWER_IDX       = 3
+MAX_LABEL       = 4
 
-LOW         = 0
-MID_HIGH    = 1
-TOTAL       = 2
+LOW             = 0
+MID_HIGH        = 1
+TOTAL           = 2
 
-ALL_SATISFIED = 2
+ALL_SATISFIED   = 2
 
 
 # Setting
@@ -116,30 +119,30 @@ def imread(fileName, flags=cv2.IMREAD_COLOR, dtype=np.uint8):
 class AnalysisAttribute(Singleton, CvatXml):
     def __init__(self, QApp):
         super().__init__(OriginImgDirPath)
-        self.app        = QApp
-        self.classNum   = CLASS_NUM
+        self.app                    = QApp
+        self.classNum               = CLASS_NUM
 
-        self.EachElementSumList = [ 0 for _ in range(self.classNum) ]
+        self.EachElementSumList     = [ 0 for _ in range(self.classNum) ]
 
         # getImgPath() 검색하기 위한 Dict
-        self.OriginImgDict      = {}
-        self.TotalImageCount    = 0
+        self.OriginImgDict          = {}
+        self.TotalImageCount        = 0
 
         # SliceImage 가 실패한 목록들 출력하기 위한 List
-        self.SliceFailList      = []
+        self.SliceFailList          = []
 
         # 현재 이미지의 속성값을 가지고 오기 위한 변수들
-        self.CurBoxList         = []
-        self.CurImgName         = ""
-        self.CurImgSizeList     = []
+        self.CurBoxList             = []
+        self.CurImgName             = ""
+        self.CurImgSizeList         = []
 
-        self.sendArgsList       = []
+        self.sendArgsList           = []
 
-        self.ClassData          = None
-        self.classNameDict      = {}
-        self.categoryDict       = {}
-        self.categoryMaxCnt     = 0
-        self.ctgSumList         = []
+        self.ClassData              = None
+        self.classNameList          = []
+        self.categoryDict           = {}
+        self.categoryMaxCnt         = 0
+        self.ctgSumList             = []
 
         self.imgSizeAnalysisList    = []
         self.imgSizeValueList       = []
@@ -170,14 +173,30 @@ class AnalysisAttribute(Singleton, CvatXml):
         self.selectUi.show()
         self.app.exec()
 
-        if self.selectUi.isSelectDone is False:
+        if self.selectUi.isQuitProgram():
             return
 
-        self.ClassData = ExcelData()
+        self.initAfterSetUI()
+        self.setMode()
+
+
+    def initAfterSetUI(self):
+        # UI에서 닫기버튼을 안 눌렀을 때만, ExcelData load 시작
+        self.ClassData      = ExcelData()
+        self.classNameList  = self.ClassData.getClassNameListByClassNum(self.classNum)
+
+        if self.classNameList is None:
+            error_handling('Load ClassName Failed', filename(), lineNum())
+
+        self.categoryDict    = self.ClassData.getClassCategoryDict()
+        self.categoryMaxCnt  = max(set(self.categoryDict.values()))
+        self.ctgSumList      = [ 0 for _ in range(self.categoryMaxCnt) ]
 
         self.initCvatXmlClass()
         self.setimgSizeAnalysisList()
 
+
+    def setMode(self):
         if CHECK_IS_IMAGE_CRUSHED is True:
             ModeLog('CHECK_IS_IMAGE_CRUSHED ON')
             # Get Origin Image Data as Dict - ImgFileName:RootPath
@@ -189,19 +208,8 @@ class AnalysisAttribute(Singleton, CvatXml):
 
         if COMPARE_WITH_EXCEL is True:
             ModeLog('COMPARE_WITH_EXCEL ON')
-            if os.path.isfile(CompareExcelPath) is False:
-                ErrorLog(f'{CompareExcelPath} is Not Exist! Program Quit.')
-                sys.exit(-1)
+            CheckExistFile(CompareExcelPath)
             self.loadCompareExcelData()
-
-        self.classNameDict = self.ClassData.getClassNameDictByClassNum(self.classNum)
-
-        if self.classNameDict is None:
-            error_handling('Load ClassName Failed', filename(), lineNum())
-
-        self.categoryDict    = self.ClassData.getClassCategoryDict()
-        self.categoryMaxCnt  = max(set(self.categoryDict.values()))
-        self.ctgSumList      = [ 0 for _ in range(self.categoryMaxCnt) ]
 
         if SIZE_FILTERING is True:
             ModeLog('SIZE_FILTERING ON')
@@ -209,6 +217,7 @@ class AnalysisAttribute(Singleton, CvatXml):
 
 
     def setimgSizeAnalysisList(self):
+        # 4X3X3 Array
         self.imgSizeAnalysisList = [ [] for _ in range(MAX_LABEL) ]
         for eachLabelIdx in range(MAX_LABEL):
             # WIDTH     [   [ [LOW], [MID_HIGH], [TOTAL] ], 
@@ -216,6 +225,7 @@ class AnalysisAttribute(Singleton, CvatXml):
             # BOTH          [ [LOW], [MID_HIGH], [TOTAL] ] ]  -> 3X3 Array
             self.imgSizeAnalysisList[eachLabelIdx] = [ [ 0, 0, 0 ], [ 0, 0, 0 ], [ 0, 0, 0 ] ]
 
+        # 4X2 Array
         self.imgSizeValueList = [ [] for _ in range(MAX_LABEL) ]
         for eachLabelIdx in range(MAX_LABEL):
             self.imgSizeValueList[eachLabelIdx] = [ [], [] ]
@@ -243,46 +253,58 @@ class AnalysisAttribute(Singleton, CvatXml):
             - CHECK_SIZE_VALUE
     """
     def setInitSettingSelectUI(self):
-        self.sendArgsList = [   ['FD', 'OriginXmlDirPath',      True, f'{OriginXmlDirPath}'],
-                                ['FD', 'OriginImgDirPath',      True, f'{OriginImgDirPath}'],
-                                ['FD', 'ResultDirPath',         True, f'{ResultDirPath}'],
-                                ['FD', 'HLINE_0',               False, 'None'],
-                                ['FD', 'CrushedImgFilePath',    True, f'{CrushedImgFilePath}'],
-                                ['FD', 'HLINE_1',               False, 'None'],
-                                ['FD', 'CompareExcelPath',    False, f'{CompareExcelPath}'],
+        self.sendArgsList = [   ['FD', 'OriginXmlDirPath',          True,   f'{OriginXmlDirPath}'],
+                                ['FD', 'OriginImgDirPath',          True,   f'{OriginImgDirPath}'],
+                                ['FD', 'ResultDirPath',             True,   f'{ResultDirPath}'],
+                                ['FD', 'HLINE_0',                   False,  'None'],
+                                ['FD', 'CrushedImgFilePath',        True,   f'{CrushedImgFilePath}'],
+                                ['FD', 'HLINE_1',                   False,  'None'],
+                                ['FD', 'CompareExcelPath',          False,  f'{CompareExcelPath}'],
 
-                                ['CB', 'CHECK_IS_IMAGE_CRUSHED', False, f'{CHECK_IS_IMAGE_CRUSHED}'],
-                                ['CB', 'CHECK_IMAGE_SIZE', False, f'{CHECK_IMAGE_SIZE}'],
-                                ['CB', 'SHOW_GRAPH', False, f'{SHOW_GRAPH}'],
-                                ['CB', 'SIZE_FILTERING', False, f'{SIZE_FILTERING}'],
-                                ['CB', 'HLINE_2',               False, 'None'],
-                                ['CB', 'COMPARE_WITH_EXCEL', False, f'{COMPARE_WITH_EXCEL}'],
+                                ['CB', 'CHECK_IS_IMAGE_CRUSHED',    False,  f'{CHECK_IS_IMAGE_CRUSHED}'],
+                                ['CB', 'CHECK_IMAGE_SIZE',          False,  f'{CHECK_IMAGE_SIZE}'],
+                                ['CB', 'SHOW_GRAPH',                False,  f'{SHOW_GRAPH}'],
+                                ['CB', 'SIZE_FILTERING',            False,  f'{SIZE_FILTERING}'],
+                                ['CB', 'HLINE_2',                   False,  'None'],
+                                ['CB', 'COMPARE_WITH_EXCEL',        False,  f'{COMPARE_WITH_EXCEL}'],
 
-                                ['LE',  'CHECK_SIZE_VALUE', False, f'{CHECK_SIZE_VALUE}'],
-                                ['UI',  'SIZE_FILTERING_DICT', False, SIZE_FILTERING_DICT]
+                                ['LE', 'CHECK_SIZE_VALUE',          False,  f'{CHECK_SIZE_VALUE}'],
+                                ['UI', 'SIZE_FILTERING_DICT',       False,  SIZE_FILTERING_DICT]
                             ]
         return self.getRunFunctionName(), self.sendArgsList
 
 
     def getEditSettingSelectUI(self):
-        NAME = 1
-        returnDict = self.selectUi.getReturnDict()
+        """
+            SelectUI 에서 넘겨받은 값 적용
+            ---------------------------------------------------------------------
+            CallBackOut Function - 
+                SelectUI class 생성할 때 인자로 넘겨주면, 거기서 이 함수를 필요할 때 실행한다.
+            ---------------------------------------------------------------------
+            Attributes :
+                returnDict : 
+                    {DefineName : Edit Define Value} 의 Dict
+        """
+        NAME        = 1
+        returnDict  = self.selectUi.getReturnDict()
 
-        print("\n* Change Path/Define Value By SelectUI")
-        print("--------------------------------------------------------------------------------------")
+        showLog("\n* Change Path/Define Value By SelectUI")
+        showLog("--------------------------------------------------------------------------------------")
         for Arg in self.sendArgsList:
-            if returnDict.get(Arg[NAME]) != None:
+            eachTarget = Arg[NAME]
+            if returnDict.get(eachTarget) != None:
                 # 해당 변수명에 SelectUI 에서 갱신된 값 집어넣기
-                globals()[Arg[NAME]] = returnDict[Arg[NAME]]
+                globals()[eachTarget] = returnDict[eachTarget]
 
-                if Arg[NAME] == "SIZE_FILTERING_DICT":
-                    showLog(f'- {Arg[NAME]:40} -> {summaryFilterDict(globals()[Arg[NAME]])}')
+                if eachTarget == "SIZE_FILTERING_DICT":
+                    showLog(f'- {eachTarget:40} -> {summaryFilterDict(globals()[eachTarget])}')
                 else:
-                    showLog(f'- {Arg[NAME]:40} -> {globals()[Arg[NAME]]}')
-        print("--------------------------------------------------------------------------------------\n")
+                    showLog(f'- {eachTarget:40} -> {globals()[eachTarget]}')
+        showLog("--------------------------------------------------------------------------------------\n")
 
         self.setChanged_Xml_n_Res_Path(OriginXmlDirPath, ResultDirPath)
         self.checkSize = int(CHECK_SIZE_VALUE)
+        setResultDir(ResultDirPath)
 
     # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 
@@ -438,26 +460,26 @@ class AnalysisAttribute(Singleton, CvatXml):
     def addElementValueByMCD(self, MCD:list):
         # MCD : MakeClassData
         for idx in range(self.classNum):
-            self.EachElementSumList[idx] += int(MCD[idx])
-            self.ctgSumList[self.categoryDict[idx]-1] += int(MCD[idx])
+            self.EachElementSumList[idx]                += int(MCD[idx])
+            self.ctgSumList[self.categoryDict[idx]-1]   += int(MCD[idx])
 
 
     def checkSizeValueByEachLabel(self, labelIdx, width, height):
         checkSize = self.checkSize
 
         if width < checkSize:
-            self.imgSizeAnalysisList[labelIdx][WIDTH][LOW]       += 1
-            self.imgSizeAnalysisList[labelIdx][WIDTH][TOTAL]     += 1
+            self.imgSizeAnalysisList[labelIdx][WIDTH][LOW]              += 1
+            self.imgSizeAnalysisList[labelIdx][WIDTH][TOTAL]            += 1
         else:
-            self.imgSizeAnalysisList[labelIdx][WIDTH][MID_HIGH]  += 1
-            self.imgSizeAnalysisList[labelIdx][WIDTH][TOTAL]     += 1
+            self.imgSizeAnalysisList[labelIdx][WIDTH][MID_HIGH]         += 1
+            self.imgSizeAnalysisList[labelIdx][WIDTH][TOTAL]            += 1
 
         if height < checkSize:
-            self.imgSizeAnalysisList[labelIdx][HEIGHT][LOW]      += 1
-            self.imgSizeAnalysisList[labelIdx][HEIGHT][TOTAL]    += 1
+            self.imgSizeAnalysisList[labelIdx][HEIGHT][LOW]             += 1
+            self.imgSizeAnalysisList[labelIdx][HEIGHT][TOTAL]           += 1
         else:
-            self.imgSizeAnalysisList[labelIdx][HEIGHT][MID_HIGH] += 1
-            self.imgSizeAnalysisList[labelIdx][HEIGHT][TOTAL]    += 1
+            self.imgSizeAnalysisList[labelIdx][HEIGHT][MID_HIGH]        += 1
+            self.imgSizeAnalysisList[labelIdx][HEIGHT][TOTAL]           += 1
 
         if width < checkSize and height < checkSize:
             self.imgSizeAnalysisList[labelIdx][ALL_SATISFIED][LOW]      += 1
@@ -487,13 +509,13 @@ class AnalysisAttribute(Singleton, CvatXml):
             imgHeight   = int(sizeList[HEIGHT])
 
             if label == "all":
-                self.checkSizeValueByEachLabel(COMMON_IDX, imgWidth, imgHeight)
+                self.checkSizeValueByEachLabel(COMMON_IDX,  imgWidth,   imgHeight)
             elif label == "head":
-                self.checkSizeValueByEachLabel(HEAD_IDX, imgWidth, imgHeight)
+                self.checkSizeValueByEachLabel(HEAD_IDX,    imgWidth,   imgHeight)
             elif label == "upper":
-                self.checkSizeValueByEachLabel(UPPER_IDX, imgWidth, imgHeight)
+                self.checkSizeValueByEachLabel(UPPER_IDX,   imgWidth,   imgHeight)
             elif label == "lower":
-                self.checkSizeValueByEachLabel(LOWER_IDX, imgWidth, imgHeight)
+                self.checkSizeValueByEachLabel(LOWER_IDX,   imgWidth,   imgHeight)
 
 
     def AnalysisAttributeEachImage(self):
@@ -528,8 +550,7 @@ class AnalysisAttribute(Singleton, CvatXml):
 
 
     def RunFunction(self):
-        res = self.AnalysisAttributeEachImage()
-        return res
+        return self.AnalysisAttributeEachImage()
 
 
     def setRunFunctionParam(self):
@@ -573,22 +594,12 @@ class AnalysisAttribute(Singleton, CvatXml):
             Result Sammary 출력하는 함수
         """
         if CHECK_IS_IMAGE_CRUSHED is True:
-            print("[ Crushed Image List ]")
+            showLog("[ Crushed Image List ]")
             if self.SliceFailList:
-                for each in self.SliceFailList:
-                    print(f'- {each}')
-
-                if os.path.isdir(ResultDirPath) is False:
-                    os.makedirs(ResultDirPath, exist_ok=True)
-                    NoticeLog(f'{ResultDirPath} is Not Exists, Create Done')
-
-                with open(CrushedImgFilePath, 'w') as f:
-                    for line in self.SliceFailList:
-                        f.write(f"{line}\n")
-
-                SuccessLog(f'CrushImgList Save Done - {CrushedImgFilePath}')
+                showListLog(self.SliceFailList)
+                writeListToFile(CrushedImgFilePath, self.SliceFailList, encodingFormat)
             else:
-                print("- Crushed Image Not Detected! :D")
+                showLog("- Crushed Image Not Detected! :D")
 
         self.AnalysisFail()
         self.AnalysisElementSum()
@@ -640,11 +651,10 @@ class AnalysisAttribute(Singleton, CvatXml):
 
 
     def showGraphAnalysisFailedList(self):
-        _, SuccessImageCount = self.getOperateImageCount()
-        FailDict = self.condClass.getTotalFailLog()
-
-        Labels = []
-        Frequency = []
+        _, SuccessImageCount    = self.getOperateImageCount()
+        FailDict                = self.condClass.getTotalFailLog()
+        Labels                  = []
+        Frequency               = []
 
         Labels.append(f'Total Success [{SuccessImageCount}]')
         Frequency.append(SuccessImageCount)
@@ -654,30 +664,31 @@ class AnalysisAttribute(Singleton, CvatXml):
             Frequency.append(value)
 
         ## 데이터 라벨, 빈도수, 색상을 빈도수를 기준으로 정렬해야한다.
-        labels_frequency = zip(Labels,Frequency) 
-        labels_frequency = sorted(labels_frequency,key=lambda x: x[1],reverse=True)
+        labels_frequency = zip(Labels, Frequency) 
+        labels_frequency = sorted(labels_frequency, key=lambda x: x[1],reverse=True)
         
-        sorted_labels = [x[0] for x in labels_frequency] ## 정렬된 라벨
+        sorted_labels    = [x[0] for x in labels_frequency] ## 정렬된 라벨
         sorted_frequency = [x[1] for x in labels_frequency] ## 정렬된 빈도수
+
+        ## 캔버스 생성
+        fig     = plt.figure(figsize=(8,8)) 
+        fig.set_facecolor('white')              ## 캔버스 배경색을 하얀색으로 설정
+        ax      = fig.add_subplot()             ## 프레임 생성
         
-        fig = plt.figure(figsize=(8,8)) ## 캔버스 생성
-        fig.set_facecolor('white') ## 캔버스 배경색을 하얀색으로 설정
-        ax = fig.add_subplot() ## 프레임 생성
+        pie     = ax.pie(   sorted_frequency,   ## 파이차트 출력
+                            startangle=90,      ## 시작점을 90도(degree)로 지정
+                            counterclock=False, ## 시계방향으로 그려짐
+                        )
         
-        pie = ax.pie(sorted_frequency, ## 파이차트 출력
-            startangle=90, ## 시작점을 90도(degree)로 지정
-            counterclock=False, ## 시계방향으로 그려짐
-            )
-        
-        total = np.sum(Frequency) ## 빈도수 합
-        
-        threshold = 5
-        sum_pct = 0 ## 퍼센티지
-        count_less_5pct = 0 ## 5%보다 작은 라벨의 개수
-        spacing = 0.1
-        for i,l in enumerate(sorted_labels):
-            ang1, ang2 = ax.patches[i].theta1, ax.patches[i].theta2 ## 파이의 시작 각도와 끝 각도
-            center, r = ax.patches[i].center, ax.patches[i].r ## 파이의 중심 좌표
+        total           = np.sum(Frequency)     ## 빈도수 합
+        threshold       = 5
+        sum_pct         = 0     ## 퍼센티지
+        count_less_5pct = 0     ## 5%보다 작은 라벨의 개수
+        spacing         = 0.1
+
+        for i, _ in enumerate(sorted_labels):
+            ang1, ang2  = ax.patches[i].theta1, ax.patches[i].theta2 ## 파이의 시작 각도와 끝 각도
+            center, r   = ax.patches[i].center, ax.patches[i].r ## 파이의 중심 좌표
             
             ## 비율 상한선보다 작은 것들은 계단형태로 만든다.
             if sorted_frequency[i]/total*100 < threshold:
@@ -692,7 +703,7 @@ class AnalysisAttribute(Singleton, CvatXml):
             sum_pct += float(f'{sorted_frequency[i]/total*100:.2f}')
             ax.text(x,y,f'{sorted_frequency[i]/total*100:.2f}%',ha='center',va='center',fontsize=12)
         
-        plt.legend(pie[0],sorted_labels) ## 범례
+        plt.legend(pie[0], sorted_labels) ## 범례
         plt.title('Error Check Pie Chart')
         plt.show()
 
@@ -703,95 +714,117 @@ class AnalysisAttribute(Singleton, CvatXml):
 
 
     def AnalysisElementSum(self):
-        idxList         = [ i for i in range(self.classNum)]
-        classNameList   = []
-        for idx in range(self.classNum):
-            classNameList.append(self.classNameDict[idx])
+        idxList         = [ i for i in range(self.classNum) ]
+        classNameList   = self.classNameList
 
         self.saveElementDataFrame = pd.DataFrame(self.EachElementSumList, index=[idxList, classNameList], columns=['Sum'])
+        showLog('# [ ElementSum Analysis ]')
+        showLog('--------------------------------------------------------------------------------------')
         print(self.saveElementDataFrame)
-        print()
+        showLog('--------------------------------------------------------------------------------------\n')
+
 
     def AnalysisCategory(self):
-        idxList         = [ i+1 for i in range(self.categoryMaxCnt)]
+        idxList          = [ i+1 for i in range(self.categoryMaxCnt) ]
         CategoryNameDict = self.ClassData.getCategoryNameDict()
-        CategoryNameList = []
-        for idx in range(self.categoryMaxCnt):
-            CategoryNameList.append(CategoryNameDict[idx+1])
+        CategoryNameList = [ CategoryNameDict[idx+1] for idx in range(self.categoryMaxCnt) ]
 
         self.saveCategoryDataFrame = pd.DataFrame(self.ctgSumList, index=[idxList, CategoryNameList], columns=['Sum'])
+        showLog('# [ CategorySum Analysis ]')
+        showLog('--------------------------------------------------------------------------------------')
         print(self.saveCategoryDataFrame)
-        print()
+        showLog('--------------------------------------------------------------------------------------\n')
 
         if SHOW_GRAPH is True:
             self.showGraphByElementSum() 
 
 
     def showGraphByElementSum(self):
-        SLICE_IDX = 45
-        classNameList   = []
-        for idx in range(self.classNum):
-            classNameList.append(self.classNameDict[idx])
+        SLICE_IDX       = 45
+        classNameList   = self.classNameList
 
-        x = classNameList
-        y = self.EachElementSumList
+        x               = classNameList
+        y               = self.EachElementSumList
 
-        bar_width = 0.35
-        alpha = 0.5
+        bar_width       = 0.35
+        alpha           = 0.5
 
+        upper_idx       = np.arange(len(x[:SLICE_IDX]))
+        under_idx       = np.arange(len(x[SLICE_IDX:]))
+
+        # 위쪽 그래프 -----
         plt.subplot(211)
         if SIZE_FILTERING is True:
             plt.title(summaryFilterDict(SIZE_FILTERING_DICT))
 
-        upper_idx = np.arange(len(x[:SLICE_IDX]))
-        under_idx = np.arange(len(x[SLICE_IDX:]))
+        plt.bar(        upper_idx,         # 각 element x 위치값
+                        y[:SLICE_IDX],     # 각 element y 위치값 겸 실제 count 값
+                        bar_width,         # 막대 너비
+                        color='b',         # 막대 색깔
+                        alpha=alpha,
+                        label='Current' )
 
-        plt.bar(upper_idx, y[:SLICE_IDX], bar_width, color='b', alpha=alpha, label='Origin')
-        if COMPARE_WITH_EXCEL is True:
-            plt.bar(upper_idx + bar_width, self.compareExcelDataList[:SLICE_IDX], bar_width, color='r', alpha=alpha, label='Compare')
-
+        # 각 막대 위에 수치값 표기하는 부분
         for i in upper_idx:
-            plt.text(i, y[i], y[i],                 # 좌표 (x축 = v, y축 = y[0]..y[1], 표시 = y[0]..y[1])
-                    fontsize = 9, 
-                    color='blue',
-                    horizontalalignment='center',  # horizontalalignment (left, center, right)
-                    verticalalignment='bottom')    # verticalalignment (top, center, bottom)
-        plt.xticks(upper_idx, x[:SLICE_IDX], rotation=45, ha='right')
-    
+            plt.text(   i, y[i], y[i],                 # 좌표 (x축 = v, y축 = y[0]..y[1], 표시 = y[0]..y[1])
+                        fontsize = 9, 
+                        color='blue',
+                        horizontalalignment='center',  # horizontalalignment (left, center, right)
+                        verticalalignment='bottom' )   # verticalalignment (top, center, bottom)
+
         if COMPARE_WITH_EXCEL is True:
+            plt.bar(    upper_idx + bar_width, 
+                        self.compareExcelDataList[:SLICE_IDX], 
+                        bar_width, 
+                        color='r', 
+                        alpha=alpha, 
+                        label='Compare' )
+
             for i in upper_idx:
-                plt.text(i+ bar_width, self.compareExcelDataList[i], self.compareExcelDataList[i],
+                plt.text(i + bar_width, 
+                        self.compareExcelDataList[i], 
+                        self.compareExcelDataList[i],
                         fontsize = 9,
                         color='red',
                         horizontalalignment='center',
                         verticalalignment='bottom')
 
+        plt.xticks(upper_idx, x[:SLICE_IDX], rotation=45, ha='right')
         plt.legend()
 
+        # 아래쪽 그래프 -----
         plt.subplot(212)
-        plt.bar(under_idx, y[SLICE_IDX:], bar_width, color='b', alpha=alpha)
-        if COMPARE_WITH_EXCEL is True:
-            plt.bar(under_idx + bar_width, self.compareExcelDataList[SLICE_IDX:], bar_width, color='r', alpha=alpha)
 
-        for i, v in enumerate(x[SLICE_IDX:]):
-            plt.text(under_idx[i], y[SLICE_IDX+i], y[SLICE_IDX+i],
-                    fontsize = 9, 
-                    color='blue',
-                    horizontalalignment='center',  
-                    verticalalignment='bottom')
+        plt.bar(        under_idx, 
+                        y[SLICE_IDX:], 
+                        bar_width, 
+                        color='b', 
+                        alpha=alpha )
+
+        for i in under_idx:
+            plt.text(   under_idx[i], y[SLICE_IDX+i], y[SLICE_IDX+i],
+                        fontsize = 9, 
+                        color='blue',
+                        horizontalalignment='center',  
+                        verticalalignment='bottom' )
 
         if COMPARE_WITH_EXCEL is True:
+            plt.bar(    under_idx + bar_width, 
+                        self.compareExcelDataList[SLICE_IDX:], 
+                        bar_width, 
+                        color='r', 
+                        alpha=alpha )
+
             for i in under_idx:
-                plt.text(i+ bar_width, self.compareExcelDataList[i+SLICE_IDX], self.compareExcelDataList[i+SLICE_IDX],
+                plt.text(i+ bar_width, 
+                        self.compareExcelDataList[i+SLICE_IDX], 
+                        self.compareExcelDataList[i+SLICE_IDX],
                         fontsize = 9,
                         color='red',
                         horizontalalignment='center',
                         verticalalignment='bottom')                
 
         plt.xticks(under_idx, x[SLICE_IDX:], rotation=45, ha='right')
-
-
-
         plt.show()
 
 
@@ -815,16 +848,18 @@ class AnalysisAttribute(Singleton, CvatXml):
                                                             [ f'CHECK_VALUE : {self.checkSize:2}' for _ in range(3) ],
                                                             ['LOW', 'MID-HIGH', 'TOTAL'],
                                                             ])
+        showLog('# [ ImgSize Devide Analysis ]')
+        showLog('--------------------------------------------------------------------------------------')
         print(self.saveImgSizeDataFrame)
-        print()
+        showLog('--------------------------------------------------------------------------------------\n')
 
         if SHOW_GRAPH is True:
             self.showGraphOnImgSizeList()
 
 
     def showGraphOnImgSizeList(self):
-        pltCount = 221
-        Title = ['COMMON', 'HEAD', 'UPPER', 'LOWER']        
+        pltCount    = 221
+        Title       = ['COMMON', 'HEAD', 'UPPER', 'LOWER']        
         for eachLabelIdx in range(MAX_LABEL):
             body = pd.DataFrame({   'width':self.imgSizeValueList[eachLabelIdx][WIDTH], 
                                     'height':self.imgSizeValueList[eachLabelIdx][HEIGHT]})
@@ -839,7 +874,6 @@ class AnalysisAttribute(Singleton, CvatXml):
             plt.legend(loc = "best")
             plt.xlabel('width')
             plt.ylabel('height')
-            print()
 
             pltCount += 1
 
@@ -850,15 +884,15 @@ class AnalysisAttribute(Singleton, CvatXml):
         savePath = os.path.join(ResultDirPath, EXCEL_FILE_NAME)
 
         with pd.ExcelWriter(savePath) as writer:
-            self.saveElementDataFrame.to_excel(writer, sheet_name='ElementSum')
+            self.saveElementDataFrame.to_excel(writer,  sheet_name='ElementSum')
             self.saveCategoryDataFrame.to_excel(writer, sheet_name='CategorySum')
-            self.saveImgSizeDataFrame.to_excel(writer, sheet_name='ImageSizeDevide')
+            self.saveImgSizeDataFrame.to_excel(writer,  sheet_name='ImageSizeDevide')
 
-        SuccessLog(f'Analysis Data Save to Excel File -> {savePath}')
+        SuccessLog(f'Analysis Data Save to Excel File >> {savePath}')
 
 
     def run(self):
-        if self.selectUi.isSelectDone is False:
+        if self.selectUi.isQuitProgram():
             NoticeLog(f'{self.__class__.__name__} Program EXIT\n')
         else:
             super().run()
@@ -866,6 +900,6 @@ class AnalysisAttribute(Singleton, CvatXml):
 
 
 if __name__ == "__main__":
-    App = QApplication(sys.argv)
-    RunProgram = AnalysisAttribute(App)
+    App         = QApplication(sys.argv)
+    RunProgram  = AnalysisAttribute(App)
     RunProgram.run()

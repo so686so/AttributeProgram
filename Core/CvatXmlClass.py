@@ -159,9 +159,7 @@ class CvatXml(metaclass=ABCMeta):
         self.cvatXmlList.clear()
 
         # 경로가 실제로 있는지 체크하고, 없다면 프로그램 종료
-        if os.path.isdir(self.OriginXmlDirPath) is False:
-            ErrorLog(f'{self.OriginXmlDirPath} is Not Exist! Program Quit.')
-            sys.exit(-1)
+        CheckExistDir(self.OriginXmlDirPath)
 
         # 실제 있는 경로면, xml 파일들만 목록에 추가
         for path, _, files in os.walk(self.OriginXmlDirPath):
@@ -700,9 +698,9 @@ class CvatXml(metaclass=ABCMeta):
         for idx, eachXmlPath in enumerate(self.cvatXmlList):
             print(f"[ {CGREEN}{idx+1:3}{CRESET} / {XmlFileCount:3} ]")
             print("--------------------------------------------------------------------------------------")
-            perRunImage, perSuccessCount = self.runEachXmlFile(eachXmlPath)
-            TotalRunImageCount += perRunImage
-            TotalSuccessCount  += perSuccessCount
+            perRunImage, perSuccessCount    = self.runEachXmlFile(eachXmlPath)
+            TotalRunImageCount              += perRunImage
+            TotalSuccessCount               += perSuccessCount
 
         # 종료 시간 체크
         TimeList.append(getCurTime())

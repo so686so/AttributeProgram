@@ -131,6 +131,8 @@ class ExcelData(Singleton):
             pandas 의 read_excel 함수를 이용해서 classData.xlsx 의 시트들을 읽고,
             기초 전처리 및 에러 처리하는 init 부분
         """
+        CheckExistFile(EXCEL_PATH)
+
         self.df_ClassData = pd.read_excel(EXCEL_PATH, sheet_name='ClassData')
         self.df_MergeData = pd.read_excel(EXCEL_PATH, sheet_name='MergeData')
         self.df_NameData  = pd.read_excel(EXCEL_PATH, sheet_name='NameData')
@@ -512,6 +514,21 @@ class ExcelData(Singleton):
             return self.class39NameDict
         else:
             return None
+
+    def getClassNameListByClassNum(self, classNum):
+        classNameList = []
+        if classNum == 83:
+            for idx in range(83):
+                classNameList.append(self.class83NameDict[idx])
+        elif classNum == 66:
+            for idx in range(66):
+                classNameList.append(self.class66NameDict[idx])
+        elif classNum == 39:
+            for idx in range(39):
+                classNameList.append(self.class39NameDict[idx])
+        else:
+            return None
+        return classNameList
 
 
     def getClassDataTotal(self):

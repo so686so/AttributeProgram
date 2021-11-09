@@ -35,7 +35,7 @@ AUTHOR      : SO BYUNG JUN
 
 # Refer to CoreDefine.py
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-from CoreDefine import *
+from CoreDefine     import *
 
 
 # IMPORT CORE
@@ -49,8 +49,8 @@ CONDITION_NAME      = 0
 CONDITION_FUNC      = 1
 CONDITION_ARGS_FUNC = 2
 
-CUR_FAIL = 0
-TOT_FAIL = 1
+CUR_FAIL            = 0
+TOT_FAIL            = 1
 
 
 # CheckCondition Class

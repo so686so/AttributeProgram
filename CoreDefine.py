@@ -1,8 +1,8 @@
 # Program Info
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 TITLE   = 'Attribute Program'
-DATE    = '2021-11-08'
-VERSION = '1.0.8'
+DATE    = '2021-11-09'
+VERSION = '1.0.9'
 IDE     = 'Visual Studio Code 1.62.0'
 OS      = 'Windows 10'
 AUTHOR  = 'SO BYUNG JUN'
@@ -56,17 +56,25 @@ CrushedImgFileName          = 'CrushImg.txt'
 
 OriginSource_cvatXml_Path   = r"C:\PythonHN\Data\Summer_1_32_xml"
 OriginSource_Img_Path       = r"C:\PythonHN\Data\Summer_1_32_img"
+
+OriginSource_AnntationPath  = r"C:/PythonHN/Data/Result/Annotation_39_Class.txt"
+OriginSource_ImageListPath  = r"C:/PythonHN/Data/Result/39Class_ImgList.txt"
+
+OriginSource_AnalysisPath   = r"C:\PythonHN\Data\Res1107\ImageSize_Analysis_Source.txt"
+
 Result_Dir_Path             = r"C:/PythonHN/Data/Res1017"
+
 Abbreviated_Img_Path        = r"C:\PythonHN\Data\ABB TEST\condition_common_img"   # 축약시킨 이미지 들어있는 폴더
 RealExistCheck_Path         = r""
 
-Pre_Search_Remember_Path    = r"C:/PythonHN/Data/1108"
+Pre_Search_Remember_Path    = r"D:/PyCharm"
 
 
 # OTHER DEFINES
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-CORE_ENCODING_FORMAT    = 'utf-8'   # 파일 Read 할 때, 인코딩 포맷
-VALID_IMG_FORMAT        = ['.jpg', '.png', '.jpeg']   # Img 유효한 확장자
+CORE_ENCODING_FORMAT    = 'utf-8'                       # 파일 Read 할 때, 인코딩 포맷
+VALID_IMG_FORMAT        = ['.jpg', '.png', '.jpeg']     # Img 유효한 확장자
+CORE_FILTER_CONDITION   = '(Attribute[0] == "1")'
 
 # SIZE_FILTER_DICT
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-

@@ -6,17 +6,18 @@ Set the source file path to extract,
 After setting the file name to save the result value,
 Adjust the extraction manipulation parameters.
 
-LAST UPDATE DATE : 21/10/25
-MADE BY SHY
+LAST_UPDATE : 21/11/09
+AUTHOR      : SO BYUNG JUN
 """
 
 
 # IMPORT
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-from random import randint, sample
-import os
-import sys
-import copy
+from    random  import randint, sample
+import  os
+import  sys
+import  copy
+from typing import Text
 
 
 # Add Import Path
@@ -28,34 +29,34 @@ sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../'))
 
 # Refer to CoreDefine.py
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-from CoreDefine import *
+from CoreDefine                 import *
 
 
 # Custom Modules
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-from Core.CommonUse         import *
-from Core.ExcelDataClass    import ExcelData
-from Core.SingletonClass    import Singleton
+from Core.CommonUse             import *
+from Core.ExcelDataClass        import ExcelData
+from Core.SingletonClass        import Singleton
 
 # UI
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-from UI.SelectUI.SelectUIClass import *
+from UI.SelectUI.SelectUIClass  import *
 
 
 # INSTALLED PACKAGE IMPORT
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-import pandas as pd
+import pandas                   as pd
 
 
 # SOURCE & DEST PATH
 # 해당 OriginXmlDirPath 과 ResultDirPath 값을 변경하고 싶으면, CoreDefine.py 에서 변경하면 됨! ( 경로 변경 통합 )
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-AnnotationFile      = r"C:/PythonHN/Data/Result/Annotation_39_Class.txt"
-ImgListFile         = r"C:/PythonHN/Data/Result/39Class_ImgList.txt"
-ResultDirPath       = copy.copy(Result_Dir_Path)
+AnnotationFile          = copy.copy(OriginSource_AnntationPath)
+ImgListFile             = copy.copy(OriginSource_ImageListPath)
+ResultDirPath           = copy.copy(Result_Dir_Path)
 
-encodingFormat      = copy.copy(CORE_ENCODING_FORMAT)
-validImgFormat      = copy.copy(VALID_IMG_FORMAT)
+encodingFormat          = copy.copy(CORE_ENCODING_FORMAT)
+validImgFormat          = copy.copy(VALID_IMG_FORMAT)
 
 
 # 결과값 저장 파일 이름
@@ -68,6 +69,7 @@ SplitTrainPrefix        = "Split_Train"
 SplitTestPrefix         = "Split_Test"
 
 ConditionExtractPrefix  = "ConditionExtract"
+ExtractResExcelPath     = "ExtractAnnotation.xlsx"
 
 # Define
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -76,9 +78,9 @@ RUN_SPLIT_TRAIN_TEST    = False
 
 # 추출 조작 변수값들
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-overCount       = 0     # 각 객체 유효값 합이 최소 overCount
-ExtractPercent  = 50    # 몇 %나 원본에서 추출할지
-SplitPercent    = 75    # 몇 대 몇으로 슬라이스 할지(백분위)
+overCount               = 0     # 각 객체 유효값 합이 최소 overCount
+ExtractPercent          = 50    # 몇 %나 원본에서 추출할지
+SplitPercent            = 75    # 몇 대 몇으로 슬라이스 할지(백분위)
 
 
 # 파일 추출 클래스
@@ -107,62 +109,59 @@ class ExtractAnnotation(Singleton):
         self.ConditionResTxtList    = []
         self.ConditionResImgList    = []
 
-        self.AnnotationTxtPath      = AnnotationFile
-        self.AnnotationImgPath      = ImgListFile
-        self.ResultDirPath          = ResultDirPath
-
         self.overCount              = overCount
         self.ExtractPercent         = ExtractPercent
         self.SplitPercent           = SplitPercent
 
-        self.SaveAnnotationFileName = SaveAnnotationFileName
-        self.SaveImgFileName        = SaveImgFileName
+        self.ClassNum               = 0   # 클래스 갯수
+        self.TryCount               = 1   # 재시도 횟수
 
-        self.RandomExtractPrefix    = RandomExtractPrefix
-        self.SplitTrainPrefix       = SplitTrainPrefix
-        self.SplitTestPrefix        = SplitTestPrefix
+        self.classData              = None
+        self.classNameList          = []
 
-        self.ClassNum = 0   # 클래스 갯수
-        self.TryCount = 1   # 재시도 횟수
+        self.sendArgsList           = []
 
-        self.classData      = None
-        self.classNameDict  = {}
-
-        self.sendArgsList   = []
-
-        self.init_RE()
+        self.initializeEA()
 
 
-    def init_RE(self):
+    def initializeEA(self):
         self.selectUi = SelectUI(self.setInitSettingForSelectUI, self.getEditSettingForSelectUI)
 
         self.selectUi.show()
         self.app.exec()
 
-        if self.selectUi.isSelectDone is False:
+        if self.selectUi.isQuitProgram():
             return
 
+        self.initAfterSetUI()
+        self.setMode()
+
+    
+    def initAfterSetUI(self):
         self.classData = ExcelData()
 
-        if os.path.isfile(self.AnnotationTxtPath) is False:
-            ErrorLog(f'{self.AnnotationTxtPath} is Not Exist! Program Quit.')
-            sys.exit(-1)
-
-        if os.path.isfile(self.AnnotationImgPath) is False:
-            ErrorLog(f'{self.AnnotationImgPath} is Not Exist! Program Quit.')
-            sys.exit(-1)
-
-        self.extractTxtListByFile()
-        self.extractImgListByFile()
+        CheckExistFile(AnnotationFile)
+        readFileToList(AnnotationFile, self.AnnotationTxtList, encodingFormat)
 
         if self.checkTotalObjectSum() is False:
             error_handling(f'checkTotalObjectSum() Faild', filename(), lineNum())
 
-        self.countClassNum()
-        self.classNameDict = self.classData.getClassNameDictByClassNum(self.ClassNum)
+        CheckExistFile(ImgListFile)
+        readFileToList(ImgListFile, self.AnnotationImgList, encodingFormat)
 
-        if self.classNameDict is None:
+        self.countClassNum()
+        self.classNameList = self.classData.getClassNameListByClassNum(self.ClassNum)
+
+        if self.classNameList is None:
             error_handling('Load ClassName Failed', filename(), lineNum())
+
+
+    def setMode(self):
+        if RUN_RANDOM_EXTRACT is True:
+            ModeLog('RANDOM_EXTRACT ON')
+
+        if RUN_SPLIT_TRAIN_TEST is True:
+            ModeLog('SPLIT_TRAIN_TEST ON')
 
 
     def setInitSettingForSelectUI(self):
@@ -210,31 +209,23 @@ class ExtractAnnotation(Singleton):
         print("\n* Change Path/Define Value By SelectUI")
         print("--------------------------------------------------------------------------------------")
         for Arg in self.sendArgsList:
-            if returnDict.get(Arg[NAME]) != None:
+            eachTarget = Arg[NAME]
+            if returnDict.get(eachTarget) != None:
                 # 해당 변수명에 SelectUI 에서 갱신된 값 집어넣기
-                globals()[Arg[NAME]] = returnDict[Arg[NAME]]
-                showLog(f'- {Arg[NAME]:40} -> {globals()[Arg[NAME]]}')
-        print()
+                globals()[eachTarget] = returnDict[eachTarget]
+                showLog(f'- {eachTarget:40} -> {globals()[eachTarget]}')
+        print("--------------------------------------------------------------------------------------\n")
 
-        self.AnnotationTxtPath  = AnnotationFile
-        self.AnnotationImgPath  = ImgListFile
-        self.ResultDirPath      = ResultDirPath
-
+        setResultDir(ResultDirPath)
         self.overCount          = int(overCount)    
         self.ExtractPercent     = int(ExtractPercent)
         self.SplitPercent       = int(SplitPercent)
-
-        self.SaveAnnotationFileName = SaveAnnotationFileName
-        self.SaveImgFileName        = SaveImgFileName
-        self.RandomExtractPrefix    = RandomExtractPrefix
-        self.SplitTrainPrefix       = SplitTrainPrefix
-        self.SplitTestPrefix        = SplitTestPrefix
 
 
     def countClassNum(self):
         # AnnotationTxtList 원본 불러오기 안 됐으면 바로 리턴 예외 처리
         if not self.AnnotationTxtList:
-            error_handling(f"{self.AnnotationTxtPath} has nothing annotation list", filename(), lineNum())
+            error_handling(f"{AnnotationFile} has nothing annotation list", filename(), lineNum())
             return False
 
         # 이미 체크했다면 따로 체크 안함
@@ -259,7 +250,7 @@ class ExtractAnnotation(Singleton):
     def checkTotalObjectSum(self):
         # AnnotationTxtList 원본 불러오기 안 됐으면 바로 리턴 예외 처리
         if not self.AnnotationTxtList:
-            error_handling(f"{self.AnnotationTxtPath} has nothing annotation list", filename(), lineNum())
+            error_handling(f"{AnnotationFile} has nothing annotation list", filename(), lineNum())
             return False
 
         # 클래스 갯수 아직 안 셌으면 세는 코드
@@ -291,7 +282,7 @@ class ExtractAnnotation(Singleton):
         if self.countClassNum() is False:
             return False
 
-        extractObjectSumList = [0 for _ in range(self.ClassNum)]
+        extractObjectSumList = [ 0 for _ in range(self.ClassNum) ]
 
         for each in self.ExtractRandomTxtList:
             for i in range(self.ClassNum):
@@ -300,29 +291,11 @@ class ExtractAnnotation(Singleton):
         for i in range(self.ClassNum):
             checkNum = extractObjectSumList[i]
             if self.isOverCount(checkNum) is False:
-                print(f'\t> Fail - {i}th Element [{self.classNameDict[i]:^15}] is Not Over {self.overCount} : {checkNum}')
+                print(f'\t> Fail - {i}th Element [{self.classNameList[i]:^15}] is Not Over {self.overCount} : {checkNum}')
                 return False
 
         self.ExtractObjectSumlist = extractObjectSumList
         return True
-
-
-    def extractTxtListByFile(self):
-        with open(self.AnnotationTxtPath, 'r', encoding=encodingFormat) as f:
-            for eachLine in f:
-                eachLine = eachLine.strip('\n')
-                self.AnnotationTxtList.append(eachLine)
-
-        SuccessLog(f"Annotation File Read Done - {AnnotationFile}")
-        
-
-    def extractImgListByFile(self):
-        with open(self.AnnotationImgPath, 'r', encoding=encodingFormat) as f:
-            for eachLine in f:
-                eachLine = eachLine.strip('\n')
-                self.AnnotationImgList.append(eachLine)
-
-        SuccessLog(f"Image File Read Done - {self.AnnotationImgPath}")
 
 
     def checkSplitTrainObjectSum(self):
@@ -342,36 +315,36 @@ class ExtractAnnotation(Singleton):
 
 
     def showResult(self):
-        DF_HeadString = "  ClassIdx  |  ClassName      |  TotalSum        "
-        RE_HeadString = ""
-        SP_HeadString = ""
+        DF_HeadString       = "  ClassIdx  |  ClassName      |  TotalSum        "
+        RE_HeadString       = ""
+        SP_HeadString       = ""
 
-        DF_Line = ""
-        RE_Line = ""
-        SP_Line = ""
+        DF_Line             = ""
+        RE_Line             = ""
+        SP_Line             = ""
 
-        RE_EachPercent = 0
+        RE_EachPercent      = 0
 
-        titleLine = '------------------------------------------------'
+        printLine           = '------------------------------------------------'
 
         if RUN_RANDOM_EXTRACT is True:
             RE_HeadString   = "|  ExtractSum      |  %        "
-            titleLine       += "------------------------------"
+            printLine       += "------------------------------"
 
         if RUN_SPLIT_TRAIN_TEST is True:
             SP_HeadString   = "|  TrainSum        |  TestSum        "
-            titleLine       += "-------------------------------------"
+            printLine       += "-------------------------------------"
 
             # 출력하기 위한 각 Element 들의 합 계산
             self.checkSplitTrainObjectSum()
             self.checkSplitTestObjectSum()
 
-        HeadString = f'{DF_HeadString}{RE_HeadString}{SP_HeadString}'
+        HeadString          = f'{DF_HeadString}{RE_HeadString}{SP_HeadString}'
 
         print()
-        print(titleLine)
+        print(printLine)
         print(HeadString)
-        print(titleLine)
+        print(printLine)
 
         for i in range(self.ClassNum):
             if RUN_RANDOM_EXTRACT is True:
@@ -383,10 +356,10 @@ class ExtractAnnotation(Singleton):
             if RUN_SPLIT_TRAIN_TEST is True:
                 SP_Line = f'|  {self.Sp_TrainObjectSumList[i]:<16}|  {self.Sp_TestObjectSumList[i]:<16}'
 
-            DF_Line = f'  {i:<10}|  {self.classNameDict[i]:<15}|  {self.TotalObjectSumList[i]:<16}'
-
+            DF_Line = f'  {i:<10}|  {self.classNameList[i]:<15}|  {self.TotalObjectSumList[i]:<16}'
             print(f'{DF_Line}{RE_Line}{SP_Line}')
-        print(titleLine)
+
+        print(printLine)
         print()
 
         showLog(f"* Total Try\t\t: {self.TryCount}")
@@ -403,9 +376,7 @@ class ExtractAnnotation(Singleton):
 
     
     def saveResultByExcel(self):
-        classNameList = []
-        for i in range(self.ClassNum):
-            classNameList.append(self.classNameDict[i])
+        classNameList = self.classNameList
 
         raw_data =  {   'ClassName':classNameList,
                         'TotalSum':self.TotalObjectSumList
@@ -419,7 +390,7 @@ class ExtractAnnotation(Singleton):
             raw_data['TestSetSum']  = self.Sp_TestObjectSumList
 
         raw_data = pd.DataFrame(raw_data)
-        savePath = f'ExtractAnnotation.xlsx'
+        savePath = ExtractResExcelPath
 
         if RUN_SPLIT_TRAIN_TEST:
             savePath = f'SP[{self.SplitPercent}Pcnt]_' + savePath
@@ -427,8 +398,7 @@ class ExtractAnnotation(Singleton):
         if RUN_RANDOM_EXTRACT:
             savePath = f'RE[{self.ExtractPercent}Pcnt_{self.overCount}OvCnt]_' + savePath
 
-        savePath = os.path.join(self.ResultDirPath, savePath)
-
+        savePath = os.path.join(ResultDirPath, savePath)
         raw_data.to_excel(excel_writer=savePath)
 
         SuccessLog(f'RandomExtract Summary Log Save to Excel File -> {savePath}')
@@ -443,7 +413,6 @@ class ExtractAnnotation(Singleton):
             # Try 할때마다 일단 리셋
             self.ExtractRandomTxtList.clear()
             self.ExtractRandomIdxList.clear()
-            
             randomNum = 0
 
             for Idx, eachTxt in enumerate(self.AnnotationTxtList):
@@ -464,64 +433,42 @@ class ExtractAnnotation(Singleton):
 
 
     def SaveRandomExtract(self):
-        SaveAnnoResFileName = f'{self.RandomExtractPrefix}_[{self.ExtractPercent}]Pcnt_[{self.overCount}]OverCnt_{self.SaveAnnotationFileName}'
-        TextSavePath        = os.path.join(self.ResultDirPath, SaveAnnoResFileName)
+        SaveAnnoResFileName = f'{RandomExtractPrefix}_[{self.ExtractPercent}]Pcnt_[{self.overCount}]OverCnt_{SaveAnnotationFileName}'
+        TextSavePath        = os.path.join(ResultDirPath, SaveAnnoResFileName)
 
-        print(f"- Save RandomExtract Annotation Txt File : {TextSavePath}...", end='\t')
-        with open(TextSavePath, 'w', encoding=encodingFormat) as f:
-            for line in self.ExtractRandomTxtList:
-                f.write(f"{line}\n")
-        print("Done")
+        SaveImgResFileName  = f'{RandomExtractPrefix}_[{self.ExtractPercent}]Pcnt_[{self.overCount}]OverCnt_{SaveImgFileName}'
+        ImageSavePath       = os.path.join(ResultDirPath, SaveImgResFileName)
 
-        SaveImgResFileName  = f'{self.RandomExtractPrefix}_[{self.ExtractPercent}]Pcnt_[{self.overCount}]OverCnt_{self.SaveImgFileName}'
-        ImageSavePath = os.path.join(self.ResultDirPath, SaveImgResFileName)
-
-        print(f"- Save RandomExtract Annotation Img File : {ImageSavePath}...", end='\t')
-        with open(ImageSavePath, 'w', encoding=encodingFormat) as f:
-            for line in self.ExtractRandomImgList:
-                f.write(f"{line}\n")
-        print("Done")
+        writeListToFile(TextSavePath,   self.ExtractRandomTxtList,  encodingFormat)
+        writeListToFile(ImageSavePath,  self.ExtractRandomImgList,  encodingFormat)
 
 
     def SaveSplitExtract(self):
-        SaveTrainAnnoFileName   = f'{self.SplitTrainPrefix}_[{self.SplitPercent}]Pcnt_{self.SaveAnnotationFileName}'
-        SaveTestAnnoFileName    = f'{self.SplitTestPrefix}_[{100 - int(self.SplitPercent)}]Pcnt_{self.SaveAnnotationFileName}'
+        SaveTrainAnnoFileName   = f'{SplitTrainPrefix}_[{self.SplitPercent}]Pcnt_{SaveAnnotationFileName}'
+        SaveTestAnnoFileName    = f'{SplitTrainPrefix}_[{100 - int(self.SplitPercent)}]Pcnt_{SaveAnnotationFileName}'
+        TrainAnnoSavePath       = os.path.join(ResultDirPath, SaveTrainAnnoFileName)
+        TestAnnoSavePath        = os.path.join(ResultDirPath, SaveTestAnnoFileName)
 
-        TrainAnnoSavePath       = os.path.join(self.ResultDirPath, SaveTrainAnnoFileName)
-        TestAnnoSavePath        = os.path.join(self.ResultDirPath, SaveTestAnnoFileName)
+        writeListToFile(TrainAnnoSavePath,  self.SplitTrainResTxtList,  encodingFormat)
+        writeListToFile(TestAnnoSavePath,   self.SplitTestResTxtList,   encodingFormat)
 
-        print(f"- Save Split Annotation Txt File : {SaveTrainAnnoFileName} / {SaveTestAnnoFileName}...", end='\t')
-        with open(TrainAnnoSavePath, 'w', encoding=encodingFormat) as f:
-            for line in self.SplitTrainResTxtList:
-                f.write(f"{line}\n")
-        with open(TestAnnoSavePath, 'w', encoding=encodingFormat) as f:
-            for line in self.SplitTestResTxtList:
-                f.write(f"{line}\n")
-        print("Done")
+        SaveTrainImgFileName    = f'{SplitTrainPrefix}_[{self.SplitPercent}]Pcnt_{SaveImgFileName}'
+        SaveTestImgFileName     = f'{SplitTrainPrefix}_[{100 - int(self.SplitPercent)}]Pcnt_{SaveImgFileName}'
+        TrainImgSavePath        = os.path.join(ResultDirPath, SaveTrainImgFileName)
+        TestImgSavePath         = os.path.join(ResultDirPath, SaveTestImgFileName)
 
-        SaveTrainImgFileName    = f'{self.SplitTrainPrefix}_[{self.SplitPercent}]Pcnt_{self.SaveImgFileName}'
-        SaveTestImgFileName     = f'{self.SplitTestPrefix}_[{100 - int(self.SplitPercent)}]Pcnt_{self.SaveImgFileName}'
-
-        TrainImgSavePath       = os.path.join(self.ResultDirPath, SaveTrainImgFileName)
-        TestImgSavePath        = os.path.join(self.ResultDirPath, SaveTestImgFileName)
-
-        print(f"- Save Split Annotation Img File : {SaveTrainImgFileName} / {SaveTestImgFileName}...", end='\t')
-        with open(TrainImgSavePath, 'w', encoding=encodingFormat) as f:
-            for line in self.SplitTrainResImgList:
-                f.write(f"{line}\n")
-        with open(TestImgSavePath, 'w', encoding=encodingFormat) as f:
-            for line in self.SplitTestResImgList:
-                f.write(f"{line}\n")
-        print("Done")        
+        writeListToFile(TrainImgSavePath,  self.SplitTrainResImgList,  encodingFormat)
+        writeListToFile(TestImgSavePath,   self.SplitTestResImgList,   encodingFormat)
 
 
     def RunSplitAnnotation(self):
-        TotalAnnotationCount    = 0
-        BaseAnnotationList      = []
-        BaseImgList             = []
+        TotalAnnotationCount        = 0
+        BaseAnnotationList          = []
+        BaseImgList                 = []
+        TextPairImgDict             = {}
 
-        ANNOTATION_IDX  = 0
-        IMAGELIST_IDX   = 1
+        ANNOTATION_IDX              = 0
+        IMAGELIST_IDX               = 1
 
         if RUN_RANDOM_EXTRACT is True:
             TotalAnnotationCount    = len(self.ExtractRandomTxtList)
@@ -532,15 +479,13 @@ class ExtractAnnotation(Singleton):
             BaseAnnotationList      = self.AnnotationTxtList[:]
             BaseImgList             = self.AnnotationImgList[:]
 
-        TextPairImgDict = {}
-
         for idx in range(TotalAnnotationCount):
-            TextPairImgDict[idx] = [BaseAnnotationList[idx], BaseImgList[idx]]
+            TextPairImgDict[idx]    = [BaseAnnotationList[idx], BaseImgList[idx]]
 
-        TotalIdxList = [ i for i in range(TotalAnnotationCount) ]
-        SplitTrainAmount = int( (TotalAnnotationCount * self.SplitPercent) / 100 )
-        SplitTrainIdxList   = sample(TotalIdxList, SplitTrainAmount)
-        SplitTestIdxList    = list(filter(lambda v: v not in SplitTrainIdxList, TotalIdxList))
+        TotalIdxList                = [ i for i in range(TotalAnnotationCount) ]
+        SplitTrainAmount            = int( (TotalAnnotationCount * self.SplitPercent) / 100 )
+        SplitTrainIdxList           = sample(TotalIdxList, SplitTrainAmount)
+        SplitTestIdxList            = list(filter(lambda v: v not in SplitTrainIdxList, TotalIdxList))
 
         showLog('\nSplit Train - Test Set Done')
         showLog('------------------------------------------------------')
@@ -566,7 +511,7 @@ class ExtractAnnotation(Singleton):
 
 
     def run(self):
-        if self.selectUi.isSelectDone is False:
+        if self.selectUi.isQuitProgram():
             NoticeLog(f'{self.__class__.__name__} Program EXIT\n')
         else:
             if RUN_RANDOM_EXTRACT is True:
@@ -576,14 +521,13 @@ class ExtractAnnotation(Singleton):
                 self.RunSplitAnnotation()
 
             self.saveResult()
-
             self.showResult()
             self.saveResultByExcel()
 
-            os.startfile(self.ResultDirPath)
+            os.startfile(ResultDirPath)
 
 
 if __name__ == "__main__":
-    App = QApplication(sys.argv)
-    RunProgram = ExtractAnnotation(App)
+    App         = QApplication(sys.argv)
+    RunProgram  = ExtractAnnotation(App)
     RunProgram.run()

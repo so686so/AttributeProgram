@@ -1,17 +1,24 @@
 """
-LAST UPDATE DATE : 21/10/25
-MADE BY SHY
+makeClass 결과 나온 annotation / imgList txt를 가지고 필터링하는 프로그램
+
+LAST_UPDATE : 21/11/09
+AUTHOR      : SO BYUNG JUN
 """
 
 
 # IMPORT
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-from random import randint, sample, shuffle
-import os
-import sys
-import copy
-import re
+from    random                  import sample, shuffle
+import  os
+import  sys
+import  copy
+import  re
 
+
+# INSTALLED PACKAGE IMPORT
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+import pandas                   as pd
+import numpy                    as np
 
 # Add Import Path
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -22,32 +29,27 @@ sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../'))
 
 # Refer to CoreDefine.py
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-from CoreDefine import *
+from CoreDefine                 import *
 
 
 # Custom Modules
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-from Core.CommonUse         import *
-from Core.ExcelDataClass    import ExcelData
-from Core.SingletonClass    import Singleton
+from Core.CommonUse             import *
+from Core.ExcelDataClass        import ExcelData
+from Core.SingletonClass        import Singleton
 
 # UI
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-from UI.SelectUI.SelectUIClass import *
+from UI.SelectUI.SelectUIClass  import *
 
-
-# INSTALLED PACKAGE IMPORT
-# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-import pandas as pd
-import numpy as np
 
 # SOURCE & DEST PATH
 # 해당 OriginXmlDirPath 과 ResultDirPath 값을 변경하고 싶으면, CoreDefine.py 에서 변경하면 됨! ( 경로 변경 통합 )
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-AnnotationFile      = r"C:/PythonHN/Data/Result/Annotation_39_Class.txt"
-ImgListFile         = r"C:/PythonHN/Data/Result/39Class_ImgList.txt"
+AnnotationFile      = copy.copy(OriginSource_AnntationPath)
+ImgListFile         = copy.copy(OriginSource_ImageListPath)
+AnalysisSourcePath  = copy.copy(OriginSource_AnalysisPath)
 ResultDirPath       = copy.copy(Result_Dir_Path)
-AnalysisImgSizePath = r"C:\PythonHN\Data\Res1107\ImageSize_Analysis_Source.txt"
 
 encodingFormat      = copy.copy(CORE_ENCODING_FORMAT)
 validImgFormat      = copy.copy(VALID_IMG_FORMAT)
@@ -59,108 +61,109 @@ SaveAnnotationFileName      = "Annotation.txt"
 SaveImgFileName             = "ImgList.txt"
 
 ConditionFilterPrefix       = "ConditionFilter"
-FilteredImgAnalysisFileName = "Filtered_Img_Size_Analysis.xlsx"
+FilteredImgAnalysisFileName = "Filtered_Img_Size_Result.txt"
+FilterConditionResExcelName = "FilterCondition.xlsx"
+
 
 # Define
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-RUN_CONDITION_FILTER    = False
-RUN_SHUFFLE_FILE        = False
-RUN_LIMIT_COUNT         = False
-SIZE_FILTERING          = False
+RUN_CONDITION_FILTER        = False
+RUN_SHUFFLE_FILE            = False
+RUN_LIMIT_COUNT             = False
+SIZE_FILTERING              = False
 
 
 # CONDITION EXTRACT STRING
 # 조건식 내 문자열은 항상 "" 로 작성
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-FILTER_CONDITION        = '(Attribute[0] == "1")'
-LIMIT_COUNT             = 0
+FILTER_CONDITION            = copy.copy(CORE_FILTER_CONDITION)
+LIMIT_COUNT                 = 0
 
 
 # SIZE_FILTERING DICT
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-SIZE_FILTERING_DICT     = copy.copy(CORE_SIZE_FILTER_DICT)
+SIZE_FILTERING_DICT         = copy.copy(CORE_SIZE_FILTER_DICT)
 
 
 # 파일 추출 클래스
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 class FilterCondition(Singleton):
     def __init__(self, QApp):
-        self.app = QApp
-        self.ProgramName            = "Condition Filter"
+        self.app                    = QApp
+        self.ProgramName            = "Condition_Filter"
 
         self.TotalObjectSumList     = []    # 원본 파일 각 개체별 유효값 총합
-        self.FilterObjectSumList   = []    # 추출 파일 각 객체별 유효값 총합
+        self.FilterObjectSumList    = []    # 추출 파일 각 객체별 유효값 총합
 
         self.AnnotationTxtList      = []    # 원본 어노테이션 파일 목록 한 줄씩 읽어 리스트에 저장
         self.AnnotationImgList      = []    # 원본 이미지 파일 목록 한 줄씩 읽어 리스트에 저장
 
-        self.AnalysisSrcWidthList   = []
-        self.AnalysisSrcHeightList  = []
+        self.AnalysisSrcWidthList   = []    # 원본 분석재료 너비 리스트
+        self.AnalysisSrcHeightList  = []    # 원본 분석재료 높이 리스트
 
-        self.ConditionResTxtList    = []
+        self.ConditionResTxtList    = []    # 결과값 리스트들 ...
         self.ConditionResImgList    = []
         self.ConditionWidthList     = []
         self.ConditionHeightList    = []
+        self.SaveImgSizeList        = []    # ... 결과값 리스트들
 
-        self.SaveImgSizeList        = []
-
-        self.AnnotationTxtPath      = AnnotationFile
-        self.AnnotationImgPath      = ImgListFile
-        self.ResultDirPath          = ResultDirPath
-        self.AnalysisImgSizePath    = AnalysisImgSizePath
-
-        self.SaveAnnotationFileName = SaveAnnotationFileName
-        self.SaveImgFileName        = SaveImgFileName
-
-        self.ConditionFilterPrefix    = ConditionFilterPrefix
         self.ExtractCount           = LIMIT_COUNT
 
-        self.ClassNum = 0   # 클래스 갯수
+        self.ClassNum               = 0     # 클래스 갯수
+        self.classData              = None
+        self.classNameList          = []
 
-        self.classData      = None
-        self.classNameDict  = {}
+        self.sendArgsList           = []
 
-        self.sendArgsList   = []
+        self.initializeCF()
 
-        self.init_RE()
-
-
-    def init_RE(self):
+    # initialize ConditionFilterClass
+    def initializeCF(self):
         self.selectUi = SelectUI(self.setInitSettingForSelectUI, self.getEditSettingForSelectUI)
 
         self.selectUi.show()
         self.app.exec()
 
-        if self.selectUi.isSelectDone is False:
+        if self.selectUi.isQuitProgram():
             return
 
+        self.initAfterSetUI()
+        self.setMode()
+
+
+    def initAfterSetUI(self):
         self.classData = ExcelData()
 
-        if os.path.isfile(self.AnnotationTxtPath) is False:
-            ErrorLog(f'{self.AnnotationTxtPath} is Not Exist! Program Quit.')
-            sys.exit(-1)
-
-        if os.path.isfile(self.AnnotationImgPath) is False:
-            ErrorLog(f'{self.AnnotationImgPath} is Not Exist! Program Quit.')
-            sys.exit(-1)
-
-        self.extractTxtListByFile()
-        self.extractImgListByFile()
-
-        if SIZE_FILTERING is True:
-            if os.path.isfile(self.AnalysisImgSizePath) is False:
-                ErrorLog(f'{self.AnalysisImgSizePath} is Not Exist! Program Quit.')
-                sys.exit(-1)
-            self.extractImgSizeSrcListByFile()
+        CheckExistFile(AnnotationFile)
+        readFileToList(AnnotationFile, self.AnnotationTxtList, encodingFormat)
 
         if self.checkTotalObjectSum() is False:
             error_handling(f'checkTotalObjectSum() Faild', filename(), lineNum())
 
-        self.countClassNum()
-        self.classNameDict = self.classData.getClassNameDictByClassNum(self.ClassNum)
+        CheckExistFile(ImgListFile)
+        readFileToList(ImgListFile, self.AnnotationImgList, encodingFormat)
 
-        if self.classNameDict is None:
+        self.countClassNum()
+        self.classNameList = self.classData.getClassNameListByClassNum(self.ClassNum)
+
+        if self.classNameList is None:
             error_handling('Load ClassName Failed', filename(), lineNum())
+
+
+    def setMode(self):
+        if RUN_CONDITION_FILTER is True:
+            ModeLog('CONDITION_FILTER ON')
+
+        if SIZE_FILTERING is True:
+            ModeLog('SIZE_FILTERING ON')
+            CheckExistFile(AnalysisSourcePath)
+            self.extractImgSizeSrcListByFile()
+
+        if RUN_SHUFFLE_FILE is True:
+            ModeLog('SHUFFLE_FILE ON')
+
+        if RUN_LIMIT_COUNT is True:
+            ModeLog('LIMIT_COUNT ON')
 
 
     def setInitSettingForSelectUI(self):
@@ -173,23 +176,23 @@ class FilterCondition(Singleton):
                                 ['FD', 'ImgListFile',               False,  f'{ImgListFile}'],
                                 ['FD', 'ResultDirPath',             True,   f'{ResultDirPath}'],
                                 ['FD', 'HLINE_2',                   False,  'None'],
-                                ['FD', 'AnalysisImgSizePath',       False,  f'{AnalysisImgSizePath}'],
+                                ['FD', 'AnalysisSourcePath',        False,  f'{AnalysisSourcePath}'],
 
-                                ['CB', 'RUN_CONDITION_FILTER',     False,  f'{RUN_CONDITION_FILTER}'],
-                                ['CB', 'RUN_SHUFFLE_FILE',     False,  f'{RUN_SHUFFLE_FILE}'],
-                                ['CB', 'RUN_LIMIT_COUNT',     False,  f'{RUN_LIMIT_COUNT}'],
+                                ['CB', 'RUN_CONDITION_FILTER',      False,  f'{RUN_CONDITION_FILTER}'],
+                                ['CB', 'RUN_SHUFFLE_FILE',          False,  f'{RUN_SHUFFLE_FILE}'],
+                                ['CB', 'RUN_LIMIT_COUNT',           False,  f'{RUN_LIMIT_COUNT}'],
                                 ['CB', 'HLINE_3',                   False,  'None'],
-                                ['CB', 'SIZE_FILTERING',     False,  f'{SIZE_FILTERING}'],
+                                ['CB', 'SIZE_FILTERING',            False,  f'{SIZE_FILTERING}'],
 
                                 ['LE', 'SaveAnnotationFileName',    False,  f'{SaveAnnotationFileName}'],
                                 ['LE', 'SaveImgFileName',           False,  f'{SaveImgFileName}'],
-                                ['LE', 'ConditionFilterPrefix',       False,  f'{ConditionFilterPrefix}'],
+                                ['LE', 'ConditionFilterPrefix',     False,  f'{ConditionFilterPrefix}'],
 
                                 ['LE', 'HLINE_0',                   False,  'None'],
-                                ['LE', 'LIMIT_COUNT',             False,  f'{LIMIT_COUNT}'],
+                                ['LE', 'LIMIT_COUNT',               False,  f'{LIMIT_COUNT}'],
                                 ['LE', 'HLINE_1',                   False,  'None'],
-                                ['UI', 'FILTER_CONDITION',         False,  f'{FILTER_CONDITION}'],
-                                ['UI',  'SIZE_FILTERING_DICT',            False, SIZE_FILTERING_DICT],
+                                ['UI', 'FILTER_CONDITION',          False,  f'{FILTER_CONDITION}'],
+                                ['UI',  'SIZE_FILTERING_DICT',      False,  SIZE_FILTERING_DICT],
                             ]
         return self.ProgramName, self.sendArgsList
 
@@ -211,32 +214,25 @@ class FilterCondition(Singleton):
         print("\n* Change Path/Define Value By SelectUI")
         print("--------------------------------------------------------------------------------------")
         for Arg in self.sendArgsList:
-            if returnDict.get(Arg[NAME]) != None:
+            eachTarget = Arg[NAME]
+            if returnDict.get(eachTarget) != None:
                 # 해당 변수명에 SelectUI 에서 갱신된 값 집어넣기
-                globals()[Arg[NAME]] = returnDict[Arg[NAME]]
+                globals()[eachTarget] = returnDict[eachTarget]
 
-                if Arg[NAME] == "SIZE_FILTERING_DICT":
-                    showLog(f'- {Arg[NAME]:40} -> {summaryFilterDict(globals()[Arg[NAME]])}')
+                if eachTarget == "SIZE_FILTERING_DICT":
+                    showLog(f'- {eachTarget:40} -> {summaryFilterDict(globals()[eachTarget])}')
                 else:
-                    showLog(f'- {Arg[NAME]:40} -> {globals()[Arg[NAME]]}')
+                    showLog(f'- {eachTarget:40} -> {globals()[eachTarget]}')
         print("--------------------------------------------------------------------------------------\n")
 
-        self.AnnotationTxtPath  = AnnotationFile
-        self.AnnotationImgPath  = ImgListFile
-        self.ResultDirPath      = ResultDirPath
-        self.AnalysisImgSizePath = AnalysisImgSizePath
-
-        self.ExtractCount       = int(LIMIT_COUNT)
-
-        self.SaveAnnotationFileName = SaveAnnotationFileName
-        self.SaveImgFileName        = SaveImgFileName
-        self.ConditionFilterPrefix    = ConditionFilterPrefix
+        self.ExtractCount = int(LIMIT_COUNT)
+        setResultDir(ResultDirPath)
 
 
     def countClassNum(self):
         # AnnotationTxtList 원본 불러오기 안 됐으면 바로 리턴 예외 처리
         if not self.AnnotationTxtList:
-            error_handling(f"{self.AnnotationTxtPath} has nothing annotation list", filename(), lineNum())
+            error_handling(f"{AnnotationFile} has nothing annotation list", filename(), lineNum())
             return False
 
         # 이미 체크했다면 따로 체크 안함
@@ -253,7 +249,7 @@ class FilterCondition(Singleton):
     def checkTotalObjectSum(self):
         # AnnotationTxtList 원본 불러오기 안 됐으면 바로 리턴 예외 처리
         if not self.AnnotationTxtList:
-            error_handling(f"{self.AnnotationTxtPath} has nothing annotation list", filename(), lineNum())
+            error_handling(f"{AnnotationFile} has nothing annotation list", filename(), lineNum())
             return False
 
         # 클래스 갯수 아직 안 셌으면 세는 코드
@@ -285,7 +281,7 @@ class FilterCondition(Singleton):
         if self.countClassNum() is False:
             return False
 
-        filterObjectSumList = [0 for _ in range(self.ClassNum)]
+        filterObjectSumList = [ 0 for _ in range(self.ClassNum) ]
 
         for each in self.ConditionResTxtList:
             for i in range(self.ClassNum):
@@ -295,73 +291,54 @@ class FilterCondition(Singleton):
         return True
 
 
-    def extractTxtListByFile(self):
-        with open(self.AnnotationTxtPath, 'r', encoding=encodingFormat) as f:
-            for eachLine in f:
-                eachLine = eachLine.strip('\n')
-                self.AnnotationTxtList.append(eachLine)
-
-        SuccessLog(f"Annotation File Read Done - {self.AnnotationTxtPath}")
-        
-
-    def extractImgListByFile(self):
-        with open(self.AnnotationImgPath, 'r', encoding=encodingFormat) as f:
-            for eachLine in f:
-                eachLine = eachLine.strip('\n')
-                self.AnnotationImgList.append(eachLine)
-
-        SuccessLog(f"Image File Read Done - {self.AnnotationImgPath}")
-
-
     def extractImgSizeSrcListByFile(self):
-        with open(self.AnalysisImgSizePath, 'r', encoding=encodingFormat) as f:
+        with open(AnalysisSourcePath, 'r', encoding=encodingFormat) as f:
             for eachLine in f:
                 eachLine    = eachLine.strip('\n')
                 splitLine   = eachLine.split(sep=' ')
                 self.AnalysisSrcWidthList.append(int(splitLine[WIDTH]))
                 self.AnalysisSrcHeightList.append(int(splitLine[HEIGHT]))
 
-        SuccessLog(f"ImageSize Analysis Source File Read Done - {self.AnalysisImgSizePath}")            
+        SuccessLog(f"ImageSize Analysis Source File Read Done << {AnalysisSourcePath}")            
 
 
     def showResult(self):
-        DF_HeadString = "  ClassIdx  |  ClassName      |  TotalSum        "
-        FT_HeadString = ""
+        DF_HeadString   = "  ClassIdx  |  ClassName      |  TotalSum        "
+        FT_HeadString   = ""
 
-        DF_Line = ""
-        FT_Line = ""
+        DF_Line         = ""
+        FT_Line         = ""
 
-        FT_EachPercent = 0
+        FT_EachPercent  = 0
 
-        titleLine = '------------------------------------------------'
+        printLine       = '------------------------------------------------'
 
         if RUN_CONDITION_FILTER is True or RUN_LIMIT_COUNT is True:
-            FT_HeadString   = "|  ExtractSum      |  %        "
-            titleLine       += "------------------------------"
+            FT_HeadString   = "|  ResultSum       |  %        "
+            printLine       += "------------------------------"
 
-
-        HeadString = f'{DF_HeadString}{FT_HeadString}'
+        HeadString      = f'{DF_HeadString}{FT_HeadString}'
 
         print()
-        print(titleLine)
+        print(printLine)
         print(HeadString)
-        print(titleLine)
+        print(printLine)
 
         FilterMetaList  = re.findall('\d+', FILTER_CONDITION)
-        FilterIdxList   = [int(eachOdd) for idx, eachOdd in enumerate(FilterMetaList) if idx % 2 == 0 ]
-        FilterBoolList  = [int(eachEvn) for idx, eachEvn in enumerate(FilterMetaList) if idx % 2 == 1 ]
+        FilterIdxList   = [ int(eachOdd) for idx, eachOdd in enumerate(FilterMetaList) if idx % 2 == 0 ]
+        FilterBoolList  = [ int(eachEvn) for idx, eachEvn in enumerate(FilterMetaList) if idx % 2 == 1 ]
 
         for i in range(self.ClassNum):
-            FilteredMark = ""
-            FilteredColor = ""
+            FilteredMark    = ""
+            FilteredColor   = ""
+
             if RUN_CONDITION_FILTER is True or RUN_LIMIT_COUNT is True:
+                # To Evade ExceptDevideZero
                 if self.TotalObjectSumList[i] != 0:
                     FT_EachPercent = (self.FilterObjectSumList[i] / self.TotalObjectSumList[i]) * 100
                 else:
                     FT_EachPercent = 0
                 FT_Line = f'|  {self.FilterObjectSumList[i]:<16}|  {round(FT_EachPercent, 2):>6}%  '
-
-            DF_Line = f'  {i:<10}|  {self.classNameDict[i]:<15}|  {self.TotalObjectSumList[i]:<16}'
 
             if RUN_CONDITION_FILTER and i in FilterIdxList:
                 index = FilterIdxList.index(i)
@@ -372,8 +349,11 @@ class FilterCondition(Singleton):
                     FilteredColor   = f"{CGREEN}"
                     FilteredMark    = f"\t+{CRESET}"
 
+            DF_Line = f'  {i:<10}|  {self.classNameList[i]:<15}|  {self.TotalObjectSumList[i]:<16}'
+
             print(f'{FilteredColor}{DF_Line}{FT_Line}{FilteredMark}')
-        print(titleLine)
+
+        print(printLine)
         print()
 
         showLog(f"* Origin File Count\t: {len(self.AnnotationTxtList)}")
@@ -382,22 +362,16 @@ class FilterCondition(Singleton):
         if RUN_CONDITION_FILTER:
             showLog(f'* Extract Condition\t: {FILTER_CONDITION}')
         if SIZE_FILTERING:
-            if SIZE_FILTERING_DICT['common']['CheckSize'] is True:
-                showLog(f'* FilterSize Condition\t: AreaSize >= {SIZE_FILTERING_DICT["common"]["Size"]}')
-            else:
-                showLog(f'* FilterSize Condition\t: WIDTH >= {SIZE_FILTERING_DICT["common"]["Width"]} AND HEIGHT >= {SIZE_FILTERING_DICT["common"]["Height"]}')
+            showLog(f'* FilterSize Condition\t: {summaryFilterDict(SIZE_FILTERING_DICT)}')
         if RUN_LIMIT_COUNT:
             showLog(f'* Extract Count\t\t: {LIMIT_COUNT}')
 
         showLog(f"* Result File Count\t: {len(self.ConditionResTxtList)}")
-        
         print()
 
     
     def saveResultByExcel(self):
-        classNameList = []
-        for i in range(self.ClassNum):
-            classNameList.append(self.classNameDict[i])
+        classNameList = self.classNameList
 
         raw_data =  {   'ClassName':classNameList,
                         'TotalSum':self.TotalObjectSumList
@@ -407,47 +381,35 @@ class FilterCondition(Singleton):
             raw_data['FilterSum'] = self.FilterObjectSumList
 
         raw_data = pd.DataFrame(raw_data)
-        savePath = os.path.join(self.ResultDirPath, 'FilterCondition.xlsx')
+        savePath = os.path.join(ResultDirPath, FilterConditionResExcelName)
         raw_data.to_excel(excel_writer=savePath)
 
-        SuccessLog(f'RandomExtract Summary Log Save to Excel File -> {savePath}')
+        SuccessLog(f'RandomExtract Summary Log Save to Excel File >> {savePath}')
 
 
     def SaveFilterResult(self):
-        ConditionAnnoSavePath   = os.path.join(self.ResultDirPath, f'{ConditionFilterPrefix}_Annotation.txt')
-        ConditionImgSavePath    = os.path.join(self.ResultDirPath, f'{ConditionFilterPrefix}_Image.txt')
+        ConditionAnnoSavePath       = os.path.join(ResultDirPath, f'{ConditionFilterPrefix}_{SaveAnnotationFileName}')
+        ConditionImgSavePath        = os.path.join(ResultDirPath, f'{ConditionFilterPrefix}_{SaveImgFileName}')
 
         if RUN_LIMIT_COUNT:
-            ConditionAnnoSavePath   = os.path.join(self.ResultDirPath, f'{ConditionFilterPrefix}_{self.ExtractCount}Count_Annotation.txt')
-            ConditionImgSavePath    = os.path.join(self.ResultDirPath, f'{ConditionFilterPrefix}_{self.ExtractCount}Count_Image.txt')
+            ConditionAnnoSavePath   = os.path.join(ResultDirPath, f'{ConditionFilterPrefix}_{self.ExtractCount}Count_{SaveAnnotationFileName}')
+            ConditionImgSavePath    = os.path.join(ResultDirPath, f'{ConditionFilterPrefix}_{self.ExtractCount}Count_{SaveImgFileName}')
 
-        print(f"- Save Filtered Annotation Txt File : {ConditionAnnoSavePath}...", end='\t')
-        with open(ConditionAnnoSavePath, 'w', encoding=encodingFormat) as f:
-            for line in self.ConditionResTxtList:
-                f.write(f"{line}\n")
-        print("Done")
-
-        print(f"- Save Filtered Image Txt File : {ConditionImgSavePath}...", end='\t')
-        with open(ConditionImgSavePath, 'w', encoding=encodingFormat) as f:
-            for line in self.ConditionResImgList:
-                f.write(f"{line}\n")
-        print("Done")
+        writeListToFile(ConditionAnnoSavePath,  self.ConditionResTxtList,   encodingFormat)
+        writeListToFile(ConditionImgSavePath,   self.ConditionResImgList,   encodingFormat)
 
         if SIZE_FILTERING:
-            FilteredSizeSavePath = os.path.join(self.ResultDirPath, 'Filtered_ImgSize_Analysis_Result.txt')
+            FilteredSizeSavePath = os.path.join(ResultDirPath, FilteredImgAnalysisFileName)
             self.pretreatmentSaveFilteredImgSizeCheckFile()
-            print(f"- Save Analysis ImageSize Txt File : {FilteredSizeSavePath}...", end='\t')
-            with open(FilteredSizeSavePath, 'w', encoding=encodingFormat) as f:
-                for line in self.SaveImgSizeList:
-                    f.write(f"{line}\n")
-            print("Done")
+            writeListToFile(FilteredSizeSavePath, self.SaveImgSizeList, encodingFormat)
+
 
     def RunFilterCondition(self):
-        BaseAnnotationList      = []
-        BaseImgList             = []
+        BaseAnnotationList          = []
+        BaseImgList                 = []
 
-        BaseAnnotationList      = self.AnnotationTxtList[:]
-        BaseImgList             = self.AnnotationImgList[:]
+        BaseAnnotationList          = self.AnnotationTxtList[:]
+        BaseImgList                 = self.AnnotationImgList[:]
 
         ConditionAnnotationList     = []
         ConditionImgList            = []
@@ -483,6 +445,7 @@ class FilterCondition(Singleton):
 
     def subRunFilter(self, annList, imgList, widList, hgtList):
         recvCondSize    = SIZE_FILTERING_DICT
+
         if recvCondSize['common']['isCheck'] is False:
             ErrorLog('Check FilterSize Condition in \'common\' Category!', lineNum=lineNum(), errorFileName=filename())
             sys.exit(-1)
@@ -518,87 +481,73 @@ class FilterCondition(Singleton):
         return TempAnnList, TempImgList, TempWidList, TempHghList
 
 
-    def RunShuffle(self):
-        BaseAnnotationList      = []
-        BaseImgList             = []
-        BaseWidthList           = []
-        BaseHeightList          = []
-
-        ShuffleAnnotationList   = []
-        ShuffleImageList        = []
-        ShuffleWidthList        = []
-        ShuffleHeightList       = []
+    def getBaseList(self):
+        TempAnnList         = []
+        TempImgList         = []
+        TempWidList         = []
+        TempHghList         = []
 
         if RUN_CONDITION_FILTER is True:
-            BaseAnnotationList  = self.ConditionResTxtList[:]
-            BaseImgList         = self.ConditionResImgList[:]
+            TempAnnList     = self.ConditionResTxtList[:]
+            TempImgList     = self.ConditionResImgList[:]
         else:
-            BaseAnnotationList  = self.AnnotationTxtList[:]
-            BaseImgList         = self.AnnotationImgList[:]
+            TempAnnList     = self.AnnotationTxtList[:]
+            TempImgList     = self.AnnotationImgList[:]
 
         if SIZE_FILTERING is True:
             if RUN_CONDITION_FILTER is True:
-                BaseWidthList   = self.ConditionWidthList[:]
-                BaseHeightList  = self.ConditionHeightList[:]
+                TempWidList = self.ConditionWidthList[:]
+                TempHghList = self.ConditionHeightList[:]
             else:
-                BaseWidthList   = self.AnalysisSrcWidthList[:]
-                BaseHeightList  = self.AnalysisSrcHeightList[:]            
+                TempWidList = self.AnalysisSrcWidthList[:]
+                TempHghList = self.AnalysisSrcHeightList[:]
 
-        baseTotalCount  = len(BaseAnnotationList)
+        return TempAnnList, TempImgList, TempWidList, TempHghList
+
+
+    def RunShuffle(self):
+        BaseAnnList, BaseImgList, BaseWidthList, BaseHeightList = self.getBaseList()
+
+        ShuffleAnnList  = []
+        ShuffleImgList  = []
+        ShuffleWidList  = []
+        ShuffleHgtList  = []        
+
+        baseTotalCount  = len(BaseAnnList)
         baseIdxList     = [ i for i in range(baseTotalCount) ]
-
-        showLog(f'\nbaseIdxList Len : {baseTotalCount}\n\t[ {baseIdxList[:10]} ... ]')
         shuffle(baseIdxList)
-        showLog(f'\t\t-> [ {baseIdxList[:10]} ... ]')
 
         for eachIdx in range(baseTotalCount):
-            ShuffleAnnotationList.append(BaseAnnotationList[baseIdxList[eachIdx]])
-            ShuffleImageList.append(BaseImgList[baseIdxList[eachIdx]])
+            ShuffleAnnList.append(BaseAnnList[baseIdxList[eachIdx]])
+            ShuffleImgList.append(BaseImgList[baseIdxList[eachIdx]])
 
         if SIZE_FILTERING is True:
             for eachIdx in range(baseTotalCount):
-                ShuffleWidthList.append(BaseWidthList[baseIdxList[eachIdx]])
-                ShuffleHeightList.append(BaseHeightList[baseIdxList[eachIdx]])
+                ShuffleWidList.append(BaseWidthList[baseIdxList[eachIdx]])
+                ShuffleHgtList.append(BaseHeightList[baseIdxList[eachIdx]])
 
-            self.ConditionWidthList     = ShuffleWidthList
-            self.ConditionHeightList    = ShuffleHeightList           
+            self.ConditionWidthList     = ShuffleWidList
+            self.ConditionHeightList    = ShuffleHgtList           
 
-        self.ConditionResTxtList = ShuffleAnnotationList
-        self.ConditionResImgList = ShuffleImageList
+        self.ConditionResTxtList = ShuffleAnnList
+        self.ConditionResImgList = ShuffleImgList
         SuccessLog('Shuffling Done')
             
 
     def RunExtractLimitCount(self):
-        BaseAnnotationList      = []
-        BaseImgList             = []
-        BaseWidthList           = []
-        BaseHeightList          = []
+        BaseAnnList, BaseImgList, BaseWidthList, BaseHeightList = self.getBaseList()
 
         ExtractCountTxtList     = []
         ExtractCountImgList     = []
         ExtractCountWidthList   = []
         ExtractCountHeightList  = []
+        TotalIdxList            = [ i for i in range(len(BaseAnnList)) ]
 
-        if RUN_CONDITION_FILTER is True:
-            BaseAnnotationList  = self.ConditionResTxtList[:]
-            BaseImgList         = self.ConditionResImgList[:]
-        else:
-            BaseAnnotationList  = self.AnnotationTxtList[:]
-            BaseImgList         = self.AnnotationImgList[:]    
-
-        if SIZE_FILTERING is True:
-            if RUN_CONDITION_FILTER is True:
-                BaseWidthList   = self.ConditionWidthList[:]
-                BaseHeightList  = self.ConditionHeightList[:]
-            else:
-                BaseWidthList   = self.AnalysisSrcWidthList[:]
-                BaseHeightList  = self.AnalysisSrcHeightList[:]
-
-        TotalIdxList    = [ i for i in range(len(BaseAnnotationList)) ]
-        ExtractIdxList  = sample(TotalIdxList, self.ExtractCount)
+        self.CheckEnoughListSizeToSample(len(TotalIdxList), self.ExtractCount)
+        ExtractIdxList          = sample(TotalIdxList, self.ExtractCount)
 
         for eachIdx in ExtractIdxList:
-            ExtractCountTxtList.append(BaseAnnotationList[eachIdx])
+            ExtractCountTxtList.append(BaseAnnList[eachIdx])
             ExtractCountImgList.append(BaseImgList[eachIdx])
 
         if SIZE_FILTERING is True:
@@ -616,10 +565,15 @@ class FilterCondition(Singleton):
         SuccessLog(f'RunExtractLimitCount Finish : {self.ExtractCount}')
 
 
-    def RunAnalysisFilteredSize(self):
-        widthArray = np.array(self.ConditionWidthList)
-        heightArray = np.array(self.ConditionHeightList)
+    def CheckEnoughListSizeToSample(self, ListCount, SampleCount):
+        if SampleCount > ListCount:
+            error_handling('Not Enough Image Count to Limit Cut!', filename(), lineNum())
+            exit(-1)
 
+
+    def RunAnalysisFilteredSize(self):
+        widthArray  = np.array(self.ConditionWidthList)
+        heightArray = np.array(self.ConditionHeightList)
         widthAvg    = np.mean(widthArray)
         heightAvg   = np.mean(heightArray)
 
@@ -649,7 +603,7 @@ class FilterCondition(Singleton):
 
 
     def run(self):
-        if self.selectUi.isSelectDone is False:
+        if self.selectUi.isQuitProgram():
             NoticeLog(f'{self.__class__.__name__} Program EXIT\n')
 
         else:
@@ -666,14 +620,13 @@ class FilterCondition(Singleton):
                 self.RunAnalysisFilteredSize()
 
             self.saveResult()
-
             self.showResult()
             self.saveResultByExcel()
 
-            os.startfile(self.ResultDirPath)
+            os.startfile(ResultDirPath)
 
 
 if __name__ == "__main__":
-    App = QApplication(sys.argv)
-    RunProgram = FilterCondition(App)
+    App         = QApplication(sys.argv)
+    RunProgram  = FilterCondition(App)
     RunProgram.run()
