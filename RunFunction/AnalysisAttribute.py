@@ -50,7 +50,8 @@ from UI.SelectUI.SelectUIClass  import *
 # SOURCE & DEST PATH
 # 해당 OriginXmlDirPath 과 ResultDirPath 값을 변경하고 싶으면, CoreDefine.py 에서 변경하면 됨! ( 경로 변경 통합 )
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-OriginXmlDirPath    = copy.copy(OriginSource_cvatXml_Path)
+# OriginXmlDirPath    = copy.copy(OriginSource_cvatXml_Path)
+OriginXmlDirPath    = LinkName('OriginSource_cvatXml_Path', 'OriginXmlDirPath')
 OriginImgDirPath    = copy.copy(OriginSource_Img_Path)
 ResultDirPath       = copy.copy(Result_Dir_Path)
 CrushedImgFilePath  = os.path.join(ResultDirPath, CrushedImgFileName)
@@ -302,6 +303,9 @@ class AnalysisAttribute(Singleton, CvatXml):
                     showLog(f'- {eachTarget:40} -> {globals()[eachTarget]}')
         showLog("--------------------------------------------------------------------------------------\n")
 
+        setCoreValue('OriginXmlDirPath', returnDict['OriginXmlDirPath'])
+        globals()['OriginXmlDirPath'] = getCoreValue('OriginXmlDirPath')
+        
         self.setChanged_Xml_n_Res_Path(OriginXmlDirPath, ResultDirPath)
         self.checkSize = int(CHECK_SIZE_VALUE)
         setResultDir(ResultDirPath)

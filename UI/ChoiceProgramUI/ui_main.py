@@ -17,7 +17,7 @@ class Ui_MainWindow(object):
         MainWindow.resize(WINDOW_WIDTH, WINDOW_HEIGHT)
         MainWindow.setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT)
 
-        self.centralWidget = QtWidgets.QWidget(MainWindow)
+        self.centralWidget          = QtWidgets.QWidget(MainWindow)
         self.centralWidget.setObjectName("centralwidget")
 
         self.selectProgramComboBox  = QtWidgets.QComboBox(MainWindow)

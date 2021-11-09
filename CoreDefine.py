@@ -21,6 +21,11 @@ CORE_TEST_MODE      = False
 CORE_ERROR_STRICT   = ERROR_STRICT_SOFT # 에러 발생 시, 처리 정도를 결정하는 시스템 변수
 
 
+# IMPORT
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+import sys
+
+
 # PATH Defines
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 """
@@ -120,3 +125,55 @@ COND_FAIL = False
 
 WIDTH     = 0
 HEIGHT    = 1
+
+
+# Link VAR
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+CORE_LINK_DICT  = {}
+LINK_NAME_LIST  = 0
+CORE_SAVE_VALUE = 1
+
+# FunctionDefine
+# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+def LinkName(CoreName, LinkName):
+    global CORE_LINK_DICT
+    value = None
+
+    try:
+        value = globals()[CoreName]
+    except Exception as e:
+        print(f"* {CoreName} is Not Defined in CoreDefine.py")
+        sys.exit(-1)
+
+    # 처음 등록할 때
+    if CORE_LINK_DICT.get(CoreName) is None:
+        CORE_LINK_DICT[CoreName] = [[LinkName], value]
+
+    # 이미 등록을 했던 값일 때
+    else:
+        alreadyExist = False
+        for eachLinkName in CORE_LINK_DICT[CoreName][LINK_NAME_LIST]:
+            if LinkName == eachLinkName:
+                alreadyExist = True
+        if alreadyExist:
+            pass
+        else:
+            CORE_LINK_DICT[CoreName][LINK_NAME_LIST].append(LinkName)
+
+    print(CORE_LINK_DICT)
+    return value
+
+def setCoreValue(LinkName, setValue):
+    global CORE_LINK_DICT
+
+    for k, v in CORE_LINK_DICT.items():
+        for eachLinkName in v[LINK_NAME_LIST]:
+            if eachLinkName == LinkName:
+                v[CORE_SAVE_VALUE] = setValue
+                print(f'{k} --------> {v[CORE_SAVE_VALUE]}')
+
+def getCoreValue(LinkName):
+    for k, v in CORE_LINK_DICT.items():
+        for eachLinkName in v[LINK_NAME_LIST]:
+            if eachLinkName == LinkName:
+                return v[CORE_SAVE_VALUE]

@@ -23,7 +23,7 @@ sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../'))
 
 # Refer to CoreDefine.py
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-from CoreDefine import *
+from CoreDefine         import *
 
 
 # IMPORT CORE
@@ -67,13 +67,13 @@ class ChoiceProgramUI(QMainWindow):
     def __init__(self, QApp=None):
         super().__init__()
 
-        self.app = QApp
-        self.res = 'EXIT'
+        self.app                = QApp
+        self.res                = 'EXIT'
 
         self.programNameList    = []
         self.infoDict           = {}
 
-        self.ui = Ui_MainWindow()
+        self.ui                 = Ui_MainWindow()
         self.ui.setupUi(self)
 
         self.initialize()
@@ -93,7 +93,6 @@ class ChoiceProgramUI(QMainWindow):
 
     def getProgramInformation(self):
         return self.infoDict[self.ui.selectProgramComboBox.currentText()]
-
 
     def setProgramNameList(self):
         for eachValue in ProgramList:
