@@ -377,7 +377,7 @@ class FilterCondition(Singleton):
         showLog(f"* File Shuffled\t\t: {RUN_SHUFFLE_FILE}")
 
         if RUN_CONDITION_FILTER:
-            showLog(f'* Extract Condition\t: {FILTER_CONDITION}')
+            showLog(f'* Extract Condition\t: {self.selectUi.getTransMsgFilter()}')
         if SIZE_FILTERING:
             showLog(f'* FilterSize Condition\t: {summaryFilterDict(SIZE_FILTERING_DICT)}')
         if RUN_LIMIT_COUNT:
@@ -595,16 +595,22 @@ class FilterCondition(Singleton):
         heightAvg   = np.mean(heightArray)
         AreaAvg     = np.mean(np.multiply(widthAvg, heightArray))
 
+        def showLog_n_SaveList(Msg):
+            showLog(Msg)
+            self.SaveImgSizeList.append(Msg)
+
         print()
-        showLog('# [ SIZE ANALYSIS ]')
-        showLog('--------------------------------------------------------------------------------------')
-        showLog(f'- Filter Condition : {FILTER_CONDITION}')
-        showLog(f'- Size Condition   : {summaryFilterDict(SIZE_FILTERING_DICT)}')
-        showLog('--------------------------------------------------------------------------------------')
-        showLog(f'- Avgarge Width    : {round(widthAvg,2)}')
-        showLog(f'- Avgarge Height   : {round(heightAvg,2)}')
-        showLog(f'- Avgarge Szie     : {round(AreaAvg,2)}')
-        showLog('--------------------------------------------------------------------------------------')
+        showLog_n_SaveList('# [ SIZE ANALYSIS ]')
+        showLog_n_SaveList('--------------------------------------------------------------------------------------')
+        if RUN_CONDITION_FILTER:
+            showLog_n_SaveList(f'- Filter Condition : {self.selectUi.getTransMsgFilter()}')
+        if SIZE_FILTERING:
+            showLog_n_SaveList(f'- Size Condition   : {summaryFilterDict(SIZE_FILTERING_DICT)}')
+        showLog_n_SaveList('--------------------------------------------------------------------------------------')
+        showLog_n_SaveList(f'- Avgarge Width    : {round(widthAvg,2)}')
+        showLog_n_SaveList(f'- Avgarge Height   : {round(heightAvg,2)}')
+        showLog_n_SaveList(f'- Avgarge Szie     : {round(AreaAvg,2)}')
+        showLog_n_SaveList('--------------------------------------------------------------------------------------')
         print()
 
 

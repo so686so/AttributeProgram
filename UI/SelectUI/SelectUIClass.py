@@ -98,6 +98,7 @@ class SelectUI(QMainWindow):
         self.classNameDictList  = []
 
         self.PreRememberPath    = ""
+        self.transFilterMsg     = ""
         self.loadRememberDir()
 
 
@@ -234,7 +235,11 @@ class SelectUI(QMainWindow):
 
     def setExcelData(self):
         self.classData = ExcelData()
-        self.classNameDictList = self.classData.getClassDataTotal() 
+        self.classNameDictList = self.classData.getClassDataTotal()
+
+
+    def getTransMsgFilter(self):
+        return self.transFilterMsg
 
 
     def openCondFilterDialog(self):
@@ -245,8 +250,9 @@ class SelectUI(QMainWindow):
         res = dlg.showModalDialog()
 
         if res:
-            resString = dlg.FinalCondition
-            NoticeLog(f'Applied Filter Condition : {dlg.TranslateMessage}')
+            resString           = dlg.FinalCondition
+            self.transFilterMsg = dlg.TranslateMessage
+            NoticeLog(f'Applied Filter Condition : {self.transFilterMsg}')
             sender.setText('APPLIED')
             self.set_String_by_UI_Name(senderName, resString)
             self.set_CheckValid_by_Name('RUN_CONDITION_FILTER', True)
@@ -264,7 +270,7 @@ class SelectUI(QMainWindow):
 
         if res:
             resDict = dlg.getFilterDict()
-            NoticeLog('Applied SizeFilter')
+            NoticeLog(f'Applied SizeFilter : {summaryFilterDict(resDict)}')
             sender.setText('APPLIED')
             self.set_Dict_by_UI_Name(senderName, resDict)
             self.set_CheckValid_by_Name('SIZE_FILTERING', True)

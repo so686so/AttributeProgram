@@ -637,8 +637,9 @@ class AnalysisAttribute(Singleton, CvatXml):
 
         print()
         showLog('# [ SIZE ANALYSIS ]')
-        showLog('--------------------------------------------------------------------------------------')
-        showLog(f'- Condition      : {summaryFilterDict(SIZE_FILTERING_DICT)}')
+        if SIZE_FILTERING:
+            showLog('--------------------------------------------------------------------------------------')
+            showLog(f'- Condition      : {summaryFilterDict(SIZE_FILTERING_DICT)}')
         showLog('--------------------------------------------------------------------------------------')
         showLog(f'- Avgarge Width  : {round(widthAvg,2)}')
         showLog(f'- Avgarge Height : {round(heightAvg,2)}')
