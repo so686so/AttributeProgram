@@ -1,7 +1,7 @@
 # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 # *  TITLE        |  Attribute Program                        *
-# *  DATE         |  2021-11-08                               *
-# *  VERSION      |  1.0.8                                    *
+# *  DATE         |  2021-11-10                               *
+# *  VERSION      |  1.1.0                                    *
 # *  IDE          |  Visual Studio Code 1.62.0                *
 # *  OS           |  Windows 10                               *
 # *  AUTHOR       |  SO BYUNG JUN                             *

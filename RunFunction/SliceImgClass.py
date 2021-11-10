@@ -212,7 +212,7 @@ class SliceImage(Singleton, CvatXml):
                                 ['FD', 'ResultDirPath',                 True,   f'{ResultDirPath}'],
                                 ['FD', 'HLINE_0',                       False,  'None'],
                                 ['FD', 'AbbreviatedImgPath',            True,   f'{AbbreviatedImgPath}'],
-                                ['FD', 'CrushedImgFilePath',            True,   f'{CrushedImgFilePath}'],
+                                ['FD', 'CrushedImgFilePath',            False,  f'{CrushedImgFilePath}'],
 
                                 ['CB', 'USE_COMMON',                    False,  f'{USE_COMMON}'],
                                 ['CB', 'USE_HEAD',                      False,  f'{USE_HEAD}'],

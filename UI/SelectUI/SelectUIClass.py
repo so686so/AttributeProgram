@@ -246,12 +246,13 @@ class SelectUI(QMainWindow):
 
         if res:
             resString = dlg.FinalCondition
-            NoticeLog(f'Applied Filter Condition : {resString}')
+            NoticeLog(f'Applied Filter Condition : {dlg.TranslateMessage}')
             sender.setText('APPLIED')
             self.set_String_by_UI_Name(senderName, resString)
             self.set_CheckValid_by_Name('RUN_CONDITION_FILTER', True)
         else:
             self.set_CheckValid_by_Name('RUN_CONDITION_FILTER', False)
+            sender.setText('Write FilterCondition...')
 
 
     def openSizeFilterDialog(self):
@@ -269,6 +270,7 @@ class SelectUI(QMainWindow):
             self.set_CheckValid_by_Name('SIZE_FILTERING', True)
         else:
             self.set_CheckValid_by_Name('SIZE_FILTERING', False)
+            sender.setText('Select SizeFilter...')
 
 
     def appendNewLE(self, SetArg):
@@ -327,9 +329,27 @@ class SelectUI(QMainWindow):
             self.selectFDList[LAST_APPEND][LE_INDEX].setReadOnly(True)
 
         # PushButton Setting
-        self.selectFDList[LAST_APPEND][BT_INDEX].setText(f'EDIT')
+        getValue    = self.getTextByFDStatus(SetArg)
+        msg         = getValue.split('_')[0]
+        color       = getValue.split('_')[1]
+
+        self.selectFDList[LAST_APPEND][BT_INDEX].setText(f'{msg}')
+        self.selectFDList[LAST_APPEND][BT_INDEX].setStyleSheet(f'color:{color}')
         self.selectFDList[LAST_APPEND][BT_INDEX].setObjectName(f'BT_{SetArg[NAME]}')
         self.selectFDList[LAST_APPEND][BT_INDEX].clicked.connect(self.btn_clicked)
+
+
+    def getTextByFDStatus(self, SetArg):
+        if SetArg[ISDIR]:
+            if JustCheckDir(SetArg[DEFAULT_VAL]):
+                return 'EDIT_#000000'
+            else:
+                return 'Not Exist_#FF6666'
+        else:
+            if JustCheckFile(SetArg[DEFAULT_VAL]):
+                return 'EDIT_#000000'
+            else:
+                return 'Not Exist_#FF6666'
 
 
     # Setup Custom BTNs of Custom Widgets
@@ -342,9 +362,11 @@ class SelectUI(QMainWindow):
 
     # 버튼 클릭할 때 연결되는 총괄 함수
     def btn_clicked(self):
+        sender      = self.sender()
         btn         = self.setup_BTNs()
         ButtonName  = btn.objectName()           # Ex) Res = BT_AbbreviatedImgPath
         ButtonName  = ButtonName.split('_')[1]   # Ex) Res = AbbreviatedImgPath
+        isChanged   = True
 
         prePath     = self.get_LE_text_by_Name_FD(ButtonName)
         isDir       = self.get_isDir_by_Name(ButtonName)
@@ -359,11 +381,16 @@ class SelectUI(QMainWindow):
         # 체크 안하고 나가면 이전 경로로 다시 써주기
         if len(targetDir) == 0:
             targetDir = prePath
+            isChanged = False
 
         self.PreRememberPath = os.path.dirname(targetDir)
 
         # 선택한 값 LineEdit 에다가도 update
         self.set_LE_text_by_Name(ButtonName, targetDir)
+
+        if isChanged:
+            sender.setText('APPLIED')
+            sender.setStyleSheet(f'color:#000000')
 
 
     def get_isDir_by_Name(self, Name):
@@ -451,7 +478,9 @@ class SelectUI(QMainWindow):
             add_H_Layout = QHBoxLayout()
 
             if str(type(eachFD[0])) == "<class 'PyQt6.QtWidgets.QFrame'>":
-                add_H_Layout.addWidget(eachFD[0])
+                add_H_Layout.addStretch(1)
+                add_H_Layout.addWidget(eachFD[0], 16)
+                add_H_Layout.addStretch(1)
                 FD_Vbox.addLayout(add_H_Layout)
                 continue
 
@@ -484,7 +513,9 @@ class SelectUI(QMainWindow):
             add_H_Layout = QHBoxLayout()
 
             if str(type(eachCB[0])) == "<class 'PyQt6.QtWidgets.QFrame'>":
-                add_H_Layout.addWidget(eachCB[0])
+                add_H_Layout.addStretch(1)
+                add_H_Layout.addWidget(eachCB[0], 20)
+                add_H_Layout.addStretch(1)
                 CB_Vbox[VBoxIdx].addLayout(add_H_Layout)
                 continue
 
@@ -513,16 +544,15 @@ class SelectUI(QMainWindow):
             add_H_Layout = QHBoxLayout()
 
             if str(type(eachLE[0])) == "<class 'PyQt6.QtWidgets.QFrame'>":
-                add_H_Layout.addWidget(eachLE[0])
+                add_H_Layout.addStretch(1)
+                add_H_Layout.addWidget(eachLE[0], 6)
+                add_H_Layout.addStretch(1)
                 LE_Vbox.addLayout(add_H_Layout)
                 continue
 
             add_H_Layout.addStretch(1)
             add_H_Layout.addWidget(eachLE[LABEL_INDEX], 4)
-            if eachLE[LABEL_INDEX].text() == "EXTRACT_CONDITION":
-                add_H_Layout.addWidget(eachLE[LE_INDEX], 8)
-            else:
-                add_H_Layout.addWidget(eachLE[LE_INDEX], 2)
+            add_H_Layout.addWidget(eachLE[LE_INDEX], 2)
             add_H_Layout.addStretch(1)   
 
             LE_Vbox.addLayout(add_H_Layout)

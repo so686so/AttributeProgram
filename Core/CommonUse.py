@@ -519,6 +519,14 @@ def CheckExistDir(DirName):
         sys.exit(-1)
 
 
+def JustCheckFile(FileName):
+    return os.path.isfile(FileName)
+
+
+def JustCheckDir(DirName):
+    return os.path.isdir(DirName)
+
+
 def setResultDir(resDirPath):
     if os.path.isdir(resDirPath) is False:
         os.makedirs(resDirPath, exist_ok=True)

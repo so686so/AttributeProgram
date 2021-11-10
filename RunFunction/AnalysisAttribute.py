@@ -258,7 +258,7 @@ class AnalysisAttribute(Singleton, CvatXml):
                                 ['FD', 'OriginImgDirPath',          True,   f'{OriginImgDirPath}'],
                                 ['FD', 'ResultDirPath',             True,   f'{ResultDirPath}'],
                                 ['FD', 'HLINE_0',                   False,  'None'],
-                                ['FD', 'CrushedImgFilePath',        True,   f'{CrushedImgFilePath}'],
+                                ['FD', 'CrushedImgFilePath',        False,  f'{CrushedImgFilePath}'],
                                 ['FD', 'HLINE_1',                   False,  'None'],
                                 ['FD', 'CompareExcelPath',          False,  f'{CompareExcelPath}'],
 

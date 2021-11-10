@@ -2,6 +2,8 @@
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 from PyQt6 import QtCore, QtGui, QtWidgets
 
+from Core.CommonUse import NoticeLog
+
 ClassSort   = ['39CLASS', '66CLASS', '83CLASS']
 ClassNum    = [39, 66, 83]
 
@@ -11,6 +13,8 @@ DATA_DICT   = -1
 ATT_NAME    = 0
 ATT_TEXT    = 1
 
+RESET_MSG   = '(Attribute[0] == "1") or (Attribute[1] == "1")'
+
 class ConditionFilterDialog(QtWidgets.QDialog):
     def __init__(self, defaultString, classNameList):
         super().__init__()
@@ -19,6 +23,8 @@ class ConditionFilterDialog(QtWidgets.QDialog):
         self.TotalclassNameList = classNameList
         self.curClassNameList   = self.classNameDictToList(0)
         self.curClassDataDict   = self.TotalclassNameList[DATA_DICT]   # {ClassName:[attName, attText]}
+        self.TranslateMessage   = ""
+        self.TempSaveCondition  = ""
 
         self.initUI()
         self.setConnect()
@@ -59,9 +65,15 @@ class ConditionFilterDialog(QtWidgets.QDialog):
 
         btnOK       = QtWidgets.QPushButton('Apply')
         btnCancel   = QtWidgets.QPushButton('Cancel')
+        btnTrans    = QtWidgets.QPushButton('Translate')
+        btnReset    = QtWidgets.QPushButton('Reset')
+        btnUndo     = QtWidgets.QPushButton('Undo')
 
         btnOK.clicked.connect(self.onOKButtonClicked)
         btnCancel.clicked.connect(self.onCancelButtonClicked)
+        btnTrans.clicked.connect(self.onClickTranslateBtn)
+        btnReset.clicked.connect(self.onClickResetBtn)
+        btnUndo.clicked.connect(self.onClickUndoBtn)
 
         classSelectHBox = QtWidgets.QHBoxLayout()
         classSelectHBox.addWidget(self.selectClassComboBox, 10)
@@ -101,15 +113,28 @@ class ConditionFilterDialog(QtWidgets.QDialog):
         self.mainLayout.addWidget(underGroupBox, 5)
         self.mainLayout.addWidget(self.LineList[3])
 
+        midUnderLayout = QtWidgets.QHBoxLayout()
+
+        sub_MU_leftLayout = QtWidgets.QHBoxLayout()
+        sub_MU_rightLayout = QtWidgets.QHBoxLayout()
+        sub_MU_leftLayout.addWidget(btnTrans)
+        sub_MU_rightLayout.addWidget(btnReset)
+        sub_MU_rightLayout.addWidget(btnUndo)
+
+        midUnderLayout.addLayout(sub_MU_leftLayout)
+        midUnderLayout.addLayout(sub_MU_rightLayout)
+
         underLayout = QtWidgets.QHBoxLayout()
         underLayout.addWidget(btnOK)
         underLayout.addWidget(btnCancel)
 
+        self.mainLayout.addLayout(midUnderLayout)
         self.mainLayout.addLayout(underLayout)
         self.setLayout(self.mainLayout)
 
     def onOKButtonClicked(self):
         self.FinalCondition = self.TotalTE.toPlainText()
+        self.TranslateCondition()
         self.accept()
 
     def onCancelButtonClicked(self):
@@ -161,3 +186,32 @@ class ConditionFilterDialog(QtWidgets.QDialog):
 
             tokenLine = f'(Attribute[{self.ClassNameListComboBox.currentIndex()}] == "{value}")'
             self.TokenLE.setText(tokenLine)
+
+
+    def TranslateCondition(self):
+        originText  = self.TotalTE.toPlainText()
+        transText   = originText.replace("Attribute","")
+        transText   = transText.replace('"1"', 'True')
+        transText   = transText.replace('"0"', 'False')
+
+        for idx, eachName in enumerate(self.curClassNameList):
+            try:
+                transText   = transText.replace(f'[{idx}]', f'{eachName.split("[")[0]}')
+            except Exception as e:
+                pass
+
+        self.TranslateMessage = transText
+
+    def onClickTranslateBtn(self):
+        self.TranslateCondition()
+        NoticeLog(f'Translate >> {self.TranslateMessage}')
+
+
+    def onClickResetBtn(self):
+        self.TempSaveCondition = self.TotalTE.toPlainText()
+        self.TotalTE.setPlainText(RESET_MSG)
+
+
+    def onClickUndoBtn(self):
+        if self.TempSaveCondition:
+            self.TotalTE.setPlainText(self.TempSaveCondition)

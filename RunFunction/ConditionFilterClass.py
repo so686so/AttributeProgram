@@ -239,10 +239,10 @@ class FilterCondition(Singleton):
 
     def SyncEachValue(self, CoreName, LinkName, SENDER_DEPTH=3):
         # set 하기 전에 CoreDefine.py의 값을 get
-        if callername(SENDER_DEPTH) == 'setInitSettingSelectUI':
+        if callername(SENDER_DEPTH) == 'setInitSettingForSelectUI':
             globals()[LinkName] = getCoreValue(CoreName)
 
-        elif callername(SENDER_DEPTH) == 'getEditSettingSelectUI':
+        elif callername(SENDER_DEPTH) == 'getEditSettingForSelectUI':
             setCoreValue(CoreName, globals()[LinkName])
 
 

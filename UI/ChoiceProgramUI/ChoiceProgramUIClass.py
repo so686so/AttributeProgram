@@ -123,16 +123,17 @@ class ChoiceProgramUI(QMainWindow):
         ChangeAnnotationPath    = getCoreValue('OriginSource_AnntationPath')
         ChangeImgaeListPath     = getCoreValue('OriginSource_ImageListPath')
         ChangeResDirPath        = getCoreValue('Result_Dir_Path')
+        ChangeFilterCondition   = getCoreValue('CORE_FILTER_CONDITION')
 
         Rmb_CvatLine            = 0
         Rmb_OriImgLine          = 0
         Rmb_AnnoLine            = 0
         Rmb_ImgListLine         = 0
         Rmb_ResDirLine          = 0
+        Rmb_FilterLine          = 0
 
         LineSaveList            = []
         readFileToList('CoreDefine.py', LineSaveList)
-
 
         for idx, eachLine in enumerate(LineSaveList):
             Tmp_Rmb_CvatLine    = eachLine.find('OriginSource_cvatXml_Path   =')
@@ -140,6 +141,7 @@ class ChoiceProgramUI(QMainWindow):
             Tmp_Rmb_AnnoLine    = eachLine.find('OriginSource_AnntationPath  =')
             Tmp_Rmb_ImgListLine = eachLine.find('OriginSource_ImageListPath  =')
             Tmp_Rmb_ResDirLine  = eachLine.find('Result_Dir_Path             =')
+            Tmp_Rmb_FilterCond  = eachLine.find('CORE_FILTER_CONDITION   =')
 
             if Tmp_Rmb_CvatLine >= 0:
                 Rmb_CvatLine    = idx
@@ -151,7 +153,8 @@ class ChoiceProgramUI(QMainWindow):
                 Rmb_ImgListLine = idx
             elif Tmp_Rmb_ResDirLine >= 0:
                 Rmb_ResDirLine  = idx
-
+            elif Tmp_Rmb_FilterCond >= 0:
+                Rmb_FilterLine  = idx
 
         with open('CoreDefine.py', 'w', encoding=CORE_ENCODING_FORMAT) as wf:
             for idx, line in enumerate(LineSaveList):
@@ -165,6 +168,8 @@ class ChoiceProgramUI(QMainWindow):
                     wf.write(f'OriginSource_ImageListPath  = r"{ChangeImgaeListPath}"\n')
                 elif idx == Rmb_ResDirLine:
                     wf.write(f'Result_Dir_Path             = r"{ChangeResDirPath}"\n')
+                elif idx == Rmb_FilterLine:
+                    wf.write(f"CORE_FILTER_CONDITION   = '{ChangeFilterCondition}'\n")
                 else:
                     wf.write(f'{line}\n')
 
