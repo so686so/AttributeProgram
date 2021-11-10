@@ -15,6 +15,7 @@ Tasks:
         ☐ Adjust Scoring RunFunction AI
         ✔ Code Compression @done (2021. 11. 9. 오후 9:24:24)
         ✔ Add Compare Excel Function at AnalysisAttribute.py @done (2021. 11. 9. 오후 1:26:16)
+        ☐ Image Augmentation Program
 
     TodoTinyList:
         ✔ Fix ExtractAnnotationClass.RunConditionExtract @done (2021. 11. 6. 오전 3:15:57)
