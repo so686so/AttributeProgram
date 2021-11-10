@@ -633,6 +633,7 @@ class AnalysisAttribute(Singleton, CvatXml):
 
         widthAvg    = np.mean(widthArray)
         heightAvg   = np.mean(heightArray)
+        AreaAvg     = np.mean(np.multiply(widthAvg, heightArray))
 
         print()
         showLog('# [ SIZE ANALYSIS ]')
@@ -641,7 +642,7 @@ class AnalysisAttribute(Singleton, CvatXml):
         showLog('--------------------------------------------------------------------------------------')
         showLog(f'- Avgarge Width  : {round(widthAvg,2)}')
         showLog(f'- Avgarge Height : {round(heightAvg,2)}')
-        showLog(f'- Avgarge Szie   : {round(widthAvg*heightAvg,2)}')
+        showLog(f'- Avgarge Szie   : {round(AreaAvg,2)}')
         showLog('--------------------------------------------------------------------------------------')
         print()        
 

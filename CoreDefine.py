@@ -59,20 +59,20 @@ import sys
 """
 CrushedImgFileName          = 'CrushImg.txt'
 
-OriginSource_cvatXml_Path   = r"C:\PythonHN\Data\Summer_1_32_xml"
-OriginSource_Img_Path       = r"C:\PythonHN\Data\Summer_1_32_img"
+OriginSource_cvatXml_Path   = r"D:\PyCharm\Summer_1_32_xml"
+OriginSource_Img_Path       = r"D:\PyCharm\Summer_1_32_img"
 
 OriginSource_AnntationPath  = r"C:/PythonHN/Data/Result/Annotation_39_Class.txt"
 OriginSource_ImageListPath  = r"C:/PythonHN/Data/Result/39Class_ImgList.txt"
 
 OriginSource_AnalysisPath   = r"C:\PythonHN\Data\Res1107\ImageSize_Analysis_Source.txt"
 
-Result_Dir_Path             = r"C:\PythonHN\Data\1108"
+Result_Dir_Path             = r"D:\PyCharm\Result_1110"
 
 Abbreviated_Img_Path        = r"C:\PythonHN\Data\ABB TEST\condition_common_img"   # 축약시킨 이미지 들어있는 폴더
 RealExistCheck_Path         = r""
 
-Pre_Search_Remember_Path    = r"C:/PythonHN/Data"
+Pre_Search_Remember_Path    = r"D:/PyCharm"
 
 
 # OTHER DEFINES

@@ -709,6 +709,7 @@ class MakeClassSource(Singleton, CvatXml):
         heightArray = np.array(heightList)
         widthAvg    = np.mean(widthArray)
         heightAvg   = np.mean(heightArray)
+        AreaAvg     = np.mean(np.multiply(widthAvg, heightArray))
 
         print()
         showLog('# [ SIZE ANALYSIS ]')
@@ -717,7 +718,7 @@ class MakeClassSource(Singleton, CvatXml):
         showLog('--------------------------------------------------------------------------------------')
         showLog(f'- Avgarge Width  : {round(widthAvg,2)}')
         showLog(f'- Avgarge Height : {round(heightAvg,2)}')
-        showLog(f'- Avgarge Szie   : {round(widthAvg*heightAvg,2)}')
+        showLog(f'- Avgarge Szie   : {round(AreaAvg,2)}')
         showLog('--------------------------------------------------------------------------------------')
         print()
 
