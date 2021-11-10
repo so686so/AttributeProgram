@@ -74,7 +74,10 @@ class JoinPath(Singleton):
     def writeImgListFileWithJoinPath(self):
         fileName = os.path.basename(ImgListFile)
         fileName = f'{AddPrefixFileName}_{fileName}'
-        savePath = os.path.join(ResultDirPath, fileName)       
+        savePath = os.path.join(ResultDirPath, fileName)
+
+        self.OriginImgList = [os.path.join(JoinDirPath, eachLine) for eachLine in self.OriginImgList]
+               
         writeListToFile(savePath, self.OriginImgList, encodingFormat)
 
 
