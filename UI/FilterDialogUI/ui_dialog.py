@@ -32,7 +32,7 @@ class ConditionFilterDialog(QtWidgets.QDialog):
 
     def initUI(self):
         self.setWindowTitle('Create Condition Filter')
-        self.resize(500, 500)
+        self.resize(500, 800)
 
         self.mainLayout             = QtWidgets.QVBoxLayout()
         self.LineList               = [QtWidgets.QFrame() for _ in range(4)]
@@ -60,18 +60,21 @@ class ConditionFilterDialog(QtWidgets.QDialog):
         self.TokenLE.setReadOnly(False)
         self.TotalTE                = QtWidgets.QPlainTextEdit()
         self.TotalTE.setPlainText(self.FinalCondition)
+        self.TotalTE.textChanged.connect(self.SyncTransTE)
+
+        self.TransTE                = QtWidgets.QPlainTextEdit()
+        self.TransTE.setReadOnly(True)
+        self.SyncTransTE()
         
         self.showDetailLabel        = QtWidgets.QLabel('- Detail Info\n- Select Above')
 
         btnOK       = QtWidgets.QPushButton('Apply')
         btnCancel   = QtWidgets.QPushButton('Cancel')
-        btnTrans    = QtWidgets.QPushButton('Translate')
         btnReset    = QtWidgets.QPushButton('Reset')
         btnUndo     = QtWidgets.QPushButton('Undo')
 
         btnOK.clicked.connect(self.onOKButtonClicked)
         btnCancel.clicked.connect(self.onCancelButtonClicked)
-        btnTrans.clicked.connect(self.onClickTranslateBtn)
         btnReset.clicked.connect(self.onClickResetBtn)
         btnUndo.clicked.connect(self.onClickUndoBtn)
 
@@ -108,21 +111,16 @@ class ConditionFilterDialog(QtWidgets.QDialog):
 
         underGroupBox   = QtWidgets.QGroupBox('Enter your conditional expression here')
         underVBox       = QtWidgets.QVBoxLayout()
-        underVBox.addWidget(self.TotalTE)
+        underVBox.addWidget(self.TransTE, 1)
+        underVBox.addWidget(self.TotalTE, 3)
         underGroupBox.setLayout(underVBox)
         self.mainLayout.addWidget(underGroupBox, 5)
         self.mainLayout.addWidget(self.LineList[3])
 
         midUnderLayout = QtWidgets.QHBoxLayout()
 
-        sub_MU_leftLayout = QtWidgets.QHBoxLayout()
-        sub_MU_rightLayout = QtWidgets.QHBoxLayout()
-        sub_MU_leftLayout.addWidget(btnTrans)
-        sub_MU_rightLayout.addWidget(btnReset)
-        sub_MU_rightLayout.addWidget(btnUndo)
-
-        midUnderLayout.addLayout(sub_MU_leftLayout)
-        midUnderLayout.addLayout(sub_MU_rightLayout)
+        midUnderLayout.addWidget(btnReset)
+        midUnderLayout.addWidget(btnUndo)
 
         underLayout = QtWidgets.QHBoxLayout()
         underLayout.addWidget(btnOK)
@@ -190,21 +188,16 @@ class ConditionFilterDialog(QtWidgets.QDialog):
 
     def TranslateCondition(self):
         originText  = self.TotalTE.toPlainText()
-        transText   = originText.replace("Attribute","")
-        transText   = transText.replace('"1"', 'True')
+        transText   = originText.replace('"1"', 'True')
         transText   = transText.replace('"0"', 'False')
 
         for idx, eachName in enumerate(self.curClassNameList):
             try:
-                transText   = transText.replace(f'[{idx}]', f'{eachName.split("[")[0]}')
+                transText   = transText.replace(f'Attribute[{idx}]', f'{eachName.split("[")[0]}')
             except Exception as e:
                 pass
 
         self.TranslateMessage = transText
-
-    def onClickTranslateBtn(self):
-        self.TranslateCondition()
-        NoticeLog(f'Translate >> {self.TranslateMessage}')
 
 
     def onClickResetBtn(self):
@@ -215,3 +208,8 @@ class ConditionFilterDialog(QtWidgets.QDialog):
     def onClickUndoBtn(self):
         if self.TempSaveCondition:
             self.TotalTE.setPlainText(self.TempSaveCondition)
+
+
+    def SyncTransTE(self):
+        self.TranslateCondition()
+        self.TransTE.setPlainText(self.TranslateMessage)
