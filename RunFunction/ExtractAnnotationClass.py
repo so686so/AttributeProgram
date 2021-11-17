@@ -461,7 +461,7 @@ class ExtractAnnotation(Singleton):
 
     def SaveSplitExtract(self):
         SaveTrainAnnoFileName   = f'{SplitTrainPrefix}_[{self.SplitPercent}]Pcnt_{SaveAnnotationFileName}'
-        SaveTestAnnoFileName    = f'{SplitTrainPrefix}_[{100 - int(self.SplitPercent)}]Pcnt_{SaveAnnotationFileName}'
+        SaveTestAnnoFileName    = f'{SplitTestPrefix}_[{100 - int(self.SplitPercent)}]Pcnt_{SaveAnnotationFileName}'
         TrainAnnoSavePath       = os.path.join(ResultDirPath, SaveTrainAnnoFileName)
         TestAnnoSavePath        = os.path.join(ResultDirPath, SaveTestAnnoFileName)
 
@@ -469,7 +469,7 @@ class ExtractAnnotation(Singleton):
         writeListToFile(TestAnnoSavePath,   self.SplitTestResTxtList,   encodingFormat)
 
         SaveTrainImgFileName    = f'{SplitTrainPrefix}_[{self.SplitPercent}]Pcnt_{SaveImgFileName}'
-        SaveTestImgFileName     = f'{SplitTrainPrefix}_[{100 - int(self.SplitPercent)}]Pcnt_{SaveImgFileName}'
+        SaveTestImgFileName     = f'{SplitTestPrefix}_[{100 - int(self.SplitPercent)}]Pcnt_{SaveImgFileName}'
         TrainImgSavePath        = os.path.join(ResultDirPath, SaveTrainImgFileName)
         TestImgSavePath         = os.path.join(ResultDirPath, SaveTestImgFileName)
 
