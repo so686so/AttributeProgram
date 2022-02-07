@@ -81,7 +81,7 @@ Pre_Search_Remember_Path    = r"D:/PyCharm/Res_0207"
 CORE_ENCODING_FORMAT    = 'utf-8'                       # 파일 Read 할 때, 인코딩 포맷
 VALID_IMG_FORMAT        = ['.jpg', '.png', '.jpeg']     # Img 유효한 확장자
 CORE_FILTER_CONDITION   = '(Attribute[0] == "1") and (Attribute[5] == "1") and ((Attribute[7] == "1") or (Attribute[10] == "1"))'
-CUR_ZIP_CLASS_XLSX      = r"ClassData\39Class.xlsx"
+CUR_ZIP_CLASS_XLSX      = r"ClassData\24Class.xlsx"
 
 
 # SIZE_FILTER_DICT

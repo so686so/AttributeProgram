@@ -71,10 +71,10 @@ BEFORE_ZIPPED_NUM   = ZIPPED_CLASS_NUM
 
 # FILE & DIR NAME
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-ANNOTATION_ORG_TXT   = "Annotation_Origin_Class.txt"
+ANNOTATION_ORG_TXT   = "Annotation_83_Class.txt"
 ANNOTATION_ZIP_TXT   = f"Annotation_{ZIPPED_CLASS_NUM}_Class.txt"
 
-IMAGE_LIST_ORG_TXT   = "Origin_Class_ImgList.txt"
+IMAGE_LIST_ORG_TXT   = "83_Class_ImgList.txt"
 IMAGE_LIST_ZIP_TXT   = f"{ZIPPED_CLASS_NUM}_Class_ImgList.txt"
 
 CHECK_EXTRACT_TXT   = "SizeFilterList.txt"
