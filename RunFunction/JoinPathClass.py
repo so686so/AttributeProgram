@@ -47,7 +47,7 @@ validImgFormat      = copy.copy(VALID_IMG_FORMAT)
 # 결과값 저장 파일 이름
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 AddPrefixFileName   = "JoinPath"
-JoinDirPath         = r"Please Write Path This EditBox"
+JoinDirPath         = r"Please Write Path This EditBox..."
 
 
 # 파일 경로 병합 클래스

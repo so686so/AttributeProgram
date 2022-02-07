@@ -576,8 +576,15 @@ class SelectUI(QMainWindow):
                 continue
 
             add_H_Layout.addStretch(1)
-            add_H_Layout.addWidget(eachLE[LABEL_INDEX], 4)
-            add_H_Layout.addWidget(eachLE[LE_INDEX], 2)
+
+            LineEditLen = len(eachLE[LE_INDEX].text())
+            if LineEditLen >= 20:
+                add_H_Layout.addWidget(eachLE[LABEL_INDEX], 2)
+                add_H_Layout.addWidget(eachLE[LE_INDEX], 4)
+            else:
+                add_H_Layout.addWidget(eachLE[LABEL_INDEX], 4)
+                add_H_Layout.addWidget(eachLE[LE_INDEX], 2)
+
             add_H_Layout.addStretch(1)   
 
             LE_Vbox.addLayout(add_H_Layout)
