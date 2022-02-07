@@ -1,8 +1,8 @@
 """
 makeClass 결과 나온 annotation / imgList txt를 가지고 필터링하는 프로그램
 
-LAST_UPDATE : 21/11/09
-AUTHOR      : SO BYUNG JUN
+LAST_UPDATE : 2022/02/07
+AUTHOR      : SHY
 """
 
 
@@ -148,6 +148,10 @@ class FilterCondition(Singleton):
 
         if self.classNameList is None:
             error_handling('Load ClassName Failed', filename(), lineNum())
+
+        if getZipClassNum() != self.ClassNum:
+            error_handling(f'Class Mismatched! : Set Class [ {CGREEN}{getZipClassNum()}{CRESET} ] != File Class [ {CRED}{self.ClassNum}{CRESET} ]\n', filename(), lineNum())
+            sys.exit(-1)
 
 
     def setMode(self):

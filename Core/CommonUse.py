@@ -1,8 +1,8 @@
 """
 Function collection file commonly used in AttributeProgram.
 
-LAST_UPDATE : 2021/11/08
-AUTHOR      : SO BYUNG JUN
+LAST_UPDATE : 2022/02/07
+AUTHOR      : SHY
 """
 
 # Import Packages and Modules

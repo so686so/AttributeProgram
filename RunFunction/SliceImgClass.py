@@ -13,7 +13,7 @@ Classes :
             - run()
 
 LAST_UPDATE : 21/11/09
-AUTHOR      : SO BYUNG JUN
+AUTHOR      : SHY
 """
 
 

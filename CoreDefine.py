@@ -1,9 +1,9 @@
 # Program Info
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 TITLE   = 'Attribute Program'
-DATE    = '2021-11-10'
-VERSION = '1.1.0'
-IDE     = 'Visual Studio Code 1.62.0'
+DATE    = '2022-02-07'
+VERSION = '1.1.1'
+IDE     = 'Visual Studio Code 1.64.0'
 OS      = 'Windows 10'
 AUTHOR  = 'SO BYUNG JUN'
 
@@ -24,6 +24,7 @@ CORE_ERROR_STRICT   = ERROR_STRICT_SOFT # 에러 발생 시, 처리 정도를 �
 # IMPORT
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 import sys
+import re
 
 
 # PATH Defines
@@ -62,17 +63,17 @@ CrushedImgFileName          = 'CrushImg.txt'
 OriginSource_cvatXml_Path   = r"D:\PyCharm\Summer_1_32_xml"
 OriginSource_Img_Path       = r"D:\PyCharm\Summer_1_32_img"
 
-OriginSource_AnntationPath  = r"D:\PyCharm\1108RES\Annotation_39_Class.txt"
-OriginSource_ImageListPath  = r"D:\PyCharm\1108RES\39Class_ImgList.txt"
+OriginSource_AnntationPath  = r"D:\PyCharm\Res_0207\Annotation_24_Class.txt"
+OriginSource_ImageListPath  = r"D:\PyCharm\Res_0207\24_Class_ImgList.txt"
 
 OriginSource_AnalysisPath   = r"C:\PythonHN\Data\Res1107\ImageSize_Analysis_Source.txt"
 
-Result_Dir_Path             = r"D:\PyCharm\Result_1110"
+Result_Dir_Path             = r"D:\PyCharm\Res_0207"
 
 Abbreviated_Img_Path        = r"C:\PythonHN\Data\ABB TEST\condition_common_img"   # 축약시킨 이미지 들어있는 폴더
 RealExistCheck_Path         = r""
 
-Pre_Search_Remember_Path    = r"D:/PyCharm/Result_1110"
+Pre_Search_Remember_Path    = r"D:/PyCharm/Res_0207"
 
 
 # OTHER DEFINES
@@ -80,6 +81,8 @@ Pre_Search_Remember_Path    = r"D:/PyCharm/Result_1110"
 CORE_ENCODING_FORMAT    = 'utf-8'                       # 파일 Read 할 때, 인코딩 포맷
 VALID_IMG_FORMAT        = ['.jpg', '.png', '.jpeg']     # Img 유효한 확장자
 CORE_FILTER_CONDITION   = '(Attribute[0] == "1") and (Attribute[5] == "1") and ((Attribute[7] == "1") or (Attribute[10] == "1"))'
+CUR_ZIP_CLASS_XLSX      = r"ClassData\39Class.xlsx"
+
 
 # SIZE_FILTER_DICT
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -140,3 +143,8 @@ def setCoreValue(CoreName, Value):
 
 def getCoreValue(CoreName):
     return globals()[CoreName]
+
+def getZipClassNum() -> int:
+    classNumCP  = re.compile('[0-9]+')
+    classNum    = classNumCP.search(CUR_ZIP_CLASS_XLSX)
+    return int(classNum.group())

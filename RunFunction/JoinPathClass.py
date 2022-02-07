@@ -2,7 +2,7 @@
 ImgList Line 마다 경로를 추가해주는 클래스
 
 LAST_UPDATE : 21/11/09
-AUTHOR      : SO BYUNG JUN
+AUTHOR      : SHY
 """
 
 # IMPORT

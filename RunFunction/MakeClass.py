@@ -6,13 +6,13 @@ Classes :
     MakeClassSource : 
         INFO : 
             OriginXmlDirPath 경로의 Xml 파일들과, OriginImgDirPath 경로의 Img 파일들을 참조하여
-            83 / 66 / 39 Class 의 Annotation Text / Annotation_img Text 생성하는 클래스
+            83 / Zip Class 의 Annotation Text / Annotation_img Text 생성하는 클래스
 
         METHODS :
             - run()
 
-LAST_UPDATE : 21/11/09
-AUTHOR      : SO BYUNG JUN
+LAST_UPDATE : 2022/02/07
+AUTHOR      : SHY
 """
 
 
@@ -65,15 +65,18 @@ CrushedImgFilePath  = os.path.join(ResultDirPath, CrushedImgFileName)
 encodingFormat      = copy.copy(CORE_ENCODING_FORMAT)
 validImgFormat      = copy.copy(VALID_IMG_FORMAT)
 
+ZIPPED_CLASS_NUM    = getZipClassNum()
+BEFORE_ZIPPED_NUM   = ZIPPED_CLASS_NUM
+
 
 # FILE & DIR NAME
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-ANNOTATION_83_TXT   = "Annotation_83_Class.txt"
-ANNOTATION_66_TXT   = "Annotation_66_Class.txt"
-ANNOTATION_39_TXT   = "Annotation_39_Class.txt"
-IMAGE_LIST_83_TXT   = "83Class_ImgList.txt"
-IMAGE_LIST_66_TXT   = "66Class_ImgList.txt"
-IMAGE_LIST_39_TXT   = "39Class_ImgList.txt"
+ANNOTATION_ORG_TXT   = "Annotation_Origin_Class.txt"
+ANNOTATION_ZIP_TXT   = f"Annotation_{ZIPPED_CLASS_NUM}_Class.txt"
+
+IMAGE_LIST_ORG_TXT   = "Origin_Class_ImgList.txt"
+IMAGE_LIST_ZIP_TXT   = f"{ZIPPED_CLASS_NUM}_Class_ImgList.txt"
+
 CHECK_EXTRACT_TXT   = "SizeFilterList.txt"
 SIZE_ANALYSIS_TXT   = "ImageSize_Analysis_Source.txt"
 
@@ -81,9 +84,8 @@ SIZE_ANALYSIS_TXT   = "ImageSize_Analysis_Source.txt"
 # DEFINE
 # True 체크한 값만 MakeClass 작동
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-MAKE_83_CLASS       = True
-MAKE_66_CLASS       = True
-MAKE_39_CLASS       = True
+MAKE_ZIPPED_CLASS   = True
+MAKE_ORIGIN_CLASS   = True
 SIZE_FILTERING      = False
 
 CHECK_CRUSH_IMAGE   = False
@@ -105,7 +107,7 @@ SIZE_FILTERING_DICT = copy.copy(CORE_SIZE_FILTER_DICT)
 class MakeClassSource(Singleton, CvatXml):
     """
         OriginXmlDirPath 경로의 Xml 파일들과, OriginImgDirPath 경로의 Img 파일들을 참조하여
-        83 / 66 / 39 Class 의 Annotation Text / Annotation_img Text 생성하는 클래스
+        83 / Zipped Class 의 Annotation Text / Annotation_img Text 생성하는 클래스
 
         Attributes:
             MakeClassFailList    : MakeClass 가 실패한 목록들 출력하기 위한 List (type : list)
@@ -115,15 +117,15 @@ class MakeClassSource(Singleton, CvatXml):
                 makeClass[N] 을 하고 나서 annotation text ( ex) 100010001001... ) 
                 형태로 변환된 결과물들의 리스트 (type : list)
 
-            Result_83_ImageNameList :
+            Result_Origin_ImageNameList :
                 makeClass[83] 을 하고 나서 나온 imageName 들의 리스트 (type : list)
 
-            ResultDeleteUnknown_66/39_List :
-                makeClass[66/39] 를 하면서, Unknown 값이 존재하는 행들이 삭제되고 남은
+            ResultDeleteUnknown_Zip_List :
+                makeClass[Zip] 를 하면서, Unknown 값이 존재하는 행들이 삭제되고 남은
                 imageName 들의 리스트 (type : list)
 
-            Deleted_66/39_Count :
-                makeClass[66/39] 를 하면서, Unknown 값이 존재하는 행들이 삭제된 Count (type : int)
+            Deleted_Zip_Count :
+                makeClass[Zip] 를 하면서, Unknown 값이 존재하는 행들이 삭제된 Count (type : int)
             
             ClassData : ExcelData 클래스 (type : class)
 
@@ -160,16 +162,13 @@ class MakeClassSource(Singleton, CvatXml):
         self.MakeClassFailList              = []
         self.CrushImgFileNameList           = []
 
-        self.Result_83_ClassList            = []
-        self.Result_66_ClassList            = []
-        self.Result_39_ClassList            = []
+        self.Result_Origin_ClassList        = []
+        self.Result_Zip_ClassList           = []
 
-        self.Result_83_ImageNameList        = []
-        self.ResultDeleteUnknown_39_List    = []
-        self.ResultDeleteUnknown_66_List    = []
+        self.Result_Origin_ImageNameList    = []
+        self.ResultDeleteUnknown_Zip_List   = []
 
-        self.Deleted_39_Count               = 0
-        self.Deleted_66_Count               = 0
+        self.Deleted_Zip_Count              = 0
 
         self.imgSizeValueList               = []
         self.imgSizeSaveList                = []
@@ -186,7 +185,16 @@ class MakeClassSource(Singleton, CvatXml):
         # UI 연동용 인자 리스트
         self.sendArgsList                   = []
 
+        self.setClassifyClass()
         self.initializeMC()
+
+
+    def setClassifyClass(self):
+        global ZIPPED_CLASS_NUM, ANNOTATION_ZIP_TXT, IMAGE_LIST_ZIP_TXT, BEFORE_ZIPPED_NUM
+        ZIPPED_CLASS_NUM    = getZipClassNum()
+        ANNOTATION_ZIP_TXT  = ANNOTATION_ZIP_TXT.replace(str(BEFORE_ZIPPED_NUM), str(ZIPPED_CLASS_NUM))
+        IMAGE_LIST_ZIP_TXT  = IMAGE_LIST_ZIP_TXT.replace(str(BEFORE_ZIPPED_NUM), str(ZIPPED_CLASS_NUM))
+        BEFORE_ZIPPED_NUM   = ZIPPED_CLASS_NUM
 
 
     def initializeMC(self):
@@ -197,7 +205,7 @@ class MakeClassSource(Singleton, CvatXml):
             RunFuntion 의 이름을 set 하는 함수
         """
         # RunFunction 이름 지정 - 안하면 Error 뜸!
-        self.setRunFunctionName('MAKE_CLASS')
+        self.setRunFunctionName(f'MAKE_CLASS_{ZIPPED_CLASS_NUM}')
 
         # SelectUI 는 다른 initialize 이전에 시행해야 함 : 경로 변수, 판단 변수가 바뀌는 것이기 때문!
         self.selectUi    = SelectUI(self.setInitSettingSelectUI, self.getEditSettingSelectUI)
@@ -281,9 +289,8 @@ class MakeClassSource(Singleton, CvatXml):
             - CheckRealExistPath
 
             [CB]
-            - MAKE_83_CLASS
-            - MAKE_66_CLASS
-            - MAKE_39_CLASS
+            - MAKE_ORIGIN_CLASS
+            - MAKE_ZIPPED_CLASS
             - CONDITIONAL_EXTRACT
             - ORIGIN_IMG_FILES_ABBREVIATED
             - CHECK_REAL_EXIST
@@ -308,9 +315,9 @@ class MakeClassSource(Singleton, CvatXml):
                                 ['FD', 'CrushedImgFilePath',            False,  f'{CrushedImgFilePath}'],
                                 ['FD', 'CheckRealExistPath',            True,   f'{CheckRealExistPath}'],
 
-                                ['CB', 'MAKE_83_CLASS',                 False,  f'{MAKE_83_CLASS}'],
-                                ['CB', 'MAKE_66_CLASS',                 False,  f'{MAKE_66_CLASS}'],
-                                ['CB', 'MAKE_39_CLASS',                 False,  f'{MAKE_39_CLASS}'],
+                                ['CB', 'MAKE_ORIGIN_CLASS',             False,  f'{MAKE_ORIGIN_CLASS}'],
+                                ['CB', 'MAKE_ZIPPED_CLASS',             False,  f'{MAKE_ZIPPED_CLASS}'],
+                                
                                 ['CB', 'HLINE_1',                       False,  'None'],
                                 ['CB', 'SIZE_FILTERING',                False,  f'{SIZE_FILTERING}'],
                                 ['CB', 'ANALYSIS_IMAGE_SIZE',           False,  f'{ANALYSIS_IMAGE_SIZE}'],
@@ -653,49 +660,36 @@ class MakeClassSource(Singleton, CvatXml):
         # 만든 값 불러오기
         MCD                 = self.ClassData.getMakeClassDefaultData()
 
-        make83Class_Res     = ""
-        make66Class_Res     = ""
-        make39Class_Res     = ""
+        makeOrgClass_Res    = ""
+        makeZipClass_Res    = ""
 
-        isUnknownDelete_66  = False
-        isUnknownDelete_39  = False
+        isUnknownDelete_Zip = False
 
         imgName             = self.CurImgName
 
         # True 값 해둔 Case 만 실행
         # Annotation Text 값을 만들고 이때 사용한 이미지와 매칭시켜, 각각의 리스트에 저장
-        if MAKE_83_CLASS is True:
-            make83Class_PreRes, _   = self.ClassData.refineMakeClass(83, MCD)
-            make83Class_Res         = self.listToString(make83Class_PreRes)
-            self.Result_83_ClassList.append(make83Class_Res)
+        if MAKE_ORIGIN_CLASS is True:
+            makeOrgClass_PreRes, _   = self.ClassData.refineMakeClass(83, MCD)
+            makeOrgClass_Res         = self.listToString(makeOrgClass_PreRes)
+            self.Result_Origin_ClassList.append(makeOrgClass_Res)
 
-        # 66 / 39 는 Unknown 값 처리까지 같이
-        if MAKE_66_CLASS is True:
-            make66Class_PreRes, isUnknownDelete_66 = self.ClassData.refineMakeClass(66, MCD)
-            if isUnknownDelete_66 is False:
-                make66Class_Res = self.listToString(make66Class_PreRes)
-                self.Result_66_ClassList.append(make66Class_Res)
-                self.ResultDeleteUnknown_66_List.append(imgName)
+        if MAKE_ZIPPED_CLASS is True:
+            makeZipClass_PreRes, isUnknownDelete_Zip = self.ClassData.refineMakeClass(ZIPPED_CLASS_NUM, MCD)
+            if isUnknownDelete_Zip is False:
+                makeZipClass_Res = self.listToString(makeZipClass_PreRes)
+                self.Result_Zip_ClassList.append(makeZipClass_Res)
+                self.ResultDeleteUnknown_Zip_List.append(imgName)
             else:
-                self.Deleted_66_Count += 1
-
-        if MAKE_39_CLASS is True:
-            make39Class_PreRes, isUnknownDelete_39 = self.ClassData.refineMakeClass(39, MCD)
-            if isUnknownDelete_39 is False:
-                make39Class_Res = self.listToString(make39Class_PreRes)
-                self.Result_39_ClassList.append(make39Class_Res)
-                self.ResultDeleteUnknown_39_List.append(imgName)
-            else:
-                self.Deleted_39_Count += 1
+                self.Deleted_Zip_Count += 1
 
         # Default Annotation 값 자체가 83 클래스니까, 그대로 전부 다 img append 해도 됨
         # 83 클래스 만드는 데 실패할 애들은 진작에 다 걸러졌음
-        self.Result_83_ImageNameList.append(imgName)
+        self.Result_Origin_ImageNameList.append(imgName)
 
         if ANALYSIS_IMAGE_SIZE is True:
-            # 39makeClass 체크했을 때는 그게 최우선
-            if MAKE_39_CLASS is True:
-                if isUnknownDelete_39 is False:
+            if MAKE_ZIPPED_CLASS is True:
+                if isUnknownDelete_Zip is False:
                     self.imgSizeValueList.append(self.CurImgSizeList)
             else:
                 self.imgSizeValueList.append(self.CurImgSizeList)
@@ -766,17 +760,13 @@ class MakeClassSource(Singleton, CvatXml):
             RunFunction 전부 다 돌린 후 나온 결과값들을 
             각각의 저장경로로 배분해 saveMakeClassFile() 로 저장하는 함수
         """
-        if MAKE_83_CLASS is True:
-            self.saveMakeClassFile(ANNOTATION_83_TXT, self.Result_83_ClassList)
-            self.saveMakeClassFile(IMAGE_LIST_83_TXT, self.Result_83_ImageNameList)
+        if MAKE_ORIGIN_CLASS is True:
+            self.saveMakeClassFile(ANNOTATION_ORG_TXT, self.Result_Origin_ClassList)
+            self.saveMakeClassFile(IMAGE_LIST_ORG_TXT, self.Result_Origin_ImageNameList)
 
-        if MAKE_66_CLASS is True:
-            self.saveMakeClassFile(ANNOTATION_66_TXT, self.Result_66_ClassList)
-            self.saveMakeClassFile(IMAGE_LIST_66_TXT, self.ResultDeleteUnknown_66_List)
-
-        if MAKE_39_CLASS is True:
-            self.saveMakeClassFile(ANNOTATION_39_TXT, self.Result_39_ClassList)
-            self.saveMakeClassFile(IMAGE_LIST_39_TXT, self.ResultDeleteUnknown_39_List)
+        if MAKE_ZIPPED_CLASS is True:
+            self.saveMakeClassFile(ANNOTATION_ZIP_TXT, self.Result_Zip_ClassList)
+            self.saveMakeClassFile(IMAGE_LIST_ZIP_TXT, self.ResultDeleteUnknown_Zip_List)
 
         if ANALYSIS_IMAGE_SIZE is True:
             self.setImageAnalysisSaveList()
@@ -789,13 +779,12 @@ class MakeClassSource(Singleton, CvatXml):
             CvatXml 의 가상함수를 상속받아 재정의한 함수
             Result Sammary 출력하는 함수
         """
-        TotalLen_83_Img = len(self.Result_83_ClassList)
-        TotalLen_66_Img = len(self.Result_66_ClassList)
-        TotalLen_39_Img = len(self.Result_39_ClassList)
+        TotalLen_Org_Img = len(self.Result_Origin_ClassList)
+        TotalLen_Zip_Img = len(self.Result_Zip_ClassList)
+        
 
-        showLog(f'- {"Pass the ConditionCheck":<35} [{CGREEN}{TotalLen_83_Img:^8}{CRESET}]  ->  MakeClass 83 Image [{CGREEN}{TotalLen_83_Img:^8}{CRESET}]')
-        showLog(f'- {"Deleted by UnknownCheck in 66Class":<35} [{CRED}{self.Deleted_66_Count:^8}{CRESET}]  ->  MakeClass 66 Image [{CYELLOW}{TotalLen_66_Img:^8}{CRESET}]')
-        showLog(f'- {"Deleted by UnknownCheck in 39Class":<35} [{CRED}{self.Deleted_39_Count:^8}{CRESET}]  ->  MakeClass 39 Image [{CYELLOW}{TotalLen_39_Img:^8}{CRESET}]\n')
+        showLog(f'- {"Pass the ConditionCheck":<35} [{CGREEN}{TotalLen_Org_Img:^8}{CRESET}]  ->  MakeClass Origin Image [{CGREEN}{TotalLen_Org_Img:^8}{CRESET}]')
+        showLog(f'- {"Deleted by UnknownCheck in ZipClass":<35} [{CRED}{self.Deleted_Zip_Count:^8}{CRESET}]  ->  MakeClass Zipped Image [{CYELLOW}{TotalLen_Zip_Img:^8}{CRESET}]\n')
 
         self.saveMakeClassFiles()
 

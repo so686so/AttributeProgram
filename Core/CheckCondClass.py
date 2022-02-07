@@ -23,8 +23,8 @@ Classes :
             Condition Args Format :
                 [ ConditionName(str), ConditionFunction(func), ConditionGetArgsFunction(func) ]
 
-LAST_UPDATE : 2021/10/15
-AUTHOR      : SO BYUNG JUN
+LAST_UPDATE : 2022/02/07
+AUTHOR      : SHY
 """
 
 
@@ -188,7 +188,7 @@ class CheckCondition:
 
     def resetCurFailCheckByCondName(self, condName:str):
         """
-            주어진 ContiditionName 에 해당하는 Condition의 CurrentFailCount 를 0으로 초기화하는 함수
+            주어진 ConditionName 에 해당하는 Condition의 CurrentFailCount 를 0으로 초기화하는 함수
             ---------------------------------------------------------------------
             Args :
                 condName : 카운트를 리셋하고자 하는 Condition 의 ConditionName

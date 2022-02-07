@@ -1,8 +1,8 @@
 """
 어느 프로그램을 실행할지 고르는 UI
 
-LAST_UPDATE : 2021/11/05
-AUTHOR      : SO BYUNG JUN
+LAST_UPDATE : 2022/02/07
+AUTHOR      : SHY
 """
 
 
@@ -12,6 +12,7 @@ AUTHOR      : SO BYUNG JUN
 import sys
 import os
 import copy
+import re
 
 
 # Add Import Path
@@ -51,6 +52,7 @@ ProgramList =   [   'AnalysisAttribute',
                     'FilterCondition',
                 ]
 
+
 # ProgramInformationList
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 DetailList  =   [   '주어진 자료를 분석하고 엑셀 및 그래프로 출력해주는 프로그램',
@@ -60,6 +62,7 @@ DetailList  =   [   '주어진 자료를 분석하고 엑셀 및 그래프로 �
                     'ImgList들의 앞에 일괄적으로 경로를 붙여주는 프로그램',
                     'Annotation들을 Filtering & Limit Count만큼 추출하는 프로그램'
                 ]
+
 
 # ChoiceProgramUI Class
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -73,36 +76,109 @@ class ChoiceProgramUI(QMainWindow):
         self.programNameList    = []
         self.infoDict           = {}
 
+        self.excelFileList      = []
+
         self.ui                 = Ui_MainWindow()
         self.ui.setupUi(self)
 
         self.initialize()
 
+
     def initialize(self):
         self.setProgramNameList()
         self.syncComboBoxToProgramList()
+
+        self.setClassifyList()
+        self.syncComboBoxToClassifyList()
+
         self.setInfoDict()
         self.ui.detailLabel.setText(self.getProgramInformation())
 
+        self.syncCurrentClassLabel(getZipClassNum())
+
         self.ui.selectProgramComboBox.currentTextChanged.connect(self.syncDetailLabelToComboBox)
         self.ui.selectProgramBtn.clicked.connect(self.selectDone)
+        self.ui.selectClassBtn.clicked.connect(self.selectClassifyClass)
+
+
+    def selectClassifyClass(self):
+        selectPath = os.path.join('ClassData', self.ui.selectClassComboBox.currentText())
+    
+        LineSaveList = []
+        readFileToList('CoreDefine.py', LineSaveList)
+        FindLine     = 0
+
+        # Change CoreDefine.py
+        for idx, eachLine in enumerate(LineSaveList):
+            FindRes = eachLine.find('CUR_ZIP_CLASS_XLSX      =')
+            if FindRes >= 0:
+                FindLine = idx
+
+        with open('CoreDefine.py', 'w', encoding=CORE_ENCODING_FORMAT) as wf:
+            for idx, line in enumerate(LineSaveList):
+                if idx == FindLine:
+                    wf.write(f'CUR_ZIP_CLASS_XLSX      = r"{selectPath}"\n')
+                else:
+                    wf.write(f'{line}\n')
+
+        # Set Sync
+        setCoreValue('CUR_ZIP_CLASS_XLSX', selectPath)
+        self.syncCurrentClassLabel(self.getCurClassNum(selectPath))
+
+        SuccessLog(f'Class Change ---> {self.getCurClassNum(selectPath)} Class')
+
+
+    def getCurClassNum(self, classStr:str) -> int:
+        validFileCP = re.compile('[0-9]{2}')
+        findNum = validFileCP.findall(classStr)
+        return int(findNum[0])
+
 
     def setInfoDict(self):
         for idx, eachValue in enumerate(ProgramList):
+            # key = Detaillist[idx] / value = infoDict[ProgramList]
             self.infoDict[eachValue] = DetailList[idx]
+
 
     def getProgramInformation(self):
         return self.infoDict[self.ui.selectProgramComboBox.currentText()]
 
+
     def setProgramNameList(self):
         for eachValue in ProgramList:
             self.programNameList.append(eachValue)
+
+
+    def setClassifyList(self):
+        CheckExistDir('ClassData')
+
+        validFileCP = re.compile('^[0-9]+')
+
+        for eachFile in os.listdir('ClassData'):
+            # 현재 열려있는 엑셀 파일이 ~$39Class.xlsx 형식으로 나와버리기 때문에, 그거 거르는 정규표현식 Search
+            reFile = validFileCP.search(eachFile)
+
+            if reFile is not None:
+                self.excelFileList.append(eachFile)
+
+
+    def syncComboBoxToClassifyList(self):
+        self.ui.selectClassComboBox.addItems(self.excelFileList)
 
     def syncComboBoxToProgramList(self):
         self.ui.selectProgramComboBox.addItems(self.programNameList)
 
     def syncDetailLabelToComboBox(self):
         self.ui.detailLabel.setText(self.getProgramInformation())
+
+    def syncCurrentClassLabel(self, classNum):
+        self.ui.currentClassLabel.setText(f'{classNum} Class')
+
+        self.ui.currentClassLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        LabelFont = self.ui.currentClassLabel.font()
+        LabelFont.setBold(True)
+        LabelFont.setPointSize(15)
+        self.ui.currentClassLabel.setFont(LabelFont)
 
     def selectDone(self):
         self.res = self.ui.selectProgramComboBox.currentText()

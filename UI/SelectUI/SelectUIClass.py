@@ -2,7 +2,7 @@
 각 프로그램 시행 시 경로/조건 인자들을 선택하는 UI
 
 LAST_UPDATE : 2021/10/15
-AUTHOR      : SO BYUNG JUN
+AUTHOR      : SHY
 """
 
 

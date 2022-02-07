@@ -2,7 +2,7 @@
 cvatXml 파일과 그에 해당하는 img 원본 경로를 받아서 분석하는 코드
 
 LAST_UPDATE : 21/11/09
-AUTHOR      : SO BYUNG JUN
+AUTHOR      : SHY
 """
 
 

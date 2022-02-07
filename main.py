@@ -1,10 +1,10 @@
 # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 # *  TITLE        |  Attribute Program                        *
-# *  DATE         |  2021-11-10                               *
-# *  VERSION      |  1.1.0                                    *
-# *  IDE          |  Visual Studio Code 1.62.0                *
+# *  DATE         |  2022-02-07                               *
+# *  VERSION      |  1.1.1                                    *
+# *  IDE          |  Visual Studio Code 1.64.0                *
 # *  OS           |  Windows 10                               *
-# *  AUTHOR       |  SO BYUNG JUN                             *
+# *  AUTHOR       |  SHY                                      *
 # *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 

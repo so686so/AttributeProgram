@@ -15,8 +15,8 @@ Need Installed Package :
     - pandas
     - openpyxl
 
-LAST_UPDATE : 2021/11/08
-AUTHOR      : SO BYUNG JUN
+LAST_UPDATE : 2022/02/07
+AUTHOR      : SHY
 """
 
 # IMPORT
@@ -40,35 +40,18 @@ from Core.SingletonClass    import Singleton
 import pandas as pd
 
 
-# EXCEL PATH
-# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-EXCEL_PATH = r"classData.xlsx"
-
-
 # CONST DEFINE
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-"""
-[ 만약 MAKE_25_CLASS 를 새로 만든다면... ]  
-ADD :
-    - DELETE_VALUE_25CLASS      = 3
-    - DELETE_LIST_25CLASS_IDX   = 2
+DEFAULT_CLASS_NUM           = 83
+MAKECLASS_MAX_CNT           = 2
 
-EDIT :
-    - MAKECLASS_MAX_CNT = 4
-"""
-DEFAULT_CLASS_NUM       = 83
-MAKECLASS_MAX_CNT       = 3
+DELETE_VALUE_ZIP_CLASS      = 1
+DELETE_LIST_ZIP_CLASS_IDX   = 0
 
-DELETE_VALUE_66CLASS    = 1
-DELETE_VALUE_39CLASS    = 2
-
-DELETE_LIST_66CLASS_IDX = 0
-DELETE_LIST_39CLASS_IDX = 1
-
-FIX_HAT_ANNOTATE_ERROR  = True
-HATLESS_IDX             = 29
-EQUIPED_HAT_START_IDX   = 31
-EQUIPED_HAT_END_IDX     = 41
+FIX_HAT_ANNOTATE_ERROR      = False
+HATLESS_IDX                 = 29
+EQUIPED_HAT_START_IDX       = 31
+EQUIPED_HAT_END_IDX         = 41
 
 
 # ExcelData Class
@@ -87,23 +70,25 @@ class ExcelData(Singleton):
 
         mergeDict : 
             ClassData Sheet 에서 mergedIdx 값에 따른
-            MergeData Sheet 의 실제 mergeIdx_66 / mergeIdx_39 값을 매칭시킨 Dict
-            mergedIdx 가 1, 2.. 일 때 66 / 39 Class 에서 실제 어떤 Idx 값으로 Merge 되는지
+            MergeData Sheet 의 실제 mergeIdx 값을 매칭시킨 Dict
+            mergedIdx 가 1, 2.. 일 때 Zip Class 에서 실제 어떤 Idx 값으로 Merge 되는지
             - key   : ClassData Sheet - mergedIdx (type : int)
-            - value : MergeData Sheet - [mergeIdx_66, mergeIdx_39] (type : list)
+            - value : MergeData Sheet - [mergeIdx_zip] (type : list)
         mergeList :
             ClassData Sheet 에서 어떤 Idx 들이 Merge 되는지를 리스트화 (type : 2D list)
             mergedIdx = 1 일때, mergeList[0] 에 append
             mergedIdx = 2 일때, mergeList[1] 에 append  <- mergedIdx = 0 은 Not Merge 이므로 한칸씩 당겨서 기입
+            // Zip 단일 클래스화로 변경함 -> 클래스 별 압축 규칙이 없어서 알고리즘 못짬;
 
         unknownList :
             unknownDeleted 값이 1인 idx 들을 저장하는 List
-            MakeClass 66/39 할 때 해당 idx 들은 삭제
+            MakeClass Zip 할 때 해당 idx 들은 삭제
 
         deleteList :
             ClassData Sheet 에서 어떤 Idx 들이 Delete 되는지를 리스트화 (type : 2D list)
             isDeleted = 1 일때, deleteList[1], deleteList[0] 에 append
             isDeleted = 2 일때, deleteList[1] 에 append
+            // Zip 단일 클래스화로 변경함 -> 클래스 별 압축 규칙이 없어서 알고리즘 못짬;
 
         defaultClassNameDict :
             - key   : Class Idx (type : int)
@@ -131,21 +116,25 @@ class ExcelData(Singleton):
             pandas 의 read_excel 함수를 이용해서 classData.xlsx 의 시트들을 읽고,
             기초 전처리 및 에러 처리하는 init 부분
         """
-        CheckExistFile(EXCEL_PATH)
+        self.ExcelPath    = r""
+        self.ZipClassNum  = 0
 
-        self.df_ClassData = pd.read_excel(EXCEL_PATH, sheet_name='ClassData')
-        self.df_MergeData = pd.read_excel(EXCEL_PATH, sheet_name='MergeData')
-        self.df_NameData  = pd.read_excel(EXCEL_PATH, sheet_name='NameData')
-        self.df_CtgrData  = pd.read_excel(EXCEL_PATH, sheet_name='CategoryData')
+        self.syncValueBeforeInit()
+
+        CheckExistFile(self.ExcelPath)
+
+        self.df_ClassData = pd.read_excel(self.ExcelPath, sheet_name='ClassData')
+        self.df_MergeData = pd.read_excel(self.ExcelPath, sheet_name='MergeData')
+        self.df_NameData  = pd.read_excel(self.ExcelPath, sheet_name='NameData')
+        self.df_CtgrData  = pd.read_excel(self.ExcelPath, sheet_name='CategoryData')
 
         self.IdxDict    = {}
         self.DataDict   = {}
         self.mergeDict  = {}
         self.mergeList  = []
 
-        self.class83NameDict = {}
-        self.class66NameDict = {}
-        self.class39NameDict = {}
+        self.orginClassNameDict = {}
+        self.zipClassNameDict   = {}
 
         self.unknownList    = []
         self.deleteList     = [ [] for _ in range(1, MAKECLASS_MAX_CNT) ]
@@ -162,7 +151,12 @@ class ExcelData(Singleton):
         self.pretreatmentNameData()
         self.pretreatmentCategoryNameData()
 
-        SuccessLog('ExcelData Set Done')
+        SuccessLog(f'ExcelData Set Done - \'{self.ExcelPath}\'')
+
+    
+    def syncValueBeforeInit(self):
+        self.ExcelPath      = getCoreValue('CUR_ZIP_CLASS_XLSX')
+        self.ZipClassNum    = getZipClassNum()
 
 
     def checkDefaultClassNum(self):
@@ -188,25 +182,14 @@ class ExcelData(Singleton):
         MergeIdxNum = len(self.df_MergeData)
 
         # 나중에 Merge 시킬 추가 MakeClass 생기면 여기도 조절해 적어야함!
-        """
-        [ 만약 MAKE_25_CLASS 를 새로 만든다면... ]  
-        ADD :
-            - MergeData 시트에 mergeIdx_25 ROWS 추가
-            - curMerge25Idx = self.df_MergeData.loc[idx]['mergeIdx_25'] 추가
-        
-        EDIT :
-            - ClassData 시트에서 새로 merge 되는 idx 들의 mergedIdx 3 으로 기입
-            - self.mergeDict[curOriginIdx] = [curMerge66Idx, curMerge39Idx, curMerge25Idx]
-        """
         TotalOriginList     = self.df_MergeData['originIdx'].tolist()
-        Total66MergList     = self.df_MergeData['mergeIdx_66'].tolist()
-        Total39MergList     = self.df_MergeData['mergeIdx_39'].tolist()
+        TotalMergeList      = self.df_MergeData['mergeIdxZip'].tolist()
 
         for idx in range(0, MergeIdxNum):
             curOriginIdx    = TotalOriginList[idx]
-            curMerge66Idx   = Total66MergList[idx]
-            curMerge39Idx   = Total39MergList[idx]
-            self.mergeDict[curOriginIdx] = [curMerge66Idx, curMerge39Idx]
+            curMergeIdx     = TotalMergeList[idx]
+
+            self.mergeDict[curOriginIdx] = [curMergeIdx]
 
         self.mergeList = [ [] for _ in range(0, MergeIdxNum) ]
 
@@ -215,17 +198,18 @@ class ExcelData(Singleton):
         """
             엑셀 파일 중 NameData 시트에 해당하는 부분 전처리하는 함수
         """
-        Total83NameList     = self.df_NameData['class83'].tolist()
-        Total66NameList     = self.df_NameData['class66'].tolist()
-        Total39NameList     = self.df_NameData['class39'].tolist()
+        TotalOrgNameList     = self.df_NameData['class83'].tolist()
+        TotalZipNameList     = self.df_NameData['classZip'].tolist()
 
         for idx in range(DEFAULT_CLASS_NUM):
-            self.class83NameDict[idx] = Total83NameList[idx]
-            self.class66NameDict[idx] = Total66NameList[idx]
-            self.class39NameDict[idx] = Total39NameList[idx]
+            self.orginClassNameDict[idx] = TotalOrgNameList[idx]
+            self.zipClassNameDict[idx]   = TotalZipNameList[idx]
 
 
     def pretreatmentCategoryNameData(self):
+        """
+            엑셀 파일 중 CategoryData 시트에 해당하는 부분 전처리하는 함수
+        """
         CategoryIdxNum      = len(self.df_CtgrData)
         TotalCtIdxList      = self.df_CtgrData['categoryIdx'].tolist()
         TotalCtNameList     = self.df_CtgrData['categoryName'].tolist()
@@ -261,47 +245,29 @@ class ExcelData(Singleton):
             curCategory     = TotalCategoryList[idx]
 
             # 나중에 Merge/Delete 시킬 추가 MakeClass 생기면 여기도 조절해 적어야함!
-            """
-            [ 만약 MAKE_25_CLASS 를 새로 만든다면... ]  
-            COND : 
-                신규 추가된 isDeleted 3 값에 대해서는, 
-                기존 isDeleted 2 값 규칙처럼 1 과 2 를 기입한 것도 삭제된다고 간주
-
-            EDIT :
-                if curIsDelete == DELETE_VALUE_66CLASS:
-                    self.deleteList[DELETE_LIST_66CLASS_IDX].append(idx)
-                    self.deleteList[DELETE_LIST_39CLASS_IDX].append(idx)
-                    self.deleteList[DELETE_LIST_25CLASS_IDX].append(idx)    # ADD
-                elif curIsDelete == DELETE_VALUE_39CLASS:
-                    self.deleteList[DELETE_LIST_39CLASS_IDX].append(idx)
-                    self.deleteList[DELETE_LIST_25CLASS_IDX].append(idx)    # ADD
-                elif curIsDelete == DELETE_VALUE_25CLASS:                   # ADD
-                    self.deleteList[DELETE_LIST_25CLASS_IDX].append(idx)    # ADD
-            """
             if curMergeIdx > 0:
                 # mergedIdx 가 1부터 시작하기 때문에(0은 Not Merge)
                 # mergeList 에 추가할 때 한 칸씩 당겨서 append 해야 함
                 self.mergeList[curMergeIdx-1].append(idx)
 
-            if curIsDelete == DELETE_VALUE_66CLASS:
-                # MakeClass66 에서 지워지는 값은 MakeClass39에서도 지워짐
-                self.deleteList[DELETE_LIST_66CLASS_IDX].append(idx)
-                self.deleteList[DELETE_LIST_39CLASS_IDX].append(idx)
-            elif curIsDelete == DELETE_VALUE_39CLASS:
-                self.deleteList[DELETE_LIST_39CLASS_IDX].append(idx)
+            if curIsDelete == DELETE_VALUE_ZIP_CLASS:
+                self.deleteList[DELETE_LIST_ZIP_CLASS_IDX].append(idx)
 
             if curUnKnown > 0:
                 self.unknownList.append(idx)
 
+            # Ex) self.categoryDict[28] = 5
             self.categoryDict[idx] = curCategory
 
             # IMPORTANT! : {curAttName}/{curAttText} 형태로 idxDict key-value 저장
             # Ex) self.IdxDict['hat/hood'] = 28
             self.IdxDict[f'{curAttName}/{curAttText}'] = idx
 
+            # Ex) self.DataDict[hood] = [hat, hood]
             self.DataDict[className] = [curAttName, curAttText]
 
             # idx - className
+            # Ex) self.defaultClassNameDict[28] = hood
             self.defaultClassNameDict[idx] = className
 
 
@@ -323,16 +289,16 @@ class ExcelData(Singleton):
         try:
             # Text 값이 "true" 일때 : true/false 값으로만 구성되어있는 AttText 라면 AttName 으로만 값 판별하는 Element
             if AttElem_AttText == "true":
-                param = f'{AttElem_AttName}/None'
+                param = f'{AttElem_AttName}/None'                 # <attribute name="shoulderbag">true</attribute>
 
             # Attribute.text 값이 false 라면 어차피 해당 idx 값 0 이니까 그냥 바로 return
-            elif AttElem_AttText == "false":
+            elif AttElem_AttText == "false":                      # <attribute name="handbag">false</attribute>
                 return True
 
             # 따로 AttText 존재하는 인자값이라면, 
             # self.IdxDict[f'{curAttName}/{curAttText}'] = idx 해둔 것 참조해서 0/1 기입!
             else:
-                param = f'{AttElem_AttName}/{AttElem_AttText}'
+                param = f'{AttElem_AttName}/{AttElem_AttText}'    # <attribute name="age">20~70</attribute>
 
             # 만약 AttElem_AttName/AttElem_AttText 조합이 IdxDict 에 없다면 여기서 오류 발생
             getIdx = self.IdxDict[param]
@@ -350,7 +316,7 @@ class ExcelData(Singleton):
             MakeClass 할 클래스 넘버값 받아서, MakeClassDefaultData 를 83/66/39 MakeClass 로 변환하는 함수
             ---------------------------------------------------------------------
             Args :
-                ClassNum : MakeClass Num 값 - 83 / 66 / 39 ...
+                ClassNum : MakeClass Num 값
                 makeClassDefaultList : getMakeClassDefaultData() 값
                     - Type Example : [1, 0, 0, 0, 1, 1, ...]
                     - 해당 클래스가 아닌 다른 클래스에서도 refineMakeClass() 를 유연하게 사용하기 위함 
@@ -371,6 +337,7 @@ class ExcelData(Singleton):
                 - MergeValue :
                     mergeDict 에서 어떤 하위 List 를 불러올지 결정하는 변수
                     ( mergeIdx_66 걸 불러올지, mergeIdx_39 걸 불러올지...)
+                    // Zip 단일 클래스화로 변경함 -> 클래스 별 압축 규칙이 없어서 알고리즘 못짬;
                     ClassNum 에 따라 정의
                 - mergeValueList :
                     MergeData Sheet 에서, mergeIdx_{ClassNum} 열 리스트       
@@ -380,20 +347,13 @@ class ExcelData(Singleton):
         DeleteValue         = 0
         isUnknownDelete     = False
 
-        # 차후 다른 MakeClass Num. 추가할거면, 여기도 수정해야함!
-        """
-        [ 만약 MAKE_25_CLASS 를 새로 만든다면... ]  
-        ADD :
-            elif ClassNum == 25:
-                DeleteValue = DELETE_LIST_25CLASS_IDX
-        """
-        # refineClassNum == 83 이라면 그대로 return
-        if ClassNum == 83:
+        UNKNOWN_SHOES_IDX   = 82
+
+        # refineClassNum == DEFAULT_CLASS_NUM 이라면 그대로 return
+        if ClassNum == DEFAULT_CLASS_NUM:
             return makeClassDefaultList, isUnknownDelete
-        elif ClassNum == 66:
-            DeleteValue = DELETE_LIST_66CLASS_IDX
-        elif ClassNum == 39:
-            DeleteValue = DELETE_LIST_39CLASS_IDX
+        elif ClassNum == self.ZipClassNum:
+            DeleteValue = DELETE_LIST_ZIP_CLASS_IDX
         else:
             error_handling(f'{ClassNum} Class is Not Define', filename(), lineNum())
             return None, False
@@ -401,20 +361,23 @@ class ExcelData(Singleton):
         MergeValue      = DeleteValue
         mergeValueList  = [ each[MergeValue] for each in list(self.mergeDict.values()) ]
 
-        for idx, eachValue in enumerate(makeClassDefaultList):
+        for idx, eachValue in enumerate(makeClassDefaultList):    # makeClassDefaultList == MakeClassDefaultData [0, 1, 0, 0, 1, 0, 0, ...]
+            # ClassData sheet > unknownDeleted
             # if Unknwon Value == 1, return isUnknownDelete is True
             if idx in self.unknownList:
-                if eachValue == 1:
+                # ! 하드 코딩 !
+                # shoescolodrdk == 1 이어도, 이미지 삭제하지 말고 살리기
+                if eachValue == 1 and idx != UNKNOWN_SHOES_IDX:
                     isUnknownDelete = True
                     # 하나라도 Unknown 값이 유효할 시, 바로 리턴시켜서 해당 행 삭제
                     return None, isUnknownDelete
 
-            # Delete
+            # ClassData sheet > isDeleted
             # deleteList 내부에 있는 idx 값이라면 refine 된 MakeClass 에는 포함 안 됨 -> curEditIdx 증가 X (SKIP)
             if idx in self.deleteList[DeleteValue]:
-                continue    # Not Increase 66/39Class Idx(curEditIdx)
+                continue    # Not Increase ZipClass Idx(curEditIdx)
 
-            # Merge
+            # ClassData sheet > mergedIdx
             if curEditIdx in mergeValueList:
                 curEditIdx += 1
 
@@ -428,7 +391,7 @@ class ExcelData(Singleton):
                     mergedResIdx    = self.mergeDict[mergeDictIdx+1][MergeValue]
                     preValue        = ClassOther_ResList[mergedResIdx]
                     ClassOther_ResList[mergedResIdx] = ( preValue | eachValue )
-                    isMerged        = True  # Not Increase 66/39Class Idx(curEditIdx)
+                    isMerged        = True  # Not Increase ZipClass Idx(curEditIdx)
 
             # Merge 시켰으면, curEditIdx 그대로 놔둬야 하기 때문에 continue : Delete와 비슷한 맥락
             if isMerged is True:
@@ -436,7 +399,6 @@ class ExcelData(Singleton):
 
             # Merge / Delete 아닐 경우에만 신규 MakeClass Idx 인 curEditIdx 자리값에 값 기입하고, 다음 Idx 로 ++
             ClassOther_ResList[curEditIdx] = eachValue
-            # Increase 66Class Idx
             curEditIdx += 1
 
         return ClassOther_ResList, isUnknownDelete
@@ -464,10 +426,10 @@ class ExcelData(Singleton):
                 pass
 
         # FIX_HAT_ANNOTATE_ERROR 값이 참일 경우, Annotator 측 HatError 교정
-        # Headless 값이 1 인데도, Hat Color 중 하나에 체크가 되어있을 때 전부 다 0 값으로 수정
-        if (FIX_HAT_ANNOTATE_ERROR is True) and (self.MakeClassDefaultData[HATLESS_IDX] == 1):
-            if sum(self.MakeClassDefaultData[EQUIPED_HAT_START_IDX:EQUIPED_HAT_END_IDX]) > 0:
-                for i in range(EQUIPED_HAT_START_IDX, EQUIPED_HAT_END_IDX):
+        # Hatless 값이 1 인데도, Hat Color 중 하나에 체크가 되어있을 때 전부 다 0 값으로 수정
+        if (FIX_HAT_ANNOTATE_ERROR is True) and (self.MakeClassDefaultData[HATLESS_IDX] == 1): # nohat(29) == 1 인데
+            if sum(self.MakeClassDefaultData[EQUIPED_HAT_START_IDX:EQUIPED_HAT_END_IDX]) > 0:  # hatred ~ hatcolordk == 1 이면
+                for i in range(EQUIPED_HAT_START_IDX, EQUIPED_HAT_END_IDX):                    # hatred ~ hatcolordk == 0 으로 고치기
                     self.MakeClassDefaultData[i] = 0
 
 
@@ -506,31 +468,25 @@ class ExcelData(Singleton):
 
 
     def getClassNameDictByClassNum(self, classNum):
-        if classNum == 83:
-            return self.class83NameDict
-        elif classNum == 66:
-            return self.class66NameDict
-        elif classNum == 39:
-            return self.class39NameDict
+        if classNum == DEFAULT_CLASS_NUM:
+            return self.orginClassNameDict
+        elif classNum == self.ZipClassNum:
+            return self.zipClassNameDict
         else:
             return None
 
     def getClassNameListByClassNum(self, classNum):
         classNameList = []
-        if classNum == 83:
-            for idx in range(83):
-                classNameList.append(self.class83NameDict[idx])
-        elif classNum == 66:
-            for idx in range(66):
-                classNameList.append(self.class66NameDict[idx])
-        elif classNum == 39:
-            for idx in range(39):
-                classNameList.append(self.class39NameDict[idx])
+        if classNum == DEFAULT_CLASS_NUM:
+            for idx in range(DEFAULT_CLASS_NUM):
+                classNameList.append(self.orginClassNameDict[idx])
+        elif classNum == self.ZipClassNum:
+            for idx in range(self.ZipClassNum):
+                classNameList.append(self.zipClassNameDict[idx])        
         else:
             return None
         return classNameList
 
 
     def getClassDataTotal(self):
-        # [39ClassNameDict, 66ClassNameDict, 83ClassNameDict, DataDict]
-        return [self.class39NameDict, self.class66NameDict, self.class83NameDict, self.DataDict]
+        return [self.zipClassNameDict,self.orginClassNameDict, self.DataDict]

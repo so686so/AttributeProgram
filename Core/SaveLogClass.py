@@ -2,7 +2,7 @@
 ConditionCheck Error 를 엑셀로 저장하는 클래스
 
 LAST_UPDATE : 2021/11/08
-AUTHOR      : SO BYUNG JUN
+AUTHOR      : SHY
 """
 
 

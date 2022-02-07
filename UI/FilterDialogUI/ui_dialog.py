@@ -3,9 +3,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 from Core.CommonUse import NoticeLog
-
-ClassSort   = ['39CLASS', '66CLASS', '83CLASS']
-ClassNum    = [39, 66, 83]
+from CoreDefine     import *
 
 SubSelect   = ['-Select-', 'True', 'False']
 
@@ -19,6 +17,10 @@ class ConditionFilterDialog(QtWidgets.QDialog):
     def __init__(self, defaultString, classNameList):
         super().__init__()
 
+        self.classSortList      = []
+        self.classNumList       = []
+        self.classSync()
+
         self.FinalCondition     = defaultString
         self.TotalclassNameList = classNameList
         self.curClassNameList   = self.classNameDictToList(0)
@@ -28,6 +30,11 @@ class ConditionFilterDialog(QtWidgets.QDialog):
 
         self.initUI()
         self.setConnect()
+
+
+    def classSync(self):
+        self.classSortList = [f'{getZipClassNum()}CLASS', '83CLASS']
+        self.classNumList  = [getZipClassNum(), 83]
 
 
     def initUI(self):
@@ -41,7 +48,7 @@ class ConditionFilterDialog(QtWidgets.QDialog):
             eachLine.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
 
         self.selectClassComboBox    = QtWidgets.QComboBox()
-        self.selectClassComboBox.addItems(ClassSort)
+        self.selectClassComboBox.addItems(self.classSortList)
         self.selectClassComboBox.setCurrentIndex(0)
 
         self.selectClassBtn         = QtWidgets.QPushButton('Select')
@@ -148,7 +155,7 @@ class ConditionFilterDialog(QtWidgets.QDialog):
 
     def classNameDictToList(self, Idx):
         classNameList = []
-        for eachIdx in range(ClassNum[Idx]):
+        for eachIdx in range(self.classNumList[Idx]):
             classNameList.append(f'{self.TotalclassNameList[Idx][eachIdx]}[{eachIdx}]')
 
         return classNameList
@@ -164,7 +171,7 @@ class ConditionFilterDialog(QtWidgets.QDialog):
         self.subSelectComboBox.setCurrentIndex(0)
         self.TokenLE.clear()
 
-        self.showDetailLabel.setText(f'- Class Changed : {ClassSort[curIdx]}')
+        self.showDetailLabel.setText(f'- Class Changed : {self.classSortList[curIdx]}')
 
     
     def onClickTokenizerBtn(self):
