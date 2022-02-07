@@ -1,16 +1,6 @@
 """
 Class code that reads, stores, and processes data for MakeClass in an Excel file
 
-Classes :
-    ExcelData : 
-        INFO : 
-            pandas 를 이용해서 Excel 내부 ClassData 와 MergeData 를 읽고 처리하는 클래스
-        METHODS :
-            - setMakeClassDefaultData(AttributeList)
-            - getMakeClassDefaultData()
-            - refineMakeClass(ClassNum)
-            - getClassNameDict()
-
 Need Installed Package :
     - pandas
     - openpyxl
@@ -26,7 +16,7 @@ AUTHOR      : SHY
 
 # Refer to CoreDefine.py
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-from CoreDefine import *
+from CoreDefine             import *
 
 
 # IMPORT CORE
@@ -37,7 +27,7 @@ from Core.SingletonClass    import Singleton
 
 # INSTALLED PACKAGE IMPORT
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-import pandas as pd
+import pandas               as pd
 
 
 # CONST DEFINE
@@ -48,7 +38,7 @@ MAKECLASS_MAX_CNT           = 2
 DELETE_VALUE_ZIP_CLASS      = 1
 DELETE_LIST_ZIP_CLASS_IDX   = 0
 
-FIX_HAT_ANNOTATE_ERROR      = False
+FIX_HAT_ANNOTATE_ERROR      = True
 HATLESS_IDX                 = 29
 EQUIPED_HAT_START_IDX       = 31
 EQUIPED_HAT_END_IDX         = 41
@@ -111,6 +101,7 @@ class ExcelData(Singleton):
         - getMakeClassDefaultData()
         - getClassNameDict()
     """
+
     def __init__(self):
         """
             pandas 의 read_excel 함수를 이용해서 classData.xlsx 의 시트들을 읽고,
@@ -137,7 +128,7 @@ class ExcelData(Singleton):
         self.zipClassNameDict   = {}
 
         self.unknownList    = []
-        self.deleteList     = [ [] for _ in range(1, MAKECLASS_MAX_CNT) ]
+        self.deleteList     = []
 
         self.MakeClassDefaultData  = [ 0 for _ in range(DEFAULT_CLASS_NUM) ]
         self.defaultClassNameDict  = {}
@@ -181,7 +172,6 @@ class ExcelData(Singleton):
         """
         MergeIdxNum = len(self.df_MergeData)
 
-        # 나중에 Merge 시킬 추가 MakeClass 생기면 여기도 조절해 적어야함!
         TotalOriginList     = self.df_MergeData['originIdx'].tolist()
         TotalMergeList      = self.df_MergeData['mergeIdxZip'].tolist()
 
@@ -189,9 +179,9 @@ class ExcelData(Singleton):
             curOriginIdx    = TotalOriginList[idx]
             curMergeIdx     = TotalMergeList[idx]
 
-            self.mergeDict[curOriginIdx] = [curMergeIdx]
+            self.mergeDict[curOriginIdx] = curMergeIdx
 
-        self.mergeList = [ [] for _ in range(0, MergeIdxNum) ]
+        self.mergeList = [ [] for _ in range(0, MergeIdxNum) ]  # 각 merge 결과 값에 대해 여러 개의 merge 되는 값들이 존재하기 때문에 2D List 
 
 
     def pretreatmentNameData(self):
@@ -244,14 +234,13 @@ class ExcelData(Singleton):
             curUnKnown      = TotalUnKnownList[idx]
             curCategory     = TotalCategoryList[idx]
 
-            # 나중에 Merge/Delete 시킬 추가 MakeClass 생기면 여기도 조절해 적어야함!
             if curMergeIdx > 0:
                 # mergedIdx 가 1부터 시작하기 때문에(0은 Not Merge)
                 # mergeList 에 추가할 때 한 칸씩 당겨서 append 해야 함
                 self.mergeList[curMergeIdx-1].append(idx)
 
             if curIsDelete == DELETE_VALUE_ZIP_CLASS:
-                self.deleteList[DELETE_LIST_ZIP_CLASS_IDX].append(idx)
+                self.deleteList.append(idx)
 
             if curUnKnown > 0:
                 self.unknownList.append(idx)
@@ -313,7 +302,7 @@ class ExcelData(Singleton):
 
     def refineMakeClass(self, ClassNum, makeClassDefaultList:list):
         """
-            MakeClass 할 클래스 넘버값 받아서, MakeClassDefaultData 를 83/66/39 MakeClass 로 변환하는 함수
+            MakeClass 할 클래스 넘버값 받아서, MakeClassDefaultData 를 83 / zipped MakeClass 로 변환하는 함수
             ---------------------------------------------------------------------
             Args :
                 ClassNum : MakeClass Num 값
@@ -331,20 +320,9 @@ class ExcelData(Singleton):
                 - isUnknownDelete : 
                     해당 값이 True 일 경우, 주어진 makeClassDefaultList 에 unknown 속성이 있기 때문에
                     결과적으로 해당 Annotation Line 은 삭제될 것
-                - DeleteValue :
-                    2D List 인 deleteList 에서 어떤 List 를 불러올지 결정하는 변수
-                    ClassNum 에 따라 정의
-                - MergeValue :
-                    mergeDict 에서 어떤 하위 List 를 불러올지 결정하는 변수
-                    ( mergeIdx_66 걸 불러올지, mergeIdx_39 걸 불러올지...)
-                    // Zip 단일 클래스화로 변경함 -> 클래스 별 압축 규칙이 없어서 알고리즘 못짬;
-                    ClassNum 에 따라 정의
-                - mergeValueList :
-                    MergeData Sheet 에서, mergeIdx_{ClassNum} 열 리스트       
         """
         ClassOther_ResList  = [ 0 for _ in range(ClassNum) ]
-        curEditIdx          = 0
-        DeleteValue         = 0
+        curEditIdx          = 0                                 # 얘가 makeClass로 만들어진 zipped Class 의 idx!
         isUnknownDelete     = False
 
         UNKNOWN_SHOES_IDX   = 82
@@ -352,32 +330,30 @@ class ExcelData(Singleton):
         # refineClassNum == DEFAULT_CLASS_NUM 이라면 그대로 return
         if ClassNum == DEFAULT_CLASS_NUM:
             return makeClassDefaultList, isUnknownDelete
-        elif ClassNum == self.ZipClassNum:
-            DeleteValue = DELETE_LIST_ZIP_CLASS_IDX
-        else:
+        # DEFAULT_CLASS_NUM 도 self.ZipClassNum 도 아니면 에러
+        elif ClassNum != self.ZipClassNum:
             error_handling(f'{ClassNum} Class is Not Define', filename(), lineNum())
             return None, False
 
-        MergeValue      = DeleteValue
-        mergeValueList  = [ each[MergeValue] for each in list(self.mergeDict.values()) ]
+        mergeValueList      = list(self.mergeDict.values())
 
         for idx, eachValue in enumerate(makeClassDefaultList):    # makeClassDefaultList == MakeClassDefaultData [0, 1, 0, 0, 1, 0, 0, ...]
-            # ClassData sheet > unknownDeleted
+            # ClassData sheet -> unknownDeleted
             # if Unknwon Value == 1, return isUnknownDelete is True
             if idx in self.unknownList:
                 # ! 하드 코딩 !
                 # shoescolodrdk == 1 이어도, 이미지 삭제하지 말고 살리기
                 if eachValue == 1 and idx != UNKNOWN_SHOES_IDX:
                     isUnknownDelete = True
-                    # 하나라도 Unknown 값이 유효할 시, 바로 리턴시켜서 해당 행 삭제
+                    # 하나라도 Unknown 값이 유효할 시, 바로 리턴시켜서 해당 행 삭제 <- 여기서 너무 많이 삭제될텐데?
                     return None, isUnknownDelete
 
-            # ClassData sheet > isDeleted
+            # ClassData sheet -> isDeleted
             # deleteList 내부에 있는 idx 값이라면 refine 된 MakeClass 에는 포함 안 됨 -> curEditIdx 증가 X (SKIP)
-            if idx in self.deleteList[DeleteValue]:
+            if idx in self.deleteList:
                 continue    # Not Increase ZipClass Idx(curEditIdx)
 
-            # ClassData sheet > mergedIdx
+            # ClassData sheet -> mergedIdx : Merge된 idx로 예약이 되어있기 때문에, 해당 idx 넘김
             if curEditIdx in mergeValueList:
                 curEditIdx += 1
 
@@ -388,7 +364,7 @@ class ExcelData(Singleton):
                     # Ex) Make39Class 에서 [08]nobackpack / [11]nocap 자리!
                     # mergeDictIdx +1 시키는 이유 : MergeIdx 0 은 Not Merge 에 할당되어 있어서, 유효 mergeDict key 1 부터 시작
                     # 비트 연산(or)으로 계산하는 이유 : Merge 되는 값들 중 하나라도 1 일 때, Merge 된 값이 1 이어야 해서
-                    mergedResIdx    = self.mergeDict[mergeDictIdx+1][MergeValue]
+                    mergedResIdx    = self.mergeDict[mergeDictIdx+1]
                     preValue        = ClassOther_ResList[mergedResIdx]
                     ClassOther_ResList[mergedResIdx] = ( preValue | eachValue )
                     isMerged        = True  # Not Increase ZipClass Idx(curEditIdx)
@@ -422,6 +398,7 @@ class ExcelData(Singleton):
         # Attribute List 하나씩 돌면서 MakeClassDefaultData 에 set 시키기
         for AttElem in attList:
             # setValidValueByAttListElement() 함수의 return 값이 False 일 때 어떻게 할지.. 일단 PASS
+            # 여기 아랫줄 함수에서 각 idx 별로 0/1 값 기입됨
             if not self.setValidValueByAttListElement(AttElem[ATT_NAME_INDEX], AttElem[ATT_TEXT_INDEX]):
                 pass
 

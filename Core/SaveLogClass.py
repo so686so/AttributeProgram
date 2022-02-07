@@ -14,7 +14,7 @@ import  os
 
 # INSTALLED PACKAGE IMPORT
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-import pandas as pd
+import pandas       as pd
 
 
 # Refer to CoreDefine.py

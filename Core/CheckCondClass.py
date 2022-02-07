@@ -1,28 +1,6 @@
 """
 Class code to register condition and batch process
 
-Classes :
-    CheckCondition :
-        INFO :
-            정해진 인자값을 넘겨주면, Condition Check 함수를 등록하고, 일괄적으로 처리하는 클래스
-            addCondition() 을 이용해 추가적인 ConditionCheck 를 등록하고,
-            checkCondAllParam() 를 이용해 일괄적으로 ConditionCheck 한다.
-            또한 등록된 Condition Fail 발생 횟수들을 자체적으로 개별 Count 한다.
-
-        METHODS :
-            - addConditionList(AddConditionStructList)
-            - addCondition(AddConditionStruct)              # !
-            - getCondNameList() / getCondFuncList()
-            - resetCurFailCheckByCondName(CondName)
-            - resetCurFailCheckAll()
-            - getCondFailCountDict()
-            - checkCondAllParam()                           # !
-            - showCurFailLog() / showTotalFailLog()
-
-        NOTE :
-            Condition Args Format :
-                [ ConditionName(str), ConditionFunction(func), ConditionGetArgsFunction(func) ]
-
 LAST_UPDATE : 2022/02/07
 AUTHOR      : SHY
 """

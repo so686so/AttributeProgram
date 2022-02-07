@@ -513,6 +513,7 @@ def CheckExistFile(FileName):
         ErrorLog(f'{FileName} is Not Exist File! Program Quit.')
         sys.exit(-1)
 
+
 def CheckExistDir(DirName):
     if os.path.isdir(DirName) is False:
         ErrorLog(f'{DirName} is Not Exist Directory! Program Quit.')
@@ -531,6 +532,7 @@ def setResultDir(resDirPath):
     if os.path.isdir(resDirPath) is False:
         os.makedirs(resDirPath, exist_ok=True)
         NoticeLog(f'{resDirPath} is Not Exists, Create Done')
+
 
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 def writeListToFile(filePath, wList, encodingFormat=CORE_ENCODING_FORMAT):

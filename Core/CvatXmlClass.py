@@ -35,20 +35,20 @@ AUTHOR      : SHY
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 import  sys
 import  os
-import  xml.etree.ElementTree as ET
-from    abc    import *                    # 추상 클래스를 만들기 위한 모듈
+import  xml.etree.ElementTree   as ET
+from    abc                     import *    # 추상 클래스를 만들기 위한 모듈
 
 
 # Refer to CoreDefine.py
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-from CoreDefine import *
+from CoreDefine                 import *
 
 
 # IMPORT CORE
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-from Core.CommonUse         import *
-from Core.CheckCondClass    import CheckCondition
-from Core.SaveLogClass      import SaveErrorLog
+from Core.CommonUse             import *
+from Core.CheckCondClass        import CheckCondition
+from Core.SaveLogClass          import SaveErrorLog
 
 
 # CONST DEFINE
@@ -81,29 +81,6 @@ class CvatXml(metaclass=ABCMeta):
             RunFunctionName     : setRunFunctionName() 을 통해 설정한 가상함수의 이름값 (type : str)
             CurBoxListByImage   : setCurBoxList() 를 통해 set 한 현재 이미지의 box 값들 (type : list)
             CurImageName        : setCurImgName() 를 통해 set 한 현재 이미지의 이름 (type : str)
-
-        Methods :
-            - extract_cvatXmlList()
-            - setRunFunctionName(funcName)
-            - getRunFunctionName()
-            - setInitCheckCondList()
-            - setCurBoxList(boxList)
-            - getCurBoxList()
-            - setCurImgName(imgName)
-            - getCurImgName()
-            - runEachXmlFile(eachXmlFile)
-            - run()
-            - FinishLog(Params)
-        
-        CheckCondition Methods :
-            - CheckMissingImg(imageName)
-            - CheckLabelCount(labelCount)
-            - CheckLabelNested(labelSetLen)
-            - CheckMoreBag(boxValue)
-            - getArgs_CheckMissingImg()
-            - getArgs_CheckLabelCount()
-            - getArgs_CheckLabelNested()
-            - getArgs_CheckMoreBag()
 
         Abstract Method :
             가상 함수 목록
