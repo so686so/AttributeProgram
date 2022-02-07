@@ -29,7 +29,7 @@ When to use the program
 
 * 프로그램 기능:
     1. CVAT XML 파일을 기반으로 원본 이미지를 COMMON / HEAD / UPPER / LOWER 로 Slice
-    2. CVAT XML 파일을 기반으로 83 / 66 / 39 MakeClass 한 Annotation Text / ImageList 파일 생성
+    2. CVAT XML 파일을 기반으로 83 / Zipped MakeClass 한 Annotation Text / ImageList 파일 생성
 
 * 각 기능의 자세한 설명은 해당 RunFunction. 파일을 참조하세요.
 
@@ -68,7 +68,6 @@ CAUTION & Information
     Linux 에서 실행했는데 실패했다면 저는 몰라용
 
 -   코드의 재사용성 및 범용성을 위해, 클래스화 및 추상클래스, 콜백함수 등을 사용했습니다.
-    뭔가 코드가 복잡하고 어려워 보인다면 가끔 저도 그렇습니다. 범용성 살리기 넘모 어려워요..
 
 
 MAIL
