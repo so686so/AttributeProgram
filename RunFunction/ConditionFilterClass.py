@@ -151,6 +151,7 @@ class FilterCondition(Singleton):
 
         if getZipClassNum() != self.ClassNum:
             error_handling(f'Class Mismatched! : Set Class [ {CGREEN}{getZipClassNum()}{CRESET} ] != File Class [ {CRED}{self.ClassNum}{CRESET} ]\n', filename(), lineNum())
+            self.selectUi.showErrorMsgBox('Class Mismatch', f'Set Class [{getZipClassNum()}] != File Class [{self.ClassNum}]')
             sys.exit(-1)
 
 

@@ -101,7 +101,8 @@ class SelectUI(QMainWindow):
         self.transFilterMsg     = ""
         self.loadRememberDir()
 
-
+        self.setStatusBar()
+        
         # 'Done' 버튼 눌렀을 때, 마무리 처리하는 함수 연결
         self.ui.quitButton.clicked.connect(self.selectDone)
 
@@ -111,6 +112,24 @@ class SelectUI(QMainWindow):
         self.settingBytInitSettingList()
 
         self.settingFinish()
+
+
+    def setStatusBar(self):
+        self.statusLabel = QLabel(f'Set Calss : {getZipClassNum()}')
+        self.authorLabel = QLabel(f' Ver. {VERSION} ( Create by {AUTHOR} ) ')
+
+        self.statusBar().addWidget(self.authorLabel)
+        self.statusBar().addPermanentWidget(self.statusLabel)
+
+        LabelFont = self.statusLabel.font()
+        LabelFont.setBold(True)
+
+        self.authorLabel.setFont(LabelFont)
+        self.statusLabel.setFont(LabelFont)
+
+
+    def showErrorMsgBox(self, Title:str, Msg:str):
+        QMessageBox.critical(self, f'{Title}', f'{Msg}')
 
 
     def selectDone(self):
