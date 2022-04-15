@@ -60,20 +60,20 @@ import re
 """
 CrushedImgFileName          = 'CrushImg.txt'
 
-OriginSource_cvatXml_Path   = r"D:\PyCharm\Summer_1_32_xml"
-OriginSource_Img_Path       = r"D:\PyCharm\Summer_1_32_img"
+OriginSource_cvatXml_Path   = r"E:\hyena\3_dataset\seongnamfalse\2021\1112\seongnamfalse1112\att_seongnamfalse1112_500_xml"
+OriginSource_Img_Path       = r"E:\hyena\3_dataset\seongnamfalse\2021\1112\seongnamfalse1112\att_seongnamfalse1112_500_img"
 
 OriginSource_AnntationPath  = r"D:\PyCharm\Res_0207\Annotation_39_Class.txt"
 OriginSource_ImageListPath  = r"D:\PyCharm\Res_0207\39_Class_ImgList.txt"
 
 OriginSource_AnalysisPath   = r"C:\PythonHN\Data\Res1107\ImageSize_Analysis_Source.txt"
 
-Result_Dir_Path             = r"D:\PyCharm\Res_0207"
+Result_Dir_Path             = r"E:\hyena\3_dataset\seongnamfalse\2021\1112\seongnamfalse1112\make_class_test\test\24"
 
 Abbreviated_Img_Path        = r"C:\PythonHN\Data\ABB TEST\condition_common_img"   # 축약시킨 이미지 들어있는 폴더
 RealExistCheck_Path         = r""
 
-Pre_Search_Remember_Path    = r"D:/PyCharm/Res_0207"
+Pre_Search_Remember_Path    = r"E:/hyena/3_dataset/seongnamfalse/2021/1112/seongnamfalse1112/make_class_test/test"
 
 
 # OTHER DEFINES
