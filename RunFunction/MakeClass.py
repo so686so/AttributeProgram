@@ -24,6 +24,7 @@ import sys
 
 # IMPORT INSTALLED
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+import pandas                   as pd
 import numpy                    as np
 
 
@@ -79,6 +80,9 @@ IMAGE_LIST_ZIP_TXT   = f"{ZIPPED_CLASS_NUM}_Class_ImgList.txt"
 
 CHECK_EXTRACT_TXT   = "SizeFilterList.txt"
 SIZE_ANALYSIS_TXT   = "ImageSize_Analysis_Source.txt"
+
+# modify
+MAKECLASS_RES_EXCEL_NAME = f"{ZIPPED_CLASS_NUM}_MakeClass.xlsx"
 
 
 # DEFINE
@@ -184,17 +188,24 @@ class MakeClassSource(Singleton, CvatXml):
 
         # UI 연동용 인자 리스트
         self.sendArgsList                   = []
+        
+        # modify
+        self.ClassNum                       = 0
+        self.classNameList                  = []
+        self.TotalObjectSumList             = []
 
         self.setClassifyClass()
         self.initializeMC()
 
 
+    # modify
     def setClassifyClass(self):
-        global ZIPPED_CLASS_NUM, ANNOTATION_ZIP_TXT, IMAGE_LIST_ZIP_TXT, BEFORE_ZIPPED_NUM
-        ZIPPED_CLASS_NUM    = getZipClassNum()
-        ANNOTATION_ZIP_TXT  = ANNOTATION_ZIP_TXT.replace(str(BEFORE_ZIPPED_NUM), str(ZIPPED_CLASS_NUM))
-        IMAGE_LIST_ZIP_TXT  = IMAGE_LIST_ZIP_TXT.replace(str(BEFORE_ZIPPED_NUM), str(ZIPPED_CLASS_NUM))
-        BEFORE_ZIPPED_NUM   = ZIPPED_CLASS_NUM
+        global ZIPPED_CLASS_NUM, ANNOTATION_ZIP_TXT, IMAGE_LIST_ZIP_TXT, MAKECLASS_RES_EXCEL_NAME, BEFORE_ZIPPED_NUM
+        ZIPPED_CLASS_NUM         = getZipClassNum()
+        ANNOTATION_ZIP_TXT       = ANNOTATION_ZIP_TXT.replace(str(BEFORE_ZIPPED_NUM), str(ZIPPED_CLASS_NUM))
+        IMAGE_LIST_ZIP_TXT       = IMAGE_LIST_ZIP_TXT.replace(str(BEFORE_ZIPPED_NUM), str(ZIPPED_CLASS_NUM))
+        MAKECLASS_RES_EXCEL_NAME = MAKECLASS_RES_EXCEL_NAME.replace(str(BEFORE_ZIPPED_NUM), str(ZIPPED_CLASS_NUM))
+        BEFORE_ZIPPED_NUM        = ZIPPED_CLASS_NUM
 
 
     def initializeMC(self):
@@ -218,7 +229,7 @@ class MakeClassSource(Singleton, CvatXml):
             return
 
         self.ClassData = ExcelData()
-
+        
         # UI 를 통해 경로 설정이 완료되면, CvatXmlClass 본격 init 실행
         self.initCvatXmlClass()
 
@@ -666,6 +677,7 @@ class MakeClassSource(Singleton, CvatXml):
         isUnknownDelete_Zip = False
 
         imgName             = self.CurImgName
+        
 
         # True 값 해둔 Case 만 실행
         # Annotation Text 값을 만들고 이때 사용한 이미지와 매칭시켜, 각각의 리스트에 저장
@@ -680,9 +692,25 @@ class MakeClassSource(Singleton, CvatXml):
                 makeZipClass_Res = self.listToString(makeZipClass_PreRes)
                 self.Result_Zip_ClassList.append(makeZipClass_Res)
                 self.ResultDeleteUnknown_Zip_List.append(imgName)
+                
+                # modify
+                self.ClassNum      = len(self.Result_Zip_ClassList[0])
+                self.classNameList = self.ClassData.getClassNameListByClassNum(self.ClassNum)
+                
+                self.TotalObjectSumList = [ 0 for _ in range(self.ClassNum) ]
+                # NoticeLog(f'Total Annotation Count - {len(self.Result_Zip_ClassList)}')
+                
+                for idx, each in enumerate(self.Result_Zip_ClassList):
+                    try:
+                        for i in range(self.ClassNum):
+                            self.TotalObjectSumList[i] += int(each[i])
+                    except Exception as e:
+                        error_handling(f"{idx} Line Error - Contents : {each}", filename(), lineNum())
+                        sys.exit(-1)
+                        
             else:
                 self.Deleted_Zip_Count += 1
-
+                           
         # Default Annotation 값 자체가 83 클래스니까, 그대로 전부 다 img append 해도 됨
         # 83 클래스 만드는 데 실패할 애들은 진작에 다 걸러졌음
         self.Result_Origin_ImageNameList.append(imgName)
@@ -693,6 +721,8 @@ class MakeClassSource(Singleton, CvatXml):
                     self.imgSizeValueList.append(self.CurImgSizeList)
             else:
                 self.imgSizeValueList.append(self.CurImgSizeList)
+                
+        return True
 
         
     def analysisImageSize(self):
@@ -846,7 +876,22 @@ class MakeClassSource(Singleton, CvatXml):
             ---------------------------------------------------------------------
         """
         return super().setAfterRunFunctionParam()
+     
+     
+    # modify
+    def saveResultByExcel(self):
+        classNameList   = self.classNameList        
+        
+        raw_data =  {   'ClassName':classNameList,
+                        'TotalSum':self.TotalObjectSumList
+                    }
+        
+        raw_data = pd.DataFrame(raw_data)
+        savePath = os.path.join(ResultDirPath, MAKECLASS_RES_EXCEL_NAME)
+        raw_data.to_excel(excel_writer=savePath)
 
+        SuccessLog(f'MakeClass Summary Log Save to Excel File >> {savePath}')
+        
 
     def run(self):
         """
@@ -857,8 +902,12 @@ class MakeClassSource(Singleton, CvatXml):
             NoticeLog(f'{self.__class__.__name__} Program EXIT\n')
         else:
             super().run()
+            
+            # modify
+            self.saveResultByExcel()
+            
             os.startfile(ResultDirPath)
-
+            
 
 if __name__ == "__main__":
     App         = QApplication(sys.argv)
