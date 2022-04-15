@@ -1,8 +1,8 @@
 # Program Info
 # -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 TITLE   = 'Attribute Program'
-DATE    = '2022-02-07'
-VERSION = '1.1.1'
+DATE    = '2022-04-15'
+VERSION = '1.1.2'
 IDE     = 'Visual Studio Code 1.64.0'
 OS      = 'Windows 10'
 AUTHOR  = 'SHY'
